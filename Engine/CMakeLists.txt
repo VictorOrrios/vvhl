@@ -13,16 +13,16 @@ set_project_options(Engine)
 
 target_precompile_headers(Engine
     PRIVATE
-        include/Core/pch.hpp
+        include/vvhl/Core/Pch.hpp
 )
 
 target_include_directories(Engine
 PUBLIC
-    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/ThirdParty/renderdoc
     ${PROJECT_SOURCE_DIR}/ThirdParty/spirv-reflect
 PRIVATE
-    src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(Engine
