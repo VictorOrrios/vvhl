@@ -19,6 +19,8 @@ target_precompile_headers(Engine
 target_include_directories(Engine
 PUBLIC
     include
+    ${PROJECT_SOURCE_DIR}/ThirdParty/renderdoc
+    ${PROJECT_SOURCE_DIR}/ThirdParty/spirv-reflect
 PRIVATE
     src
 )
@@ -26,16 +28,15 @@ PRIVATE
 target_link_libraries(Engine
 PUBLIC
     glfw
-    ${PROJECT_SOURCE_DIR}/ThirdParty/glm
+    glm::glm
     fmt
     volk
-    shaderc
-    spirv-reflect
+    
     spdlog
 
     imgui
     imguizmo
     
-    tracy
-    ${PROJECT_SOURCE_DIR}/ThirdParty/renderdoc
+    Tracy::TracyClient
+    
 )
