@@ -26,7 +26,16 @@ PRIVATE
 target_link_libraries(Engine
 PUBLIC
     glfw
-    glm
+    ${PROJECT_SOURCE_DIR}/ThirdParty/glm
     fmt
+    volk
+    shaderc
+    spirv-reflect
     spdlog
+
+    imgui
+    imguizmo
+    
+    tracy
+    ${PROJECT_SOURCE_DIR}/ThirdParty/renderdoc
 )
