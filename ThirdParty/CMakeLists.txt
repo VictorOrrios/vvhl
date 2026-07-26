@@ -1,7 +1,4 @@
-
-set(SHADERC_SKIP_TESTS ON CACHE BOOL "" FORCE)
-set(SHADERC_SKIP_EXAMPLES ON CACHE BOOL "" FORCE)
-
+find_package(Vulkan REQUIRED)
 
 add_subdirectory(fmt)
 add_subdirectory(glfw)
@@ -10,4 +7,5 @@ add_subdirectory(volk)
 add_subdirectory(spdlog)
 add_subdirectory(tracy)
 add_subdirectory(imguizmo)
-add_subdirectory(imgui)
+
+include(cmake/imgui.cmake)

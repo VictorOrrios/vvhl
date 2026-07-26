@@ -8,6 +8,12 @@
 
 ## Configure
 
+If it's the first setup clone the submodules:
+
+```bash
+git submodule update --init --recursive
+```
+
 Generate the build system:
 
 ```bash
