@@ -16,5 +16,5 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // Vulkan
-// #include <volk.h>
+#include <volk.h>
 #include <vulkan/vulkan.hpp>

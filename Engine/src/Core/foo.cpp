@@ -1,8 +1,17 @@
-#include <vvhl/Core/Config.hpp>
-#include <vvhl/Core/foo.hpp>
-#include <iostream>
-using namespace std;
+#include "vvhl/Core/Logger.hpp"
+#include <vvhl/vvhl.hpp>
+
 
 void bar(){
-    cout<<" Engine function! MaxFramesInFlight:"<<Config::MaxFramesInFlight<<endl;
+    
+    Logger log;
+    log.Init();
+
+    fmt::println("Hello! {}",Config::MaxFramesInFlight);
+
+    LOGD("Debug msgs")
+    LOGI("Info msgs")
+    LOGW("Warn msgs")
+    LOGE("Error msgs")
+    LOGC("Critical msgs")
 }
