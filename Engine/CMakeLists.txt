@@ -1,12 +1,18 @@
 include(${PROJECT_SOURCE_DIR}/cmake/CompilerWarnings.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/CompilerOptions.cmake)
 
+file(GLOB_RECURSE ENGINE_HEADERS CONFIGURE_DEPENDS
+    include/*.hpp
+)
 
 file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
     src/*.cpp
 )
 
-add_library(Engine STATIC ${ENGINE_SOURCES})
+add_library(Engine STATIC
+    ${ENGINE_HEADERS}
+    ${ENGINE_SOURCES}
+)
 
 set_project_warnings(Engine)
 set_project_options(Engine)

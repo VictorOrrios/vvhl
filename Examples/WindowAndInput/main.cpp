@@ -1,4 +1,6 @@
-// Triangle example for vvhl
+// Window and input example
+
+// TODO: Change OpenGL GLFW usage when Vulkan basics are done (Application)
 
 #include <../../Engine/src/Core/GLFWContext/GLFWContext.hpp>
 #include <vvhl/vvhl.hpp>
