@@ -161,12 +161,12 @@ uint32_t Window::getWidth() const{ return getFramebufferSize().width;};
 uint32_t Window::getHeight() const{ return getFramebufferSize().height;};
 
 GLFWwindow* Window::getNativeHandle() const{ return m_glfwHandle; }
-std::pair<int, int> Window::getPosition() const
+glm::ivec2 Window::getPosition() const
 {
     int x, y;
     glfwGetWindowPos(m_glfwHandle, &x, &y);
 
-    return { x, y };
+    return glm::ivec2(x,y);
 }
 
 void Window::maximize(){ glfwMaximizeWindow(m_glfwHandle); }

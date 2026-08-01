@@ -33,7 +33,7 @@ public:
     uint32_t getHeight() const;
     VkExtent2D getFramebufferSize() const;
 
-    std::pair<int,int> getPosition() const;
+    glm::ivec2 getPosition() const;
 
     GLFWwindow* getNativeHandle() const;
 
