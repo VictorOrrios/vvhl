@@ -6,20 +6,24 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <random>
+#include <set>
 #include <span>
 #include <string>
+#include <typeindex>
 #include <unordered_map>
 #include <vector>
-#include <random>
-#include <typeindex>
 
 // GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Vulkan
+// VULKAN
 #include <volk.h>
-#include <vulkan/vulkan.hpp>
+// NOTE: Volk already loads vulkan.h, do not include
+
+// VMA
+#include <vma/vk_mem_alloc.h>
 
 // GLTF
 #define GLFW_INCLUDE_NONE
@@ -27,23 +31,23 @@
 
 // FMT
 #include <fmt/base.h>
-#include <fmt/ranges.h>
-#include <fmt/os.h>
 #include <fmt/color.h>
+#include <fmt/os.h>
+#include <fmt/ranges.h>
 
 // CORE
-#include <vvhl/Core/Logger.hpp>
-#include <vvhl/Core/Config.hpp>
 #include <vvhl/Core/Assert.hpp>
+#include <vvhl/Core/Config.hpp>
+#include <vvhl/Core/Logger.hpp>
 #include <vvhl/Core/UUID.hpp>
 
 #include <vvhl/Core/App.hpp>
 
-#include <vvhl/Core/Window.hpp>
 #include <vvhl/Core/Input.hpp>
+#include <vvhl/Core/Window.hpp>
 
 #include <vvhl/Events/Event.hpp>
 #include <vvhl/Events/EventDispatcher.hpp>
-#include <vvhl/Events/WindowEvents.hpp>
 #include <vvhl/Events/KeyboardEvents.hpp>
 #include <vvhl/Events/MouseEvents.hpp>
+#include <vvhl/Events/WindowEvents.hpp>

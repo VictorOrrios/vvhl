@@ -6,7 +6,14 @@ namespace vvhl
 {
 
     bool VulkanContext::initialize(const Window& window){
+        if (volkInitialize() != VK_SUCCESS){
+            LOGE("Failed to initialize Volk");
+            return false;
+        }
+
         if (!createInstance()) return false;
+
+        volkLoadInstance(m_instance);
 
         if(!createDebugMessenger()) return false;
 
@@ -111,22 +118,11 @@ namespace vvhl
 
             createInfo.pfnUserCallback = debugCallback;
 
-            auto func =
-                reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
-                    vkGetInstanceProcAddr(
-                        m_instance,
-                        "vkCreateDebugUtilsMessengerEXT"));
-
-            if (!func){
-                LOGE("Failed to load vkCreateDebugUtilsMessengerEXT.");
-                return false;
-            }
-
-            if (func(
-                    m_instance,
-                    &createInfo,
-                    nullptr,
-                    &m_debugMessenger) != VK_SUCCESS)
+            if (vkCreateDebugUtilsMessengerEXT(
+                m_instance,
+                &createInfo,
+                nullptr,
+                &m_debugMessenger) != VK_SUCCESS)
             {
                 LOGE("Failed to create debug messenger.");
                 return false;
@@ -136,28 +132,13 @@ namespace vvhl
         return true;
     }
 
-    bool VulkanContext::destroyDebugMessenger(){
-        #ifdef BUILD_DEBUG
-            {
-                auto func =
-                    reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
-                        vkGetInstanceProcAddr(
-                            m_instance,
-                            "vkDestroyDebugUtilsMessengerEXT"));
-
-                if (!func){
-                    LOGE("Failed to load vkDestroyDebugUtilsMessengerEXT.");
-                    return false;
-                }else{
-                    func(
-                        m_instance,
-                        m_debugMessenger,
-                        nullptr);
-                }
-            }
-        #endif
-        
-        return true;
+    void VulkanContext::destroyDebugMessenger(){
+        if (m_debugMessenger != VK_NULL_HANDLE){
+            vkDestroyDebugUtilsMessengerEXT(
+                m_instance,
+                m_debugMessenger,
+                nullptr);
+        }
     }
 
 
@@ -180,8 +161,9 @@ namespace vvhl
         return VK_FALSE;
     }
 
-    void VulkanContext::destroy()
-    {
+    void VulkanContext::destroy(){
+        m_device->waitIdle();
+        
         if (m_swapchain)
             m_swapchain.reset();
 
@@ -191,7 +173,9 @@ namespace vvhl
         if (m_surface != VK_NULL_HANDLE)
             vkDestroySurfaceKHR(m_instance,m_surface,nullptr);
         
+        #ifdef BUILD_DEBUG
         destroyDebugMessenger();
+        #endif
 
         if (m_instance != VK_NULL_HANDLE)
             vkDestroyInstance(m_instance, nullptr);

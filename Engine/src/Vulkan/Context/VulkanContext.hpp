@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vvhl/vvhl.hpp>
-#include "Device.hpp"
-#include "Swapchain.hpp"
+#include "./Device.hpp"
+#include "./Swapchain.hpp"
 
 namespace vvhl
 {
@@ -36,7 +36,7 @@ private:
 
 #ifdef BUILD_DEBUG
     bool createDebugMessenger();
-    bool destroyDebugMessenger();
+    void destroyDebugMessenger();
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
