@@ -37,7 +37,8 @@
 
 // CORE
 #include <vvhl/Core/Assert.hpp>
-#include <vvhl/Core/Config.hpp>
+#include <vvhl/Core/BuildConfig.hpp>
+#include <vvhl/Core/EngineConfig.hpp>
 #include <vvhl/Core/Logger.hpp>
 #include <vvhl/Core/UUID.hpp>
 

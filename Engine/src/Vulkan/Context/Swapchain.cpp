@@ -1,5 +1,6 @@
 
 #include "Swapchain.hpp"
+#include "vvhl/Core/EngineConfig.hpp"
 #include <vulkan/vulkan_core.h>
 
 namespace vvhl {
@@ -109,11 +110,12 @@ bool Swapchain::createSwapchain(uint32_t width, uint32_t height){
 VkSurfaceFormatKHR Swapchain::chooseSurfaceFormat() const{
     const auto& formats = m_swapchainSupport.formats;
 
-    // TODO: Read fro config file
-    // Prefer non linear sRGB with 32 bit BGRA
+    VkFormat        preferredFormat     = EngineSettings::get().swapchain.preferredFormat;
+    VkColorSpaceKHR preferredColorSpace = EngineSettings::get().swapchain.preferredColorSpace;
+    
     for (const auto& format : formats){
-        if (format.format == VK_FORMAT_B8G8R8A8_SRGB &&
-            format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        if (format.format == preferredFormat &&
+            format.colorSpace == preferredColorSpace)
             return format;
     }
 
@@ -123,13 +125,13 @@ VkSurfaceFormatKHR Swapchain::chooseSurfaceFormat() const{
 VkPresentModeKHR Swapchain::choosePresentMode() const{
     const auto& presentModes = m_swapchainSupport.presentModes;
 
-    // TODO: Read fro config file
     // FIFO        -> Allways aviable (VSync)
     // MAILBOX     -> Triple buffering, low lag
     // IMMEDIATE   -> Tearing, least lag
+    VkPresentModeKHR preferred = EngineSettings::get().swapchain.preferredPresentMode;
 
     for (VkPresentModeKHR mode : presentModes){
-        if (mode == VK_PRESENT_MODE_FIFO_KHR)
+        if (mode == preferred)
             return mode;
     }
 

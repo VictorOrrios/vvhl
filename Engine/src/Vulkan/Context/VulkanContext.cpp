@@ -1,6 +1,8 @@
 
 #include "VulkanContext.hpp"
 #include "Core/GLFWContext/GLFWContext.hpp"
+#include "vvhl/Core/BuildConfig.hpp"
+#include "vvhl/Core/EngineConfig.hpp"
 
 namespace vvhl
 {
@@ -29,10 +31,11 @@ namespace vvhl
     }
 
     bool VulkanContext::createInstance(){
+        const auto config = EngineSettings::get();
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "VVHL Application"; // TODO: Use user defined name here
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.pApplicationName = config.application.name.c_str(); // TODO: Use user defined name here
+        appInfo.applicationVersion = config.application.version;
         appInfo.pEngineName = "VVHL";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_4;
@@ -52,15 +55,16 @@ namespace vvhl
         createInfo.ppEnabledExtensionNames = 
             extensions.data();
 
-        #ifdef BUILD_DEBUG
+        if(BuildConfig::EnableValidationLayers){
             createInfo.enabledLayerCount =
                 static_cast<uint32_t>(ValidationLayers.size());
 
             createInfo.ppEnabledLayerNames =
                 ValidationLayers.data();
-        #else
+        }else{
             createInfo.enabledLayerCount = 0;
-        #endif
+        }
+
 
         if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS) {
             LOGE("Failed to create instance");
@@ -71,11 +75,17 @@ namespace vvhl
     }
 
     std::vector<const char*> VulkanContext::getRequiredExtensions(){
-        std::vector<const char*> extensions = GLFWContext::getRequiredExtensions();
 
-        #ifdef BUILD_DEBUG
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        #endif
+        std::vector<const char*> extensions;
+
+        std::vector<const char*> userExtensions = EngineSettings::get().instance.extensions;
+        std::vector<const char*> glfwExtensions = GLFWContext::getRequiredExtensions();
+
+        extensions.insert(extensions.end(), userExtensions.begin(), userExtensions.end());
+        extensions.insert(extensions.end(), glfwExtensions.begin(), glfwExtensions.end());
+
+        if(BuildConfig::EnableValidationLayers)
+            extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
         return extensions;
     }
@@ -102,32 +112,33 @@ namespace vvhl
     }
 
     bool VulkanContext::createDebugMessenger(){
-        #ifdef BUILD_DEBUG
-            VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-            createInfo.sType =
-                VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        if(!BuildConfig::EnableValidationLayers)
+            return true;
 
-            createInfo.messageSeverity =
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        VkDebugUtilsMessengerCreateInfoEXT createInfo{};
+        createInfo.sType =
+            VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 
-            createInfo.messageType =
-                VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        createInfo.messageSeverity =
+            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 
-            createInfo.pfnUserCallback = debugCallback;
+        createInfo.messageType =
+            VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
-            if (vkCreateDebugUtilsMessengerEXT(
-                m_instance,
-                &createInfo,
-                nullptr,
-                &m_debugMessenger) != VK_SUCCESS)
-            {
-                LOGE("Failed to create debug messenger.");
-                return false;
-            }
-        #endif
+        createInfo.pfnUserCallback = debugCallback;
+
+        if (vkCreateDebugUtilsMessengerEXT(
+            m_instance,
+            &createInfo,
+            nullptr,
+            &m_debugMessenger) != VK_SUCCESS)
+        {
+            LOGE("Failed to create debug messenger.");
+            return false;
+        }
 
         return true;
     }
@@ -173,9 +184,7 @@ namespace vvhl
         if (m_surface != VK_NULL_HANDLE)
             vkDestroySurfaceKHR(m_instance,m_surface,nullptr);
         
-        #ifdef BUILD_DEBUG
         destroyDebugMessenger();
-        #endif
 
         if (m_instance != VK_NULL_HANDLE)
             vkDestroyInstance(m_instance, nullptr);

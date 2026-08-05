@@ -1,21 +1,7 @@
 #pragma once
 
-#include <cstdint>
-
-namespace Config
+namespace BuildConfig
 {
-    //--------------------------------------------------------------------------
-    // Engine Configuration
-    //--------------------------------------------------------------------------
-
-    constexpr uint32_t MaxFramesInFlight = 2;
-
-    constexpr bool EnableImGui    = true;
-    constexpr bool EnableProfiler = true;
-
-    //--------------------------------------------------------------------------
-    // Build Configuration
-    //--------------------------------------------------------------------------
 
 #ifdef BUILD_DEBUG
 

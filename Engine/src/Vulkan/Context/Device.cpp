@@ -1,5 +1,6 @@
 
 #include "./Device.hpp"
+#include "vvhl/Core/EngineConfig.hpp"
 
 namespace vvhl
 {
@@ -194,7 +195,10 @@ namespace vvhl
             &extensionCount,
             availableExtensions.data());
 
-        for (const char* required : DeviceExtensions){
+        std::vector<const char*> reqExt = EngineSettings::get().device.requiredExtensions;
+        reqExt.insert(reqExt.end(),DeviceExtensions.begin(),DeviceExtensions.end());
+
+        for (const char* required : reqExt){
             bool found = false;
 
             for (const auto& available : availableExtensions){
@@ -288,10 +292,7 @@ namespace vvhl
             queueCreateInfos.push_back(queueCreateInfo);
         }
 
-        VkPhysicalDeviceFeatures enabledFeatures{};
-        //deviceFeatures.samplerAnisotropy  = VK_TRUE;
-        //deviceFeatures.geometryShader     = VK_TRUE;
-        // TODO: Modular config for required device features
+        VkPhysicalDeviceFeatures enabledFeatures = EngineSettings::get().device.requiredFeatures;
 
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -302,12 +303,12 @@ namespace vvhl
         createInfo.enabledExtensionCount    = static_cast<uint32_t>(DeviceExtensions.size());
         createInfo.ppEnabledExtensionNames  = DeviceExtensions.data();
 
-        #ifdef BUILD_DEBUG
-        createInfo.enabledLayerCount        = static_cast<uint32_t>(ValidationLayers.size());
-        createInfo.ppEnabledLayerNames      = ValidationLayers.data();
-        #else
-        createInfo.enabledLayerCount = 0;
-        #endif
+        if(BuildConfig::EnableValidationLayers){
+            createInfo.enabledLayerCount        = static_cast<uint32_t>(ValidationLayers.size());
+            createInfo.ppEnabledLayerNames      = ValidationLayers.data();
+        }else{
+            createInfo.enabledLayerCount = 0;
+        }
 
         if (vkCreateDevice(
             m_physicalDevice,

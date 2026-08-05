@@ -96,11 +96,9 @@ private:
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-#ifdef BUILD_DEBUG
     inline static constexpr std::array ValidationLayers{
         "VK_LAYER_KHRONOS_validation"
     };
-#endif
 
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
     VkDevice         m_device = VK_NULL_HANDLE;

@@ -34,7 +34,6 @@ private:
     std::vector<const char*> getRequiredExtensions();
     bool checkExtensionCompatibility(const std::vector<const char*>& requested);
 
-#ifdef BUILD_DEBUG
     bool createDebugMessenger();
     void destroyDebugMessenger();
 
@@ -43,19 +42,16 @@ private:
         VkDebugUtilsMessageTypeFlagsEXT messageType,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
         void* pUserData);
-#endif
 
 
 private:
     VkInstance m_instance = VK_NULL_HANDLE;
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;
 
-#ifdef BUILD_DEBUG
     inline static constexpr std::array ValidationLayers{
         "VK_LAYER_KHRONOS_validation"
     };
     VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
-#endif
 
     std::unique_ptr<Device> m_device;
     std::unique_ptr<Swapchain> m_swapchain;
