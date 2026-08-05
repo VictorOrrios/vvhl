@@ -23,7 +23,7 @@ namespace vvhl
         if (!m_device->initialize(m_instance, m_surface)) return false;
 
         m_swapchain = std::make_unique<Swapchain>();
-        if (!m_swapchain->initialize()) return false;
+        if (!m_swapchain->initialize(*m_device, m_surface, window.getWidth(), window.getHeight())) return false;
 
         return true;
     }

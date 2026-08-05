@@ -62,7 +62,6 @@ namespace vvhl
             &m_memoryProperties);
 
         m_queueFamilies = findQueueFamilies(m_physicalDevice,surface);
-        m_swapchainSupport = querySwapchainSupport(m_physicalDevice,surface);
 
         LOGI("Selected GPU: {}", m_properties.deviceName);
         return true;
@@ -209,6 +208,10 @@ namespace vvhl
         }
 
         return true;
+    }
+
+    Device::SwapchainSupport Device::querySwapchainSupport(VkSurfaceKHR surface) const{
+        return querySwapchainSupport(m_physicalDevice,surface);
     }
 
     Device::SwapchainSupport Device::querySwapchainSupport(

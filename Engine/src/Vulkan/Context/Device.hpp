@@ -13,6 +13,17 @@ public:
     Device(const Device&) = delete;
     Device& operator=(const Device&) = delete;
 
+    struct SwapchainSupport{
+        VkSurfaceCapabilitiesKHR capabilities{};
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
+
+        bool isComplete() const{
+            return !formats.empty() &&
+                !presentModes.empty();
+        }
+    };
+
     bool initialize(const VkInstance& instance, const VkSurfaceKHR& surface);
     void destroy();
 
@@ -38,6 +49,7 @@ public:
     const VkPhysicalDeviceProperties& properties() const { return m_properties; }
     const VkPhysicalDeviceFeatures& features() const { return m_features; }
     const VkPhysicalDeviceMemoryProperties& memoryProperties() const { return m_memoryProperties; }
+    SwapchainSupport querySwapchainSupport(VkSurfaceKHR surface) const;
 
     // Memory
     VmaAllocator allocator() const { return m_allocator; }
@@ -52,17 +64,6 @@ private:
         bool isComplete() const{
             return graphics.has_value() &&
                 present.has_value();
-        }
-    };
-
-    struct SwapchainSupport{
-        VkSurfaceCapabilitiesKHR capabilities{};
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> presentModes;
-
-        bool isComplete() const{
-            return !formats.empty() &&
-                !presentModes.empty();
         }
     };
 
@@ -110,7 +111,6 @@ private:
     VkQueue m_presentQueue  = VK_NULL_HANDLE;
 
     QueueFamilyIndices m_queueFamilies;
-    SwapchainSupport m_swapchainSupport;
 
     VmaAllocator m_allocator = VK_NULL_HANDLE;
 
