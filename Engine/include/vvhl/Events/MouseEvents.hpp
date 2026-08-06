@@ -2,91 +2,67 @@
 
 #include <vvhl/Events/Event.hpp>
 
-namespace vvhl
-{
+namespace vvhl {
 
-class MouseEvent : public Event{
+class MouseEvent : public Event {
 public:
-    MouseEvent(double x, double y)
-        : X(x), Y(y)
-    {}
+  MouseEvent(double x, double y) : X(x), Y(y) {}
 
-    double X;
-    double Y;
+  double X;
+  double Y;
 };
 
 //------------------------------------------------------------
 
-class MouseMovedEvent final : public MouseEvent{
+class MouseMovedEvent final : public MouseEvent {
 public:
-    MouseMovedEvent(double x, double y)
-        : MouseEvent(x, y)
-    {}
+  MouseMovedEvent(double x, double y) : MouseEvent(x, y) {}
 };
 
 //------------------------------------------------------------
 
-class MouseEnteredEvent final : public Event{
+class MouseEnteredEvent final : public Event {
 public:
-    explicit MouseEnteredEvent(bool entered)
-        : Entered(entered)
-    {}
+  explicit MouseEnteredEvent(bool entered) : Entered(entered) {}
 
-    bool Entered;
+  bool Entered;
 };
 
 //------------------------------------------------------------
 
-class MouseScrolledEvent final : public Event{
+class MouseScrolledEvent final : public Event {
 public:
-    MouseScrolledEvent(double xOffset,
-                       double yOffset)
-        : XOffset(xOffset),
-          YOffset(yOffset)
-    {}
+  MouseScrolledEvent(double xOffset, double yOffset)
+      : XOffset(xOffset), YOffset(yOffset) {}
 
-    double XOffset;
-    double YOffset;
+  double XOffset;
+  double YOffset;
 };
 
 //------------------------------------------------------------
 
-class MouseButtonEvent: public MouseEvent{
+class MouseButtonEvent : public MouseEvent {
 public:
-    MouseButtonEvent(int button,
-                     double x,
-                     double y)
-        : MouseEvent(x, y),
-          Button(button)
-    {}
+  MouseButtonEvent(int button, double x, double y)
+      : MouseEvent(x, y), Button(button) {}
 
-    int Button;
+  int Button;
 };
 
 //------------------------------------------------------------
 
-class MouseButtonPressedEvent final
-    : public MouseButtonEvent
-{
+class MouseButtonPressedEvent final : public MouseButtonEvent {
 public:
-    MouseButtonPressedEvent(int button,
-                            double x,
-                            double y)
-        : MouseButtonEvent(button, x, y)
-    {}
+  MouseButtonPressedEvent(int button, double x, double y)
+      : MouseButtonEvent(button, x, y) {}
 };
 
 //------------------------------------------------------------
 
-class MouseButtonReleasedEvent final
-    : public MouseButtonEvent
-{
+class MouseButtonReleasedEvent final : public MouseButtonEvent {
 public:
-    MouseButtonReleasedEvent(int button,
-                             double x,
-                             double y)
-        : MouseButtonEvent(button, x, y)
-    {}
+  MouseButtonReleasedEvent(int button, double x, double y)
+      : MouseButtonEvent(button, x, y) {}
 };
 
 } // namespace vvhl
