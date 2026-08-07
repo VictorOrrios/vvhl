@@ -1,6 +1,6 @@
 
-#include "./Device.hpp"
-#include "vvhl/Core/EngineConfig.hpp"
+#include "Device.hpp"
+#include <vvhl/Core/EngineConfig.hpp>
 
 namespace vvhl {
 

@@ -1,0 +1,62 @@
+#pragma once
+
+#include <vvhl/vvhl.hpp>
+#include <Vulkan/Memory/Buffer.hpp>
+#include <Vulkan/Memory/Image.hpp>
+#include <Vulkan/Memory/Sampler.hpp>
+#include <Vulkan/Context/VulkanContext.hpp>
+
+namespace vvhl {
+
+using BufferHandle = Handle<Buffer>;
+using ImageHandle = Handle<Image>;
+using SamplerHandle = Handle<Sampler>;
+
+
+class ResourceManager{
+public:
+  ResourceManager() = default;
+  ~ResourceManager() { destroy(); };
+
+  ResourceManager(const ResourceManager &) = delete;
+  ResourceManager &operator=(const ResourceManager &) = delete;
+
+  bool initialize(VulkanContext &context);
+  void destroy();
+
+  BufferHandle createBuffer(const BufferDescription& desc);
+
+  ImageHandle createImage(const ImageDescription& desc);
+
+  SamplerHandle createSampler(const SamplerDescription& desc);
+
+  Buffer& buffer(BufferHandle handle);
+  const Buffer& buffer(BufferHandle handle) const;
+
+  Image& image(ImageHandle handle);
+  const Image& image(ImageHandle handle) const;
+
+  Sampler& sampler(SamplerHandle handle);
+  const Sampler& sampler(SamplerHandle handle) const;
+
+  bool valid(BufferHandle handle);
+
+  bool valid(ImageHandle handle);
+
+  bool valid(SamplerHandle handle);
+
+  void destroy(BufferHandle handle);
+
+  void destroy(ImageHandle handle);
+
+  void destroy(SamplerHandle handle);
+
+
+private:
+  VulkanContext* m_context;
+  SlotMap<Buffer> m_buffers;
+  SlotMap<Image> m_images;
+  SlotMap<Sampler> m_samplers;
+};
+
+} // namescace vvhl

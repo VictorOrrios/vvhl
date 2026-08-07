@@ -21,7 +21,8 @@ public:
   VkInstance instance() const { return m_instance; };
   VkSurfaceKHR surface() const { return m_surface; };
   VmaAllocator allocator() const { return m_device->allocator(); };
-  VkDevice device() const { return m_device->handle(); };
+  VkDevice deviceHandle() const { return m_device->handle(); };
+  Device& device() { return *m_device; }
 
   static std::vector<VkExtensionProperties> availableExtensions() {
     uint32_t extensionCount = 0;

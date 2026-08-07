@@ -50,7 +50,7 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
 
   viewInfo.subresourceRange.aspectMask = getAspectMask(desc.format);
 
-  result = vkCreateImageView(context.device(), &viewInfo, nullptr, &m_view);
+  result = vkCreateImageView(context.deviceHandle(), &viewInfo, nullptr, &m_view);
 
   if (result != VK_SUCCESS) {
     LOGE("Failed to create image view");
@@ -92,7 +92,7 @@ VkImageAspectFlags getAspectMask(VkFormat format) {
 
 void Image::destroy() {
   if (m_view != VK_NULL_HANDLE) {
-    vkDestroyImageView(m_context->device(), m_view, nullptr);
+    vkDestroyImageView(m_context->deviceHandle(), m_view, nullptr);
     m_view = VK_NULL_HANDLE;
   }
 

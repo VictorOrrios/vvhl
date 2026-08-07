@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./Handle.hpp"
+#include <cstddef>
 #include <vvhl/Core/Assert.hpp>
 
 namespace vvhl {
@@ -52,6 +53,15 @@ public:
   void clear() {
     m_slots.clear();
     m_freeSlots.clear();
+  }
+
+  size_t size() const { return m_slots.size() - m_freeSlots.size(); }
+
+  template <typename Func> void forEach(Func &&func) {
+    for (Slot &slot : m_slots) {
+      if (slot.occupied)
+        func(slot.object);
+    }
   }
 
 private:

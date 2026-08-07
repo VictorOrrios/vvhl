@@ -6,25 +6,31 @@
 namespace vvhl {
 
 struct ImageDescription {
+  VkImageType type = VK_IMAGE_TYPE_2D;
+
+  VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
+
   uint32_t width = 1;
   uint32_t height = 1;
   uint32_t depth = 1;
-
-  VkFormat format = VK_FORMAT_UNDEFINED;
-
-  VkImageType type = VK_IMAGE_TYPE_2D;
-  VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
-
-  VkImageUsageFlags usage = 0;
 
   uint32_t mipLevels = 1;
   uint32_t arrayLayers = 1;
 
   VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
 
-  VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_AUTO;
+  VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+
+  VkImageCreateFlags flags = 0;
+
+  VkImageUsageFlags usage = 0;
+  
+  VkImageViewType viewType = VkImageViewType::VK_IMAGE_VIEW_TYPE_2D;
+
+  VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
   VmaAllocationCreateFlags allocationFlags = 0;
 };
+;
 
 class Image {
 public:
@@ -59,11 +65,10 @@ public:
   uint32_t mipLevels() const { return m_mipLevels; }
 
 private:
-
   VkImageAspectFlags getAspectMask(VkFormat format);
 
 private:
-  VulkanContext* m_context = nullptr;
+  VulkanContext *m_context = nullptr;
 
   VkImage m_image = VK_NULL_HANDLE;
   VkImageView m_view = VK_NULL_HANDLE;

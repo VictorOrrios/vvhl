@@ -1,7 +1,6 @@
 
 #include "Swapchain.hpp"
-#include "vvhl/Core/EngineConfig.hpp"
-#include <vulkan/vulkan_core.h>
+#include <vvhl/Core/EngineConfig.hpp>
 
 namespace vvhl {
 
