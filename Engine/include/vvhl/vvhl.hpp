@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <queue>
 #include <random>
 #include <set>
 #include <span>
@@ -47,8 +48,13 @@
 #include <vvhl/Core/Input.hpp>
 #include <vvhl/Core/Window.hpp>
 
+// EVENTS
 #include <vvhl/Events/Event.hpp>
 #include <vvhl/Events/EventDispatcher.hpp>
 #include <vvhl/Events/KeyboardEvents.hpp>
 #include <vvhl/Events/MouseEvents.hpp>
 #include <vvhl/Events/WindowEvents.hpp>
+
+// SLOTMAP
+#include <vvhl/SlotMap/SlotMap.hpp>
+

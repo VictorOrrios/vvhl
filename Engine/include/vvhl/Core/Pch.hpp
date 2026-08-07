@@ -6,8 +6,12 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <queue>
+#include <random>
+#include <set>
 #include <span>
 #include <string>
+#include <typeindex>
 #include <unordered_map>
 #include <vector>
 

@@ -1,3 +1,4 @@
+#include <fmt/base.h>
 
 #ifdef BUILD_RELEASE
     #define ASSERT(x)
