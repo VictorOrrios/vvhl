@@ -279,14 +279,25 @@ bool Device::createLogicalDevice() {
 }
 
 void Device::retrieveQueues() {
-  auto getQueue = [this](uint32_t family, VkQueue &queue) {
-    vkGetDeviceQueue(m_device, family, 0, &queue);
+  auto getQueue = [this](uint32_t family, Queue &queue) {
+    VkQueue handle = VK_NULL_HANDLE;
+
+    vkGetDeviceQueue(m_device, family, 0, &handle);
+
+    queue.initialize(handle, family);
   };
 
-  getQueue(*m_queueFamilies.graphics, m_graphicsQueue);
-  getQueue(*m_queueFamilies.compute, m_computeQueue);
-  getQueue(*m_queueFamilies.transfer, m_transferQueue);
-  getQueue(*m_queueFamilies.present, m_presentQueue);
+  if (m_queueFamilies.graphics)
+    getQueue(*m_queueFamilies.graphics, m_graphicsQueue);
+
+  if (m_queueFamilies.compute)
+    getQueue(*m_queueFamilies.compute, m_computeQueue);
+
+  if (m_queueFamilies.transfer)
+    getQueue(*m_queueFamilies.transfer, m_transferQueue);
+
+  if (m_queueFamilies.present)
+    getQueue(*m_queueFamilies.present, m_presentQueue);
 }
 
 bool Device::createAllocator(VkInstance instance) {

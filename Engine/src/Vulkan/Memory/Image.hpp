@@ -21,7 +21,7 @@ struct ImageDescription {
 
   VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
 
-  VkImageCreateFlags flags = 0;
+  VkImageCreateFlags createFlags = 0;
 
   VkImageUsageFlags usage = 0;
   

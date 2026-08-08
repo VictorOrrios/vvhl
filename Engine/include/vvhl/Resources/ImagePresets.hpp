@@ -56,7 +56,7 @@ inline constexpr ImageDescription CubeMap{
 
     .arrayLayers = 6,
 
-    .flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
+    .createFlags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
 
     .usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
     

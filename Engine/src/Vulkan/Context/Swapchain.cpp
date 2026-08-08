@@ -266,7 +266,7 @@ VkResult Swapchain::presentImage(uint32_t imageIndex,
 
   presentInfo.pImageIndices = &imageIndex;
 
-  return vkQueuePresentKHR(m_device->presentQueue(), &presentInfo);
+  return vkQueuePresentKHR(m_device->presentQueue().handle(), &presentInfo);
 }
 
 } // namespace vvhl

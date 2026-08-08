@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vulkan/Commands/Queue.hpp"
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
@@ -32,10 +33,10 @@ public:
   VkPhysicalDevice physicalHandle() const { return m_physicalDevice; }
 
   // Queues
-  VkQueue graphicsQueue() const { return m_graphicsQueue; }
-  VkQueue computeQueue() const { return m_computeQueue; }
-  VkQueue transferQueue() const { return m_transferQueue; }
-  VkQueue presentQueue() const { return m_presentQueue; }
+  Queue& graphicsQueue() { return m_graphicsQueue; }
+  Queue& computeQueue() { return m_computeQueue; }
+  Queue& transferQueue() { return m_transferQueue; }
+  Queue& presentQueue() { return m_presentQueue; }
 
   // Queue families
   uint32_t graphicsFamily() const { return *m_queueFamilies.graphics; }
@@ -96,10 +97,10 @@ private:
   VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
   VkDevice m_device = VK_NULL_HANDLE;
 
-  VkQueue m_graphicsQueue = VK_NULL_HANDLE;
-  VkQueue m_computeQueue = VK_NULL_HANDLE;
-  VkQueue m_transferQueue = VK_NULL_HANDLE;
-  VkQueue m_presentQueue = VK_NULL_HANDLE;
+  Queue m_graphicsQueue;
+  Queue m_computeQueue;
+  Queue m_transferQueue;
+  Queue m_presentQueue;
 
   QueueFamilyIndices m_queueFamilies;
 

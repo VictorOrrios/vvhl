@@ -24,6 +24,7 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
   imageInfo.usage = desc.usage;
   imageInfo.samples = desc.samples;
   imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  imageInfo.flags = desc.createFlags;
 
   VmaAllocationCreateInfo allocInfo{};
   allocInfo.usage = desc.memoryUsage;
