@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vulkan/Commands/Queue.hpp"
 #include <vvhl/vvhl.hpp>
+#include <Vulkan/Commands/Queue.hpp>
 
 namespace vvhl {
 

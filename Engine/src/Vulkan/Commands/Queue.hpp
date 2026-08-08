@@ -15,8 +15,7 @@ public:
 
   bool initialize(VkQueue queue, uint32_t familyIndex);
 
-  bool submit(const VkSubmitInfo &submitInfo,
-              VkFence fence = VK_NULL_HANDLE) const;
+  bool submit(const VkSubmitInfo &submitInfo, VkFence fence = VK_NULL_HANDLE) const;  
   void waitIdle() const;
 
 public:
