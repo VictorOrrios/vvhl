@@ -1,10 +1,12 @@
 #pragma once
 
+#include "ShaderReflection.hpp"
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
 
 class Shader {
+
 public:
   Shader() = default;
   ~Shader() { destroy(); };
@@ -15,16 +17,28 @@ public:
   Shader(Shader &&other) noexcept;
   Shader &operator=(Shader &&other) noexcept;
 
-  bool create();
+  bool initialize(VkDevice device, std::string filePath,
+                  VkShaderStageFlagBits stage, std::string entryPoint = "main");
+
+  bool initialize(VkDevice device, std::span<const uint32_t> spirv,
+                  VkShaderStageFlagBits stage, std::string entryPoint = "main");
 
   void destroy();
 
-public:
+  bool valid() const { return m_module != VK_NULL_HANDLE; };
 
+public:
+  VkShaderModule handle() const;
+  VkShaderStageFlagBits stage() const;
+  std::string_view entryPoint() const;
+  const ShaderReflection &reflection() const;
 
 private:
-  VkShaderModule m_module;
-  
+  VkDevice m_device = VK_NULL_HANDLE;
+  VkShaderModule m_module = VK_NULL_HANDLE;
+  VkShaderStageFlagBits m_stage{};
+  std::string m_entryPoint;
+  ShaderReflection m_reflection;
 };
 
 } // namespace vvhl

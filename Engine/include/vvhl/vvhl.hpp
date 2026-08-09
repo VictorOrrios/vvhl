@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <filesystem>
+#include <fstream>
 #include <memory>
 #include <optional>
 #include <queue>
@@ -60,4 +61,3 @@
 
 // SLOTMAP
 #include <vvhl/SlotMap/SlotMap.hpp>
-
