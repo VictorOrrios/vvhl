@@ -26,6 +26,9 @@
 // VMA
 #include <vma/vk_mem_alloc.h>
 
+// SPIRV REFLECT
+#include <spirv_reflect.h>
+
 // GLTF
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
