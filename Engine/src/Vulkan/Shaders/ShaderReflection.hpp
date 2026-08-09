@@ -24,9 +24,9 @@ struct PushConstantRange {
 };
 
 struct ShaderInterfaceVariable {
-    uint32_t location = 0;
-    VkFormat format = VK_FORMAT_UNDEFINED;
-    std::string name;
+  uint32_t location = 0;
+  VkFormat format = VK_FORMAT_UNDEFINED;
+  std::string name;
 };
 
 class ShaderReflection {
