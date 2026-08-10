@@ -3,7 +3,6 @@
 namespace vvhl {
 
 bool Sampler::create(Device &device, const SamplerDescription &desc) {
-  m_device = &device;
 
   VkSamplerCreateInfo samplerInfo{};
   samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -25,7 +24,7 @@ bool Sampler::create(Device &device, const SamplerDescription &desc) {
   samplerInfo.anisotropyEnable = desc.anisotropyEnable;
 
   samplerInfo.maxAnisotropy = std::min(
-      desc.maxAnisotropy, m_device->properties().limits.maxSamplerAnisotropy);
+      desc.maxAnisotropy, device.properties().limits.maxSamplerAnisotropy);
 
   samplerInfo.compareEnable = desc.compareEnable;
   samplerInfo.compareOp = desc.compareOp;
@@ -42,6 +41,9 @@ bool Sampler::create(Device &device, const SamplerDescription &desc) {
     return false;
   }
 
+  m_desc = desc;
+  m_device = &device;
+
   return true;
 }
 
@@ -52,6 +54,7 @@ void Sampler::destroy() {
   vkDestroySampler(m_device->handle(), m_sampler, nullptr);
 
   m_sampler = VK_NULL_HANDLE;
+  m_desc = {};
   m_device = VK_NULL_HANDLE;
 }
 

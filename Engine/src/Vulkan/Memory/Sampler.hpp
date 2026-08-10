@@ -48,11 +48,12 @@ public:
 
 public:
   VkSampler handle() const { return m_sampler; }
+  SamplerDescription description() const { return m_desc; }
 
 private:
   Device *m_device = VK_NULL_HANDLE;
-
   VkSampler m_sampler = VK_NULL_HANDLE;
+  SamplerDescription m_desc{};
 };
 
 } // namespace vvhl

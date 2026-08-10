@@ -6,11 +6,7 @@ namespace vvhl {
 bool Image::create(VulkanContext &context, const ImageDescription &desc) {
   m_context = &context;
 
-  m_width = desc.width;
-  m_height = desc.height;
-  m_depth = desc.depth;
-  m_format = desc.format;
-  m_mipLevels = desc.mipLevels;
+  m_desc = desc;
 
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -60,6 +56,7 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
 
     m_image = VK_NULL_HANDLE;
     m_allocation = nullptr;
+    m_desc = {};
 
     return false;
   }
@@ -105,12 +102,7 @@ void Image::destroy() {
   m_allocation = nullptr;
   m_allocationInfo = {};
 
-  m_width = 0;
-  m_height = 0;
-  m_depth = 1;
-
-  m_mipLevels = 1;
-  m_format = VK_FORMAT_UNDEFINED;
+  m_desc = {};
 
   m_context = nullptr;
 }

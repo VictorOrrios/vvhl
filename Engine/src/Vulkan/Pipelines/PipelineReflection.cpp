@@ -28,12 +28,13 @@ bool PipelineReflection::add(const ShaderReflection &shaderReflection) {
 
     if (it->descriptorCount != descriptor.descriptorCount) {
       LOGE("Descriptor binding conflict: set={}, binding={}: "
-           "descriptor count mismatch",
-           descriptor.set, descriptor.binding);
+           "descriptor count mismatch: {} != {}",
+           descriptor.set, descriptor.binding, it->descriptorCount,
+           descriptor.descriptorCount);
 
       return false;
     }
-
+    
     it->stageFlags |= descriptor.stageFlags;
   }
 
@@ -63,8 +64,6 @@ void PipelineReflection::destroy() {
   m_descriptorBindings.clear();
   m_pushConstsInitialized = false;
   m_pushConstants = {};
-  m_inputs.clear();
-  m_outputs.clear();
 }
 
 } // namespace vvhl

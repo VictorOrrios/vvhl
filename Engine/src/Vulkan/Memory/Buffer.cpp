@@ -4,7 +4,7 @@ namespace vvhl {
 
 bool Buffer::create(VmaAllocator allocator, const BufferDescription &desc) {
   m_allocator = allocator;
-  m_size = desc.size;
+  m_desc = desc;
 
   VkBufferCreateInfo bufferInfo{};
   bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -63,7 +63,7 @@ void Buffer::destroy() {
   m_allocation = nullptr;
   m_allocationInfo = {};
   m_mappedPtr = nullptr;
-  m_size = 0;
+  m_desc = {};
   m_allocator = VK_NULL_HANDLE;
 }
 

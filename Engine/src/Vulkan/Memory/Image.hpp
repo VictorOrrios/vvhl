@@ -30,7 +30,7 @@ struct ImageDescription {
   VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
   VmaAllocationCreateFlags allocationFlags = 0;
 };
-;
+
 
 class Image {
 public:
@@ -52,21 +52,22 @@ public:
 
   VkImageView view() const { return m_view; }
 
-  VkExtent3D extent() const { return {m_width, m_height, m_depth}; }
+  VkExtent3D extent() const { return {m_desc.width, m_desc.height, m_desc.depth}; }
 
-  VkFormat format() const { return m_format; }
+  VkFormat format() const { return m_desc.format; }
 
-  uint32_t width() const { return m_width; }
+  uint32_t width() const { return m_desc.width; }
 
-  uint32_t height() const { return m_height; }
+  uint32_t height() const { return m_desc.height; }
 
-  uint32_t depth() const { return m_depth; }
+  uint32_t depth() const { return m_desc.depth; }
 
-  uint32_t mipLevels() const { return m_mipLevels; }
+  uint32_t mipLevels() const { return m_desc.mipLevels; }
+
+  ImageDescription description() const { return m_desc; }
 
 private:
   VkImageAspectFlags getAspectMask(VkFormat format);
-
 private:
   VulkanContext *m_context = nullptr;
 
@@ -76,13 +77,7 @@ private:
   VmaAllocation m_allocation = nullptr;
   VmaAllocationInfo m_allocationInfo{};
 
-  uint32_t m_width = 0;
-  uint32_t m_height = 0;
-  uint32_t m_depth = 1;
-
-  uint32_t m_mipLevels = 1;
-
-  VkFormat m_format = VK_FORMAT_UNDEFINED;
+  ImageDescription m_desc{};
 };
 
 } // namespace vvhl

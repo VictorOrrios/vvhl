@@ -35,8 +35,8 @@ public:
 
 public:
   vk::Buffer handle() const { return m_buffer; }
-
-  VkDeviceSize size() const { return m_size; }
+  VkDeviceSize size() const { return m_desc.size; }
+  BufferDescription description() const { return m_desc; }
 
   bool isMapped() const { return m_mappedPtr != nullptr; }
 
@@ -49,7 +49,7 @@ private:
 
   VmaAllocationInfo m_allocationInfo{};
 
-  VkDeviceSize m_size = 0;
+  BufferDescription m_desc;
 
   void *m_mappedPtr = nullptr;
 };

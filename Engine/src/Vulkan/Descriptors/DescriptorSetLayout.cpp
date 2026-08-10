@@ -18,20 +18,21 @@ bool DescriptorSetLayout::initialize(
 
   for (auto &binding : bindings) {
     VkDescriptorSetLayoutBinding vkBinding{};
-    vkBinding.descriptorCount = binding.descriptorCount;
-    vkBinding.descriptorType = binding.descriptorType;
     vkBinding.binding = binding.binding;
+    vkBinding.descriptorType = binding.descriptorType;
+    vkBinding.descriptorCount = binding.descriptorCount;
     vkBinding.stageFlags = binding.stageFlags;
     vkBinding.pImmutableSamplers = nullptr;
+
     vkBindings.push_back(vkBinding);
   }
 
-  VkDescriptorSetLayoutCreateInfo layoutInfo{};
-  layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  layoutInfo.bindingCount = vkBindings.size();
-  layoutInfo.pBindings = vkBindings.data();
+  VkDescriptorSetLayoutCreateInfo createInfo{};
+  createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+  createInfo.bindingCount = static_cast<uint32_t>(vkBindings.size());
+  createInfo.pBindings = vkBindings.data();
 
-  if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &m_handle) !=
+  if (vkCreateDescriptorSetLayout(device, &createInfo, nullptr, &m_handle) !=
       VK_SUCCESS) {
     LOGE("Failed to create descriptor set layout")
     m_handle = VK_NULL_HANDLE;
