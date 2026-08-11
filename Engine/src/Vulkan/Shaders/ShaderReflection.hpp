@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vulkan/vulkan_core.h>
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
@@ -7,13 +8,12 @@ namespace vvhl {
 struct DescriptorBinding {
   uint32_t set = 0;
   uint32_t binding = 0;
+  std::string name;
 
   VkDescriptorType descriptorType{};
   uint32_t descriptorCount = 1;
-
   VkShaderStageFlags stageFlags = 0;
-
-  std::string name;
+  VkImageLayout defaultImageLayout;
 };
 
 struct PushConstantRange {
@@ -57,6 +57,9 @@ public:
   const std::vector<ShaderInterfaceVariable> &output() const {
     return m_outputs;
   }
+
+private:
+  VkImageLayout deduceImageLayout(const SpvReflectDescriptorBinding * binding) const;
 
 private:
   std::vector<DescriptorBinding> m_descriptorBindings;

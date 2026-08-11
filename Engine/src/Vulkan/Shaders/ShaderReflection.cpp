@@ -52,6 +52,7 @@ bool ShaderReflection::initialize(std::span<const uint32_t> spirv,
         static_cast<VkDescriptorType>(binding->descriptor_type);
     reflected.descriptorCount = binding->count;
     reflected.stageFlags = stage;
+    reflected.defaultImageLayout = deduceImageLayout(binding);
 
     if (binding->name) {
       reflected.name = binding->name;
@@ -170,6 +171,25 @@ bool ShaderReflection::initialize(std::span<const uint32_t> spirv,
   spvReflectDestroyShaderModule(&module);
 
   return true;
+}
+
+VkImageLayout ShaderReflection::deduceImageLayout(
+    const SpvReflectDescriptorBinding *binding) const {
+
+  // If storage => GENERAL
+  if (binding->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE ||
+      binding->descriptor_type ==
+          SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER) {
+    return VK_IMAGE_LAYOUT_GENERAL;
+  }
+
+  // If depth (not reliable) => DEPTH READ ONLY
+  if (binding->image.depth == 1) {
+    return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+  }
+
+  // Everything else => READ OPTIMAL
+  return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
 
 void ShaderReflection::destroy() {

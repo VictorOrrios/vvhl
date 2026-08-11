@@ -78,8 +78,6 @@ private:
   };
 
 private:
-
-private:
   VkDevice m_device = VK_NULL_HANDLE;
   VkDescriptorSet m_descriptorSet = VK_NULL_HANDLE;
   ResourceManager *m_resourceManager = nullptr;
