@@ -45,7 +45,7 @@ bool ComputePipeline::createPipeline() {
   createInfo.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
   createInfo.stage.module = m_shader.handle();
   createInfo.stage.pName = m_shader.entryPoint().data();
-  createInfo.stage.pSpecializationInfo = nullptr;
+  createInfo.stage.pSpecializationInfo = nullptr; // TODO: Support specialization info
 
   createInfo.layout = m_layout;
 

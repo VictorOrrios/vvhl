@@ -24,7 +24,7 @@ DescriptorSetLayout::operator=(DescriptorSetLayout &&other) noexcept {
 }
 
 bool DescriptorSetLayout::initialize(
-    VkDevice device, std::span<const DescriptorBinding> bindings) {
+    VkDevice device, std::span<const ReflectedDescriptorBinding> bindings) {
 
   if (bindings.empty()) {
     LOGE("Can not create a DescriptorSetLayout with no bindings")

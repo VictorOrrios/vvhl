@@ -44,7 +44,7 @@ bool ShaderReflection::initialize(std::span<const uint32_t> spirv,
   }
 
   for (const auto *binding : bindings) {
-    DescriptorBinding reflected{};
+    ReflectedDescriptorBinding reflected{};
 
     reflected.set = binding->set;
     reflected.binding = binding->binding;

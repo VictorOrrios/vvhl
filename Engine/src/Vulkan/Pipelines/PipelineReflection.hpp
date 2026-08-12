@@ -19,7 +19,7 @@ public:
   void destroy();
 
 public:
-  const std::unordered_map<uint32_t, std::vector<DescriptorBinding>> &descriptorBindings() const {
+  const std::unordered_map<uint32_t, std::vector<ReflectedDescriptorBinding>> &descriptorBindings() const {
     return m_descriptorBindings;
   }
 
@@ -28,7 +28,7 @@ public:
   }
 
 private:
-  std::unordered_map<uint32_t, std::vector<DescriptorBinding>> m_descriptorBindings;
+  std::unordered_map<uint32_t, std::vector<ReflectedDescriptorBinding>> m_descriptorBindings;
   std::vector<VkPushConstantRange> m_pushConstants;
 };
 

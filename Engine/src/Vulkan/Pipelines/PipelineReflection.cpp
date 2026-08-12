@@ -9,7 +9,7 @@ bool PipelineReflection::add(const ShaderReflection &shaderReflection) {
     auto &setBindings = m_descriptorBindings[descriptor.set];
 
     auto it = std::find_if(setBindings.begin(), setBindings.end(),
-                           [&](const DescriptorBinding &existing) {
+                           [&](const ReflectedDescriptorBinding &existing) {
                              return existing.binding == descriptor.binding;
                            });
 

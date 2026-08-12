@@ -5,6 +5,14 @@
 
 namespace vvhl {
 
+void Pipeline::updateDescriptors() {
+  for (auto &[setNumber, group] : m_descriptorGroups) {
+    for(auto& set:group.sets){
+      set.update();
+    }
+  }
+}
+
 bool Pipeline::attachmentSetup() {
 
   auto bindingsBySet = m_reflection.descriptorBindings();
@@ -16,7 +24,9 @@ bool Pipeline::attachmentSetup() {
       return false;
     }
     vkLayouts.push_back(layout.handle());
-    m_descriptorSetLayouts.push_back(std::move(layout));
+
+    m_descriptorGroups[set] = {.layout = std::move(layout),
+                               .sets = std::vector<DescriptorSet>()};
   }
 
   if (!createLayout(vkLayouts, m_reflection.pushConstants())) {
@@ -36,16 +46,6 @@ void Pipeline::accumulatePoolResources(DescriptorPool &pool) const {
     }
     pool.accumulateSet(1);
   }
-}
-
-bool Pipeline::createReflection(std::vector<Shader> shaders) {
-  for (auto &shader : shaders) {
-    if (!m_reflection.add(shader.reflection())) {
-      m_reflection.destroy();
-      return false;
-    }
-  }
-  return true;
 }
 
 bool Pipeline::createLayout(
@@ -83,20 +83,22 @@ bool Pipeline::createShader(const ShaderInput &input,
         using T = std::decay_t<decltype(source)>;
 
         if constexpr (std::is_same_v<T, ShaderSource>) {
-          success =
-              shader.initialize(m_device, source.filePath, stage, entryPoint);
+          success = shader.initialize(m_device, source, stage, entryPoint);
         } else if constexpr (std::is_same_v<T, ShaderBinary>) {
-          success =
-              shader.initialize(m_device, source.spirv, stage, entryPoint);
+          success = shader.initialize(m_device, source, stage, entryPoint);
         }
       },
       input);
 
-  if (!success) {
+  if (!success || !shader.valid()) {
     return false;
   }
 
-  return shader.valid();
+  if (!m_reflection.add(shader.reflection())) {
+    return false;
+  }
+
+  return true;
 }
 
 } // namespace vvhl

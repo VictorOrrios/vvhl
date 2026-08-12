@@ -116,13 +116,15 @@ VkPresentModeKHR Swapchain::choosePresentMode() const {
   // FIFO        -> Allways aviable (VSync)
   // MAILBOX     -> Triple buffering, low lag
   // IMMEDIATE   -> Tearing, least lag
-  VkPresentModeKHR preferred =
-      EngineSettings::get().swapchain.preferredPresentMode;
+  VkPresentModeKHR preferred = EngineSettings::get().swapchain.preferredPresentMode;
 
   for (VkPresentModeKHR mode : presentModes) {
     if (mode == preferred)
       return mode;
   }
+
+  LOGW("Defined present mode ({}) not aviable, defaulting to FIFO",
+       uint(preferred))
 
   return VK_PRESENT_MODE_FIFO_KHR;
 }

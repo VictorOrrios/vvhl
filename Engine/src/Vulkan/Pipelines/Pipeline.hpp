@@ -1,20 +1,19 @@
 #pragma once
 
+#include "Vulkan/Descriptors/DescriptorBinding.hpp"
 #include "Vulkan/Descriptors/DescriptorPool.hpp"
+#include "Vulkan/Descriptors/DescriptorSet.hpp"
 #include "Vulkan/Descriptors/DescriptorSetLayout.hpp"
 #include "Vulkan/Pipelines/PipelineReflection.hpp"
 #include "Vulkan/Shaders/Shader.hpp"
+#include <cstdint>
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
 
-struct ShaderSource {
-  std::string filePath;
-};
+using ShaderSource = std::string;
 
-struct ShaderBinary {
-  std::vector<uint32_t> spirv;
-};
+using ShaderBinary = std::vector<uint32_t>;
 
 using ShaderInput = std::variant<ShaderSource, ShaderBinary>;
 
@@ -28,16 +27,28 @@ public:
 
   virtual void destroy();
 
+  bool writeAllFrames(DescriptorBinding resource);
+  bool write(DescriptorBinding resource);
+  bool write(DescriptorBinding resource, const uint32_t frameSet);
+
+  void updateDescriptors();
+
 public:
   VkPipeline handle() const { return m_pipeline; }
   VkPipelineLayout layout() const { return m_layout; }
 
 protected:
+  struct DescriptorSetGroup {
+    DescriptorSetLayout layout;
+    std::vector<DescriptorSet> sets;
+
+    VkDescriptorSetLayout vkLayout() const { return layout.handle(); }
+  };
+
+protected:
   bool attachmentSetup();
 
   void accumulatePoolResources(DescriptorPool &pool) const;
-
-  bool createReflection(const std::vector<Shader> shaders);
 
   bool createLayout(std::span<const VkDescriptorSetLayout> descriptorSetLayouts,
                     std::span<const VkPushConstantRange> pushConstantRanges);
@@ -52,8 +63,9 @@ protected:
   VkPipeline m_pipeline = VK_NULL_HANDLE;
   VkPipelineLayout m_layout = VK_NULL_HANDLE;
 
-  std::vector<DescriptorSetLayout> m_descriptorSetLayouts;
   PipelineReflection m_reflection;
+
+  std::map<uint32_t, DescriptorSetGroup> m_descriptorGroups;
 };
 
 } // namespace vvhl

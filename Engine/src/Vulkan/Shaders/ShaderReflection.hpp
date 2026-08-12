@@ -5,7 +5,7 @@
 
 namespace vvhl {
 
-struct DescriptorBinding {
+struct ReflectedDescriptorBinding {
   uint32_t set = 0;
   uint32_t binding = 0;
   std::string name;
@@ -35,7 +35,7 @@ public:
   void destroy();
 
 public:
-  const std::vector<DescriptorBinding> &descriptorBindings() const {
+  const std::vector<ReflectedDescriptorBinding> &descriptorBindings() const {
     return m_descriptorBindings;
   }
 
@@ -55,7 +55,7 @@ private:
   VkImageLayout deduceImageLayout(const SpvReflectDescriptorBinding * binding) const;
 
 private:
-  std::vector<DescriptorBinding> m_descriptorBindings;
+  std::vector<ReflectedDescriptorBinding> m_descriptorBindings;
   std::vector<VkPushConstantRange> m_pushConstants;
   std::vector<ShaderInterfaceVariable> m_inputs;
   std::vector<ShaderInterfaceVariable> m_outputs;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 namespace vvhl {
 
 struct ApplicationConfig {
@@ -18,10 +19,10 @@ struct DeviceConfig {
 
 struct SwapchainConfig {
   VkPresentModeKHR preferredPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-
   VkFormat preferredFormat = VK_FORMAT_B8G8R8A8_SRGB;
-
   VkColorSpaceKHR preferredColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+
+  uint32_t maxFramesInFlight = 2;  // 2 = double buffering, 3 = triple buffering
 };
 
 struct EngineConfig {
@@ -36,6 +37,7 @@ public:
   static void initialize(const EngineConfig &config);
 
   static const EngineConfig &get() { return s_config; };
+  static const uint32_t &maxFramesInFlight() { return s_config.swapchain.maxFramesInFlight; };
 
 private:
   static EngineConfig s_config;
