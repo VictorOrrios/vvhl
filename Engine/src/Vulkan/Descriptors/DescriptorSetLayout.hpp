@@ -13,6 +13,9 @@ public:
   DescriptorSetLayout(const DescriptorSetLayout &) = delete;
   DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
 
+  DescriptorSetLayout(DescriptorSetLayout &&other) noexcept;
+  DescriptorSetLayout &operator=(DescriptorSetLayout &&other) noexcept;
+
   bool initialize(VkDevice device, std::span<const DescriptorBinding> bindings);
 
   void destroy();

@@ -16,13 +16,6 @@ struct DescriptorBinding {
   VkImageLayout defaultImageLayout;
 };
 
-struct PushConstantRange {
-  uint32_t offset = 0;
-  uint32_t size = 0;
-
-  VkShaderStageFlags stageFlags = 0;
-};
-
 struct ShaderInterfaceVariable {
   uint32_t location = 0;
   VkFormat format = VK_FORMAT_UNDEFINED;
@@ -46,7 +39,7 @@ public:
     return m_descriptorBindings;
   }
 
-  const std::vector<PushConstantRange> &pushConstants() const {
+  const std::vector<VkPushConstantRange> &pushConstants() const {
     return m_pushConstants;
   }
 
@@ -63,7 +56,7 @@ private:
 
 private:
   std::vector<DescriptorBinding> m_descriptorBindings;
-  std::vector<PushConstantRange> m_pushConstants;
+  std::vector<VkPushConstantRange> m_pushConstants;
   std::vector<ShaderInterfaceVariable> m_inputs;
   std::vector<ShaderInterfaceVariable> m_outputs;
 };

@@ -3,22 +3,19 @@
 
 namespace vvhl {
 
-bool DescriptorPool::initialize(VkDevice device,
-                                std::span<const PoolSize> poolSizes,
-                                uint32_t maxSets,
+bool DescriptorPool::create(VkDevice device,
                                 VkDescriptorPoolCreateFlags flags) {
 
-  if (poolSizes.empty() || maxSets == 0) {
+  if (m_typeCounts.empty() || m_setCount == 0) {
     LOGE("Can not initialize an empty descriptor pool")
     return false;
   }
 
   std::vector<VkDescriptorPoolSize> vkPoolSizes;
-  vkPoolSizes.reserve(poolSizes.size());
-  for (const auto &size : poolSizes) {
+  for (const auto &[type, count] : m_typeCounts) {
     VkDescriptorPoolSize vkSize{};
-    vkSize.type = size.type;
-    vkSize.descriptorCount = size.descriptorCount;
+    vkSize.type = type;
+    vkSize.descriptorCount = count;
     vkPoolSizes.push_back(vkSize);
   }
 
@@ -26,7 +23,7 @@ bool DescriptorPool::initialize(VkDevice device,
   createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
   createInfo.poolSizeCount = static_cast<uint32_t>(vkPoolSizes.size());
   createInfo.pPoolSizes = vkPoolSizes.data();
-  createInfo.maxSets = maxSets;
+  createInfo.maxSets = m_setCount;
   createInfo.flags = flags;
 
   if (vkCreateDescriptorPool(m_device, &createInfo, nullptr, &m_pool) !=
@@ -55,7 +52,7 @@ void DescriptorPool::reset() {
 std::vector<VkDescriptorSet>
 DescriptorPool::allocate(std::span<const VkDescriptorSetLayout> layouts) {
   if (m_pool == VK_NULL_HANDLE || layouts.empty()) {
-    LOGE("Can not allocate descriptor sets if descriptor pool isn't initialized")
+    LOGE("Can not allocate descriptor sets, pool not initialized")
     return {};
   }
 
@@ -74,5 +71,16 @@ DescriptorPool::allocate(std::span<const VkDescriptorSetLayout> layouts) {
 
   return descriptorSets;
 }
+
+void DescriptorPool::accumulate(const PoolSize &poolSize) {
+  m_typeCounts[poolSize.type] += poolSize.descriptorCount;
+}
+
+void DescriptorPool::accumulate(std::span<const PoolSize> poolSizes) {
+  for (const auto &poolSize : poolSizes)
+    accumulate(poolSize);
+}
+
+void DescriptorPool::accumulateSet(uint32_t numSets) { m_setCount += numSets; }
 
 } // namespace vvhl

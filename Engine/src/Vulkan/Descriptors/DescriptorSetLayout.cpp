@@ -5,10 +5,28 @@
 
 namespace vvhl {
 
+DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout &&other) noexcept
+    : m_device(other.m_device), m_handle(other.m_handle) {
+  other.m_device = VK_NULL_HANDLE;
+  other.m_handle = VK_NULL_HANDLE;
+}
+
+DescriptorSetLayout &
+DescriptorSetLayout::operator=(DescriptorSetLayout &&other) noexcept {
+  if (this != &other) {
+    destroy();
+    m_device = other.m_device;
+    m_handle = other.m_handle;
+    other.m_device = VK_NULL_HANDLE;
+    other.m_handle = VK_NULL_HANDLE;
+  }
+  return *this;
+}
+
 bool DescriptorSetLayout::initialize(
     VkDevice device, std::span<const DescriptorBinding> bindings) {
 
-  if (bindings.empty()){
+  if (bindings.empty()) {
     LOGE("Can not create a DescriptorSetLayout with no bindings")
     return false;
   }

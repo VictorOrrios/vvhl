@@ -1,60 +1,55 @@
-
 #include "PipelineReflection.hpp"
 
 namespace vvhl {
+
 bool PipelineReflection::add(const ShaderReflection &shaderReflection) {
 
   // Bindings
   for (const auto &descriptor : shaderReflection.descriptorBindings()) {
-    auto it =
-        std::find_if(m_descriptorBindings.begin(), m_descriptorBindings.end(),
-                     [&](const DescriptorBinding &existing) {
-                       return existing.set == descriptor.set &&
-                              existing.binding == descriptor.binding;
-                     });
+    auto &setBindings = m_descriptorBindings[descriptor.set];
 
-    if (it == m_descriptorBindings.end()) {
-      m_descriptorBindings.push_back(descriptor);
+    auto it = std::find_if(setBindings.begin(), setBindings.end(),
+                           [&](const DescriptorBinding &existing) {
+                             return existing.binding == descriptor.binding;
+                           });
+
+    if (it == setBindings.end()) {
+      setBindings.push_back(descriptor);
       continue;
     }
 
     if (it->descriptorType != descriptor.descriptorType) {
-      LOGE("Descriptor binding conflict: set={}, binding={}: "
-           "descriptor type mismatch",
-           descriptor.set, descriptor.binding);
-
+      LOGE("Descriptor binding conflict: set=%u, binding=%u: "
+           "descriptor type mismatch (%d vs %d)",
+           descriptor.set, descriptor.binding,
+           uint(it->descriptorType), uint(descriptor.descriptorType));
       return false;
     }
 
     if (it->descriptorCount != descriptor.descriptorCount) {
-      LOGE("Descriptor binding conflict: set={}, binding={}: "
-           "descriptor count mismatch: {} != {}",
-           descriptor.set, descriptor.binding, it->descriptorCount,
-           descriptor.descriptorCount);
-
+      LOGE("Descriptor binding conflict: set=%u, binding=%u: "
+           "descriptor count mismatch (%u vs %u)",
+           descriptor.set, descriptor.binding,
+           it->descriptorCount, descriptor.descriptorCount);
       return false;
     }
-    
+
     it->stageFlags |= descriptor.stageFlags;
   }
 
   // Push constants
   for (const auto &pushConstant : shaderReflection.pushConstants()) {
-    if (!m_pushConstsInitialized) {
-      m_pushConstants = pushConstant;
-      m_pushConstsInitialized = true;
-      continue;
+    auto it = std::find_if(m_pushConstants.begin(), m_pushConstants.end(),
+                           [&](const VkPushConstantRange &existing) {
+                             return existing.offset == pushConstant.offset &&
+                                    existing.size == pushConstant.size;
+                           });
+
+    if (it != m_pushConstants.end()) {
+      it->stageFlags |= pushConstant.stageFlags;
+    } else {
+      m_pushConstants.push_back(pushConstant);
     }
-
-    const uint32_t begin =
-        glm::min(m_pushConstants.offset, pushConstant.offset);
-
-    const uint32_t end = glm::max(m_pushConstants.offset + m_pushConstants.size,
-                                  pushConstant.offset + pushConstant.size);
-
-    m_pushConstants.offset = begin;
-    m_pushConstants.size = end - begin;
-    m_pushConstants.stageFlags |= pushConstant.stageFlags;
   }
 
   return true;
@@ -62,8 +57,7 @@ bool PipelineReflection::add(const ShaderReflection &shaderReflection) {
 
 void PipelineReflection::destroy() {
   m_descriptorBindings.clear();
-  m_pushConstsInitialized = false;
-  m_pushConstants = {};
+  m_pushConstants.clear();
 }
 
 } // namespace vvhl

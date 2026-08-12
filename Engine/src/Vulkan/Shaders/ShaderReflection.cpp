@@ -85,7 +85,7 @@ bool ShaderReflection::initialize(std::span<const uint32_t> spirv,
   }
 
   for (const auto *pushConstant : pushConstants) {
-    PushConstantRange reflected{};
+    VkPushConstantRange reflected{};
 
     reflected.offset = pushConstant->offset;
     reflected.size = pushConstant->size;

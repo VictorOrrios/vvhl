@@ -1,14 +1,15 @@
+
 #pragma once
 
-#include <Vulkan/Shaders/ShaderReflection.hpp>
 #include <vvhl/vvhl.hpp>
+#include <Vulkan/Shaders/ShaderReflection.hpp>
 
 namespace vvhl {
 
 class PipelineReflection {
 public:
   PipelineReflection() = default;
-  ~PipelineReflection() { destroy(); };
+  ~PipelineReflection() { destroy(); }
 
   PipelineReflection(const PipelineReflection &) = delete;
   PipelineReflection &operator=(const PipelineReflection &) = delete;
@@ -18,18 +19,17 @@ public:
   void destroy();
 
 public:
-  const std::vector<DescriptorBinding> &descriptorBindings() const {
+  const std::unordered_map<uint32_t, std::vector<DescriptorBinding>> &descriptorBindings() const {
     return m_descriptorBindings;
   }
 
-  const PushConstantRange &pushConstants() const {
+  const std::vector<VkPushConstantRange> &pushConstants() const {
     return m_pushConstants;
   }
 
 private:
-  std::vector<DescriptorBinding> m_descriptorBindings{};
-
-  bool m_pushConstsInitialized = false;
-  PushConstantRange m_pushConstants{};
+  std::unordered_map<uint32_t, std::vector<DescriptorBinding>> m_descriptorBindings;
+  std::vector<VkPushConstantRange> m_pushConstants;
 };
+
 } // namespace vvhl
