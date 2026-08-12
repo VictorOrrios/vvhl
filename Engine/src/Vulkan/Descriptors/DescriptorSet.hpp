@@ -66,16 +66,13 @@ public:
   VkDescriptorSet handle() const { return m_descriptorSet; }
 
 private:
-  using PendingWriteData = std::variant<
-      BufferWriteDescriptor, ImageWriteDescriptor, SamplerWriteDescriptor,
-      CombinedImageSamplerWriteDescriptor, std::vector<BufferWriteDescriptor>,
-      std::vector<ImageWriteDescriptor>, std::vector<SamplerWriteDescriptor>,
-      std::vector<CombinedImageSamplerWriteDescriptor>>;
-
   struct PendingWrite {
-    uint32_t binding;
-    PendingWriteData data;
+    VkWriteDescriptorSet write;
+    std::vector<VkDescriptorBufferInfo> bufferInfos;
+    std::vector<VkDescriptorImageInfo> imageInfos;
   };
+
+VkWriteDescriptorSet genericVkWrite(uint32_t binding, VkDescriptorType descriptorType) const;
 
 private:
   VkDevice m_device = VK_NULL_HANDLE;
