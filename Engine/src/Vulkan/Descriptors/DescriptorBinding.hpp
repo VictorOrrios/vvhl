@@ -29,4 +29,14 @@ struct CombinedImageSamplerWriteDescriptor {
   VkImageLayout imageLayout = _autoLayout;
 };
 
+template <typename T>
+concept WriteDescriptor = std::same_as<T, BufferWriteDescriptor> ||
+                          std::same_as<T, ImageWriteDescriptor> ||
+                          std::same_as<T, SamplerWriteDescriptor> ||
+                          std::same_as<T, CombinedImageSamplerWriteDescriptor> ||
+                          std::same_as<T, std::vector<BufferWriteDescriptor>> ||
+                          std::same_as<T, std::vector<ImageWriteDescriptor>> ||
+                          std::same_as<T, std::vector<SamplerWriteDescriptor>> ||
+                          std::same_as<T, std::vector<CombinedImageSamplerWriteDescriptor>>;
+
 } // namespace vvhl

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {

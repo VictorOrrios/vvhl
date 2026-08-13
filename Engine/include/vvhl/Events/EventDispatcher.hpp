@@ -1,6 +1,4 @@
 #pragma once
-#include <concepts>
-#include <typeindex>
 
 #include <vvhl/Core/UUID.hpp>
 #include <vvhl/Events/Event.hpp>

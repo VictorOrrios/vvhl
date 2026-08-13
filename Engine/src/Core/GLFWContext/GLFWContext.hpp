@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vvhl/vvhl.hpp>
+namespace vvhl {
 
 class GLFWContext {
 public:
@@ -16,3 +16,5 @@ public:
     return std::vector<const char *>(ext, ext + count);
   }
 };
+
+} // namespace vvhl

@@ -5,6 +5,8 @@
 
 namespace vvhl {
 
+class VulkanContext;
+
 struct ImageDescription {
   VkImageType type = VK_IMAGE_TYPE_2D;
 

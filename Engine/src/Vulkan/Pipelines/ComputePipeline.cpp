@@ -5,24 +5,24 @@ namespace vvhl {
 bool ComputePipeline::initialize(const CreateInfo &createInfo) {
   destroy();
 
-  if (!createInfo.device) {
+  if (createInfo.app->context().deviceHandle() == VK_NULL_HANDLE ||
+      m_pool == nullptr || m_resourceManager == nullptr) {
+    LOGE("Pipeline created with empty references")
     return false;
   }
 
-  m_device = createInfo.device;
+  m_device = createInfo.app->context().deviceHandle();
   m_flags = createInfo.flags;
+  m_pool = &createInfo.app->descriptorPool();
+  m_resourceManager = &createInfo.app->resourceManager();
 
-  if (!createShader(createInfo.shaderInput, createInfo.entryPoint,
-                    VK_SHADER_STAGE_COMPUTE_BIT, m_shader)) {
+  if (!createShader(createInfo.shaderInput, VK_SHADER_STAGE_COMPUTE_BIT,
+                    m_shader)) {
     return false;
   }
 
   if (!attachmentSetup()) {
     return false;
-  }
-
-  if (createInfo.descriptorPool) {
-    accumulatePoolResources(*createInfo.descriptorPool);
   }
 
   if (!createPipeline()) {
@@ -45,7 +45,8 @@ bool ComputePipeline::createPipeline() {
   createInfo.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
   createInfo.stage.module = m_shader.handle();
   createInfo.stage.pName = m_shader.entryPoint().data();
-  createInfo.stage.pSpecializationInfo = nullptr; // TODO: Support specialization info
+  createInfo.stage.pSpecializationInfo =
+      nullptr; // TODO: Support specialization info
 
   createInfo.layout = m_layout;
 

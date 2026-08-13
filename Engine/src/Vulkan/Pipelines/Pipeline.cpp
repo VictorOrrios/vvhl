@@ -9,123 +9,28 @@
 
 namespace vvhl {
 
-bool Pipeline::writeAllFrames(DescriptorBinding resourceBind) {
-  for (uint32_t i = 0; i < EngineSettings::maxFramesInFlight(); i++) {
-    if (!write(resourceBind, i))
-      return false;
-  }
-  return true;
-}
+template <WriteDescriptor T>
+bool Pipeline::write(BindingId id, T resourceBind, const uint32_t frameSet) {
+  uint32_t setId, bindingId;
+  ReflectedDescriptorBinding rdb;
 
-bool Pipeline::write(DescriptorBinding resourceBind, const uint32_t frameSet) {
-  ReflectedDescriptorBinding rdb = {};
-  uint32_t set_id, bind_id;
-  bool failed = false;
-
-  std::visit(
-      [&](const auto &id) {
-        using T = std::decay_t<decltype(id)>;
-
-        if constexpr (std::is_same_v<T, std::string>) {
-          if (!m_reflection.findByName(id, rdb)) {
-            LOGE("Failed at finding binding named {}", id)
-            failed = true;
-          } else {
-            set_id = rdb.set;
-            bind_id = rdb.binding;
-          }
-        } else if constexpr (std::is_same_v<T, std::pair<uint32_t, uint32_t>>) {
-          if (!m_reflection.findById(id.first, id.second, rdb)) {
-            LOGE("Failed at finding binding {} at set {}", id.first, id.second)
-            failed = true;
-          } else {
-            set_id = id.first;
-            bind_id = id.second;
-          }
-        }
-      },
-      resourceBind.binding);
-
-  if (failed)
+  if (!resolveBindingId(id, setId, bindingId, rdb))
     return false;
 
-  std::visit(
-      [&](const auto &resource) {
-        using T = std::decay_t<decltype(resource)>;
+  m_descriptorGroups[setId].sets[frameSet].write(bindingId, resourceBind,
+                                                 rdb.descriptorType);
+}
 
-        if constexpr (std::is_same_v<T, BufferBinding>) {
-          BufferWriteDescriptor bw = {.handle = resource.handle,
-                                      .descriptorType = rdb.descriptorType,
-                                      .offset = resource.offset,
-                                      .range = resource.range};
-          m_descriptorGroups[set_id].sets[frameSet].write(bind_id, bw);
+template <WriteDescriptor T>
+bool Pipeline::writeAllFrames(BindingId id, T resourceBind) {
+  uint32_t setId, bindingId;
+  ReflectedDescriptorBinding rdb;
 
-        } else if constexpr (std::is_same_v<T, ImageBinding>) {
-          ImageWriteDescriptor iw = {.handle = resource.handle,
-                                     .descriptorType = rdb.descriptorType};
-          if (resource.layout.has_value())
-            iw.imageLayout = resource.layout.value();
-          m_descriptorGroups[set_id].sets[frameSet].write(bind_id, iw);
-        } else if constexpr (std::is_same_v<T, SamplerBinding>) {
-          SamplerWriteDescriptor sw = {
-              .handle = resource.handle,
-          };
-          m_descriptorGroups[set_id].sets[frameSet].write(bind_id, sw);
-        } else if constexpr (std::is_same_v<T, CombinedImageSamplerBinding>) {
-          CombinedImageSamplerWriteDescriptor cw = {
-              .imageHandle = resource.imageHandle,
-              .samplerHandle = resource.samplerHandle,
-          };
-          if (resource.layout.has_value())
-            cw.imageLayout = resource.layout.value();
-          m_descriptorGroups[set_id].sets[frameSet].write(bind_id, cw);
-        } else if constexpr (std::is_same_v<T, std::vector<BufferBinding>>) {
-          std::vector<BufferWriteDescriptor> bws;
-          bws.reserve(resource.size());
-          for (auto &bb : resource) {
-            bws.push_back({.handle = bb.handle,
-                           .descriptorType = rdb.descriptorType,
-                           .offset = bb.offset,
-                           .range = bb.range});
-          }
-          m_descriptorGroups[set_id].sets[frameSet].write(bind_id, bws);
-        } else if constexpr (std::is_same_v<T, std::vector<ImageBinding>>) {
-          std::vector<ImageWriteDescriptor> iws;
-          iws.reserve(resource.size());
-          for (auto &ib : resource) {
-            ImageWriteDescriptor iw = {.handle = ib.handle,
-                                       .descriptorType = rdb.descriptorType};
-            if (ib.layout.has_value())
-              iw.imageLayout = ib.layout.value();
-            iws.push_back(iw);
-          }
-          m_descriptorGroups[set_id].sets[frameSet].write(bind_id, iws);
-        } else if constexpr (std::is_same_v<T, std::vector<SamplerBinding>>) {
-          std::vector<SamplerWriteDescriptor> sws;
-          sws.reserve(resource.size());
-          for (auto &sb : resource) {
-            sws.push_back({.handle = sb.handle});
-          }
-          m_descriptorGroups[set_id].sets[frameSet].write(bind_id, sws);
-        } else if constexpr (std::is_same_v<
-                                 T, std::vector<CombinedImageSamplerBinding>>) {
-          std::vector<CombinedImageSamplerWriteDescriptor> cws;
-          cws.reserve(resource.size());
-          for (auto &cb : resource) {
-            CombinedImageSamplerWriteDescriptor cw = {
-                .imageHandle = cb.imageHandle,
-                .samplerHandle = cb.samplerHandle,
-            };
-            if (cb.layout.has_value())
-              cw.imageLayout = cb.layout.value();
-            cws.push_back(cw);
-          }
-          m_descriptorGroups[set_id].sets[frameSet].write(bind_id, cws);
-        }
-      },
-      resourceBind.resource);
+  if (!resolveBindingId(id, setId, bindingId, rdb))
+    return false;
 
-  return true;
+  for (auto &set : m_descriptorGroups[setId].sets)
+    set.write(bindingId, resourceBind, rdb.descriptorType);
 }
 
 void Pipeline::updateDescriptors() {
@@ -136,54 +41,31 @@ void Pipeline::updateDescriptors() {
   }
 }
 
-bool Pipeline::resolveBinding(const BindingId &binding, uint32_t &set,
-                              uint32_t &bindingIndex) {
-  ReflectedDescriptorBinding rdb;
-
-  bool found = false;
-
-  std::visit(
-      [&](const auto &id) {
-        using T = std::decay_t<decltype(id)>;
-
-        if constexpr (std::is_same_v<T, std::string>) {
-          found = m_reflection.findByName(id, rdb);
-          if (found) {
-            set = rdb.set;
-            bindingIndex = rdb.binding;
-          } else {
-            LOGE("Binding '{}' not found in pipeline reflection", id);
-          }
-        } else if constexpr (std::is_same_v<T, std::pair<uint32_t, uint32_t>>) {
-          found = m_reflection.findById(id.first, id.second, rdb);
-          if (found) {
-            set = id.first;
-            bindingIndex = id.second;
-          } else {
-            LOGE("Binding ({}, {}) not found in pipeline reflection", id.first,
-                 id.second);
-          }
-        }
-      },
-      binding);
-
-  return found;
-}
-
 bool Pipeline::attachmentSetup() {
 
-  auto bindingsBySet = m_reflection.descriptorBindings();
   std::vector<VkDescriptorSetLayout> vkLayouts;
+  auto bindingsBySet = m_reflection.descriptorBindings();
 
   for (const auto &[set, bindings] : bindingsBySet) {
     DescriptorSetLayout layout;
     if (!layout.initialize(m_device, bindings)) {
       return false;
     }
+
     vkLayouts.push_back(layout.handle());
 
     m_descriptorGroups[set] = {.layout = std::move(layout),
                                .sets = std::vector<DescriptorSet>()};
+
+    std::vector<VkDescriptorSetLayout> layoutVector(
+        EngineSettings::maxFramesInFlight(), layout.handle());
+
+    std::vector<VkDescriptorSet> vkSets = m_pool->allocate(layoutVector);
+
+    for (uint32_t i = 0; i < EngineSettings::maxFramesInFlight(); i++) {
+      m_descriptorGroups[set].sets[i].initialize(m_device, vkSets[i],
+                                                 m_resourceManager);
+    }
   }
 
   if (!createLayout(vkLayouts, m_reflection.pushConstants())) {
@@ -191,18 +73,6 @@ bool Pipeline::attachmentSetup() {
   }
 
   return true;
-}
-
-void Pipeline::accumulatePoolResources(DescriptorPool &pool) const {
-  for (const auto &[set, bindings] : m_reflection.descriptorBindings()) {
-    for (const auto &binding : bindings) {
-      DescriptorPool::PoolSize poolSize{};
-      poolSize.type = binding.descriptorType;
-      poolSize.descriptorCount = binding.descriptorCount;
-      pool.accumulate(poolSize);
-    }
-    pool.accumulateSet(1);
-  }
 }
 
 bool Pipeline::createLayout(
@@ -229,7 +99,6 @@ bool Pipeline::createLayout(
 }
 
 bool Pipeline::createShader(const ShaderInput &input,
-                            const std::string &entryPoint,
                             const VkShaderStageFlagBits stage, Shader &shader) {
   shader.destroy();
 
@@ -240,12 +109,12 @@ bool Pipeline::createShader(const ShaderInput &input,
         using T = std::decay_t<decltype(source)>;
 
         if constexpr (std::is_same_v<T, ShaderSource>) {
-          success = shader.initialize(m_device, source, stage, entryPoint);
+          success = shader.initialize(m_device, source, stage, input.entryPoint);
         } else if constexpr (std::is_same_v<T, ShaderBinary>) {
-          success = shader.initialize(m_device, source, stage, entryPoint);
+          success = shader.initialize(m_device, source, stage, input.entryPoint);
         }
       },
-      input);
+      input.code);
 
   if (!success || !shader.valid()) {
     return false;
@@ -256,6 +125,52 @@ bool Pipeline::createShader(const ShaderInput &input,
   }
 
   return true;
+}
+
+bool Pipeline::resolveBindingId(const BindingId &id, uint32_t &set,
+                                uint32_t &bindingIndex,
+                                ReflectedDescriptorBinding &rdb) {
+  bool succes = true;
+
+  std::visit(
+      [&](const auto &id) {
+        using T = std::decay_t<decltype(id)>;
+
+        if constexpr (std::is_same_v<T, std::string>) {
+          if (!m_reflection.findByName(id, rdb)) {
+            LOGE("Failed at finding binding named {}", id)
+            succes = false;
+          } else {
+            set = rdb.set;
+            bindingIndex = rdb.binding;
+          }
+        } else if constexpr (std::is_same_v<T, std::pair<uint32_t, uint32_t>>) {
+          if (!m_reflection.findById(id.first, id.second, rdb)) {
+            LOGE("Failed at finding binding {} at set {}", id.first, id.second)
+            succes = false;
+          } else {
+            set = id.first;
+            bindingIndex = id.second;
+          }
+        }
+      },
+      id);
+
+  return succes;
+}
+
+void Pipeline::destroy() {
+  m_reflection.destroy();
+  for (auto &[set, group] : m_descriptorGroups) {
+    group.layout.destroy();
+    for (auto &set : group.sets)
+      set.destroy();
+  }
+  m_device = VK_NULL_HANDLE;
+  m_pipeline = VK_NULL_HANDLE;
+  m_layout = VK_NULL_HANDLE;
+  m_pool = nullptr;
+  m_resourceManager = nullptr;
 }
 
 } // namespace vvhl

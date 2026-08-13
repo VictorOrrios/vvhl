@@ -49,8 +49,6 @@
 #include <vvhl/Core/Logger.hpp>
 #include <vvhl/Core/UUID.hpp>
 
-#include <vvhl/Core/App.hpp>
-
 #include <vvhl/Core/Input.hpp>
 #include <vvhl/Core/Window.hpp>
 
@@ -63,3 +61,4 @@
 
 // SLOTMAP
 #include <vvhl/SlotMap/SlotMap.hpp>
+

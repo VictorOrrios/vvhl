@@ -1,7 +1,6 @@
 #pragma once
 
 #include "./Handle.hpp"
-#include <cstddef>
 #include <vvhl/Core/Assert.hpp>
 
 namespace vvhl {

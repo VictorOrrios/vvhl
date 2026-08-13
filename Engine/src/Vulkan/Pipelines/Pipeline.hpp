@@ -6,8 +6,7 @@
 #include "Vulkan/Descriptors/DescriptorSetLayout.hpp"
 #include "Vulkan/Pipelines/PipelineReflection.hpp"
 #include "Vulkan/Shaders/Shader.hpp"
-#include <cstdint>
-#include <string>
+#include "vvhl/Resources/ResourceManager.hpp"
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
@@ -16,7 +15,10 @@ using ShaderSource = std::string;
 
 using ShaderBinary = std::vector<uint32_t>;
 
-using ShaderInput = std::variant<ShaderSource, ShaderBinary>;
+struct ShaderInput {
+  std::string entryPoint;
+  std::variant<ShaderSource, ShaderBinary> code;
+};
 
 class Pipeline {
 public:
@@ -28,10 +30,12 @@ public:
 
   virtual void destroy();
 
-  bool write(DescriptorBinding resourceBind, const uint32_t frameSet);
-  bool writeAllFrames(DescriptorBinding resourceBind);
+  template <WriteDescriptor T>
+  bool write(BindingId id, T resourceBind, const uint32_t frameSet);
 
-  
+  template <WriteDescriptor T>
+  bool writeAllFrames(BindingId id, T resourceBind);
+
   void updateDescriptors();
 
 public:
@@ -47,44 +51,28 @@ protected:
 protected:
   bool attachmentSetup();
 
-  void accumulatePoolResources(DescriptorPool &pool) const;
-
   bool createLayout(std::span<const VkDescriptorSetLayout> descriptorSetLayouts,
                     std::span<const VkPushConstantRange> pushConstantRanges);
 
-  bool createShader(const ShaderInput &input, const std::string &entryPoint,
-                    const VkShaderStageFlagBits stage, Shader &shader);
+  bool createShader(const ShaderInput &input, const VkShaderStageFlagBits stage,
+                    Shader &shader);
 
   virtual bool createPipeline() = 0;
 
 private:
-  bool resolveBinding(const BindingId &binding, uint32_t &set,
-                      uint32_t &bindingIndex);
-
-  void writeResolvedBinding(const ReflectedDescriptorBinding &rdb,
-                            const DescriptorBinding &binding,
-                            uint32_t frameSet);
-
-  void writeBuffer(uint32_t set, uint32_t binding, uint32_t frameSet,
-                   const ReflectedDescriptorBinding &rdb,
-                   const BufferBinding &buffer);
-  void writeImage(uint32_t set, uint32_t binding, uint32_t frameSet,
-                  const ReflectedDescriptorBinding &rdb,
-                  const ImageBinding &image);
-  void writeSampler(uint32_t set, uint32_t binding, uint32_t frameSet,
-                    const ReflectedDescriptorBinding &rdb,
-                    const SamplerBinding &sampler);
-  void writeCombined(uint32_t set, uint32_t binding, uint32_t frameSet,
-                     const ReflectedDescriptorBinding &rdb,
-                     const CombinedImageSamplerBinding &combined);
+  bool resolveBindingId(const BindingId &id, uint32_t &set,
+                        uint32_t &bindingIndex,
+                        ReflectedDescriptorBinding &rdb);
 
 protected:
   VkDevice m_device = VK_NULL_HANDLE;
   VkPipeline m_pipeline = VK_NULL_HANDLE;
   VkPipelineLayout m_layout = VK_NULL_HANDLE;
 
-  PipelineReflection m_reflection;
+  DescriptorPool *m_pool = nullptr;
+  ResourceManager *m_resourceManager = nullptr;
 
+  PipelineReflection m_reflection;
   std::map<uint32_t, DescriptorSetGroup> m_descriptorGroups;
 };
 

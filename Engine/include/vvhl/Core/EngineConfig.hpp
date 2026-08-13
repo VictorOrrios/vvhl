@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 namespace vvhl {
 
 struct ApplicationConfig {

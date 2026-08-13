@@ -7,6 +7,8 @@
 
 namespace vvhl {
 
+class Device;
+
 class VulkanContext {
 public:
   VulkanContext() = default;

@@ -1,17 +1,15 @@
 #pragma once
 
 #include "Pipeline.hpp"
-#include <vvhl/vvhl.hpp>
+#include "vvhl/Core/App.hpp"
 
 namespace vvhl {
 
 class ComputePipeline : public Pipeline {
 public:
   struct CreateInfo {
-    VkDevice device;
+    App* app;
     ShaderInput shaderInput;
-    std::string entryPoint = "main";
-    DescriptorPool *descriptorPool = nullptr;
     VkPipelineCreateFlags flags = 0;
   };
 

@@ -5,6 +5,8 @@
 
 namespace vvhl {
 
+class Device;
+
 struct SamplerDescription {
   VkFilter magFilter = VK_FILTER_LINEAR;
   VkFilter minFilter = VK_FILTER_LINEAR;

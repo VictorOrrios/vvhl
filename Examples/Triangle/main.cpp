@@ -1,9 +1,10 @@
 // Triangle example for vvhl
 
-#include <../../Engine/src/Core/GLFWContext/GLFWContext.hpp>
 #include <vvhl/vvhl.hpp>
 
 using namespace vvhl;
+
+class GLFWContext{};
 
 int main() {
   Logger::Init();
