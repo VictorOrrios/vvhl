@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <vvhl/vvhl.hpp>
 #include <Vulkan/Shaders/ShaderReflection.hpp>
+#include <vvhl/vvhl.hpp>
 
 namespace vvhl {
 
@@ -19,7 +19,8 @@ public:
   void destroy();
 
 public:
-  const std::unordered_map<uint32_t, std::vector<ReflectedDescriptorBinding>> &descriptorBindings() const {
+  const std::unordered_map<uint32_t, std::vector<ReflectedDescriptorBinding>> &
+  descriptorBindings() const {
     return m_descriptorBindings;
   }
 
@@ -27,8 +28,14 @@ public:
     return m_pushConstants;
   }
 
+  bool findByName(std::string name, ReflectedDescriptorBinding &output);
+  
+  bool findById(uint32_t setId, uint32_t bindingId,
+                ReflectedDescriptorBinding &output);
+
 private:
-  std::unordered_map<uint32_t, std::vector<ReflectedDescriptorBinding>> m_descriptorBindings;
+  std::unordered_map<uint32_t, std::vector<ReflectedDescriptorBinding>>
+      m_descriptorBindings;
   std::vector<VkPushConstantRange> m_pushConstants;
 };
 

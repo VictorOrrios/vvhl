@@ -4,51 +4,29 @@
 
 namespace vvhl {
 
-struct BindingId {
-  std::variant<std::string, std::pair<uint32_t, uint32_t>> id;
+using BindingId = std::variant<std::string, std::pair<uint32_t, uint32_t>>;
 
-  static BindingId name(std::string bindingName) {
-    return BindingId{bindingName};
-  }
+constexpr VkImageLayout _autoLayout = VK_IMAGE_LAYOUT_MAX_ENUM;
 
-  static BindingId index(uint32_t set, uint32_t binding) {
-    return BindingId{std::make_pair(set, binding)};
-  }
-};
-
-struct BufferBinding {
+struct BufferWriteDescriptor {
   BufferHandle handle;
-  std::optional<VkDeviceSize> offset;
-  std::optional<VkDeviceSize> range;
+  VkDeviceSize offset = 0;
+  VkDeviceSize range = VK_WHOLE_SIZE;
 };
 
-struct ImageBinding {
+struct ImageWriteDescriptor {
   ImageHandle handle;
-  std::optional<VkImageLayout> layout;
+  VkImageLayout imageLayout = _autoLayout;
 };
 
-struct SamplerBinding {
+struct SamplerWriteDescriptor {
   SamplerHandle handle;
 };
 
-struct CombinedImageSamplerBinding {
+struct CombinedImageSamplerWriteDescriptor {
   ImageHandle imageHandle;
   SamplerHandle samplerHandle;
-  std::optional<VkImageLayout> layout;
-};
-
-template <typename T> struct BindingArray {
-  std::vector<T> elements;
-};
-
-struct DescriptorBinding {
-  BindingId binding;
-  std::variant<BufferBinding, ImageBinding, SamplerBinding,
-               CombinedImageSamplerBinding, BindingArray<BufferBinding>,
-               BindingArray<ImageBinding>, BindingArray<SamplerBinding>,
-               BindingArray<CombinedImageSamplerBinding>>
-      resource;
-  std::optional<VkShaderStageFlags> stage;
+  VkImageLayout imageLayout = _autoLayout;
 };
 
 } // namespace vvhl

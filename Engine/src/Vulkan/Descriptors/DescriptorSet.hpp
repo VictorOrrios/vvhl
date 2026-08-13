@@ -1,34 +1,10 @@
 #pragma once
 
+#include "Vulkan/Descriptors/DescriptorBinding.hpp"
 #include <vvhl/Resources/ResourceManager.hpp>
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
-
-struct BufferWriteDescriptor {
-  BufferHandle handle;
-  VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  VkDeviceSize offset = 0;
-  VkDeviceSize range = VK_WHOLE_SIZE;
-};
-
-struct ImageWriteDescriptor {
-  ImageHandle handle;
-  VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-  VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-};
-
-struct SamplerWriteDescriptor {
-  SamplerHandle handle;
-  VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-};
-
-struct CombinedImageSamplerWriteDescriptor {
-  ImageHandle imageHandle;
-  SamplerHandle samplerHandle;
-  VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-};
 
 class DescriptorSet {
 public:
@@ -46,21 +22,29 @@ public:
   void update();
 
   // Write single
-  void write(uint32_t binding, const BufferWriteDescriptor &descriptor);
-  void write(uint32_t binding, const ImageWriteDescriptor &descriptor);
-  void write(uint32_t binding, const SamplerWriteDescriptor &descriptor);
+  void write(uint32_t binding, const BufferWriteDescriptor &descriptor,
+             const VkDescriptorType type);
+  void write(uint32_t binding, const ImageWriteDescriptor &descriptor,
+             const VkDescriptorType type);
+  void write(uint32_t binding, const SamplerWriteDescriptor &descriptor,
+             const VkDescriptorType type);
   void write(uint32_t binding,
-             const CombinedImageSamplerWriteDescriptor &descriptor);
+             const CombinedImageSamplerWriteDescriptor &descriptor,
+             const VkDescriptorType type);
 
   // Write arrays
   void write(uint32_t binding,
-             std::span<const BufferWriteDescriptor> descriptors);
+             std::span<const BufferWriteDescriptor> descriptors,
+             const VkDescriptorType type);
   void write(uint32_t binding,
-             std::span<const ImageWriteDescriptor> descriptors);
+             std::span<const ImageWriteDescriptor> descriptors,
+             const VkDescriptorType type);
   void write(uint32_t binding,
-             std::span<const SamplerWriteDescriptor> descriptors);
+             std::span<const SamplerWriteDescriptor> descriptors,
+             const VkDescriptorType type);
   void write(uint32_t binding,
-             std::span<const CombinedImageSamplerWriteDescriptor> descriptors);
+             std::span<const CombinedImageSamplerWriteDescriptor> descriptors,
+             const VkDescriptorType type);
 
 public:
   VkDescriptorSet handle() const { return m_descriptorSet; }
@@ -72,7 +56,8 @@ private:
     std::vector<VkDescriptorImageInfo> imageInfos;
   };
 
-VkWriteDescriptorSet genericVkWrite(uint32_t binding, VkDescriptorType descriptorType) const;
+  VkWriteDescriptorSet genericVkWrite(uint32_t binding,
+                                      const VkDescriptorType descriptorType) const;
 
 private:
   VkDevice m_device = VK_NULL_HANDLE;

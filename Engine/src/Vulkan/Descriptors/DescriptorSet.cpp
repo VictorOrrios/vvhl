@@ -19,7 +19,7 @@ void DescriptorSet::destroy() {
 
 VkWriteDescriptorSet
 DescriptorSet::genericVkWrite(uint32_t binding,
-                              VkDescriptorType descriptorType) const {
+                              const VkDescriptorType descriptorType) const {
   return {
       .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
       .pNext = nullptr,
@@ -36,7 +36,8 @@ DescriptorSet::genericVkWrite(uint32_t binding,
 
 // Write single
 void DescriptorSet::write(uint32_t binding,
-                          const BufferWriteDescriptor &descriptor) {
+                          const BufferWriteDescriptor &descriptor,
+                          const VkDescriptorType type) {
   PendingWrite pending;
   pending.bufferInfos.push_back({
       m_resourceManager->buffer(descriptor.handle).handle(),
@@ -44,14 +45,15 @@ void DescriptorSet::write(uint32_t binding,
       descriptor.range,
   });
 
-  pending.write = genericVkWrite(binding, descriptor.descriptorType);
+  pending.write = genericVkWrite(binding, type);
   pending.write.pBufferInfo = pending.bufferInfos.data();
 
   m_pendingWrites.push_back(std::move(pending));
 }
 
 void DescriptorSet::write(uint32_t binding,
-                          const ImageWriteDescriptor &descriptor) {
+                          const ImageWriteDescriptor &descriptor,
+                          const VkDescriptorType type) {
   PendingWrite pending;
   pending.imageInfos.push_back({
       VK_NULL_HANDLE,
@@ -59,14 +61,15 @@ void DescriptorSet::write(uint32_t binding,
       descriptor.imageLayout,
   });
 
-  pending.write = genericVkWrite(binding, descriptor.descriptorType);
+  pending.write = genericVkWrite(binding, type);
   pending.write.pImageInfo = pending.imageInfos.data();
 
   m_pendingWrites.push_back(std::move(pending));
 }
 
 void DescriptorSet::write(uint32_t binding,
-                          const SamplerWriteDescriptor &descriptor) {
+                          const SamplerWriteDescriptor &descriptor,
+                          const VkDescriptorType type) {
   PendingWrite pending;
   pending.imageInfos.push_back({
       m_resourceManager->sampler(descriptor.handle).handle(),
@@ -74,14 +77,15 @@ void DescriptorSet::write(uint32_t binding,
       VK_IMAGE_LAYOUT_UNDEFINED,
   });
 
-  pending.write = genericVkWrite(binding, descriptor.descriptorType);
+  pending.write = genericVkWrite(binding, type);
   pending.write.pImageInfo = pending.imageInfos.data();
 
   m_pendingWrites.push_back(std::move(pending));
 }
 
-void DescriptorSet::write(
-    uint32_t binding, const CombinedImageSamplerWriteDescriptor &descriptor) {
+void DescriptorSet::write(uint32_t binding,
+                          const CombinedImageSamplerWriteDescriptor &descriptor,
+                          const VkDescriptorType type) {
 
   PendingWrite pending;
   pending.imageInfos.push_back({
@@ -90,7 +94,7 @@ void DescriptorSet::write(
       descriptor.imageLayout,
   });
 
-  pending.write = genericVkWrite(binding, descriptor.descriptorType);
+  pending.write = genericVkWrite(binding, type);
   pending.write.pImageInfo = pending.imageInfos.data();
 
   m_pendingWrites.push_back(std::move(pending));
@@ -98,7 +102,8 @@ void DescriptorSet::write(
 
 // Arrays
 void DescriptorSet::write(uint32_t binding,
-                          std::span<const BufferWriteDescriptor> descriptors) {
+                          std::span<const BufferWriteDescriptor> descriptors,
+                          const VkDescriptorType type) {
   if (descriptors.empty())
     return;
 
@@ -113,7 +118,7 @@ void DescriptorSet::write(uint32_t binding,
     });
   }
 
-  pending.write = genericVkWrite(binding, descriptors[0].descriptorType);
+  pending.write = genericVkWrite(binding, type);
   pending.write.pBufferInfo = pending.bufferInfos.data();
   pending.write.descriptorCount =
       static_cast<uint32_t>(pending.bufferInfos.size());
@@ -123,7 +128,8 @@ void DescriptorSet::write(uint32_t binding,
 
 // Write array
 void DescriptorSet::write(uint32_t binding,
-                          std::span<const ImageWriteDescriptor> descriptors) {
+                          std::span<const ImageWriteDescriptor> descriptors,
+                          const VkDescriptorType type) {
   if (descriptors.empty())
     return;
 
@@ -138,7 +144,7 @@ void DescriptorSet::write(uint32_t binding,
     });
   }
 
-  pending.write = genericVkWrite(binding, descriptors[0].descriptorType);
+  pending.write = genericVkWrite(binding, type);
   pending.write.pImageInfo = pending.imageInfos.data();
   pending.write.descriptorCount =
       static_cast<uint32_t>(pending.imageInfos.size());
@@ -147,7 +153,8 @@ void DescriptorSet::write(uint32_t binding,
 }
 
 void DescriptorSet::write(uint32_t binding,
-                          std::span<const SamplerWriteDescriptor> descriptors) {
+                          std::span<const SamplerWriteDescriptor> descriptors,
+                          const VkDescriptorType type) {
   if (descriptors.empty())
     return;
 
@@ -162,7 +169,7 @@ void DescriptorSet::write(uint32_t binding,
     });
   }
 
-  pending.write = genericVkWrite(binding, descriptors[0].descriptorType);
+  pending.write = genericVkWrite(binding, type);
   pending.write.pImageInfo = pending.imageInfos.data();
   pending.write.descriptorCount =
       static_cast<uint32_t>(pending.imageInfos.size());
@@ -172,7 +179,8 @@ void DescriptorSet::write(uint32_t binding,
 
 void DescriptorSet::write(
     uint32_t binding,
-    std::span<const CombinedImageSamplerWriteDescriptor> descriptors) {
+    std::span<const CombinedImageSamplerWriteDescriptor> descriptors,
+    const VkDescriptorType type) {
   if (descriptors.empty())
     return;
 
@@ -187,7 +195,7 @@ void DescriptorSet::write(
     });
   }
 
-  pending.write = genericVkWrite(binding, descriptors[0].descriptorType);
+  pending.write = genericVkWrite(binding, type);
   pending.write.pImageInfo = pending.imageInfos.data();
   pending.write.descriptorCount =
       static_cast<uint32_t>(pending.imageInfos.size());

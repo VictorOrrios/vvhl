@@ -7,6 +7,7 @@
 #include "Vulkan/Pipelines/PipelineReflection.hpp"
 #include "Vulkan/Shaders/Shader.hpp"
 #include <cstdint>
+#include <string>
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
@@ -27,10 +28,10 @@ public:
 
   virtual void destroy();
 
-  bool writeAllFrames(DescriptorBinding resource);
-  bool write(DescriptorBinding resource);
-  bool write(DescriptorBinding resource, const uint32_t frameSet);
+  bool write(DescriptorBinding resourceBind, const uint32_t frameSet);
+  bool writeAllFrames(DescriptorBinding resourceBind);
 
+  
   void updateDescriptors();
 
 public:
@@ -41,8 +42,6 @@ protected:
   struct DescriptorSetGroup {
     DescriptorSetLayout layout;
     std::vector<DescriptorSet> sets;
-
-    VkDescriptorSetLayout vkLayout() const { return layout.handle(); }
   };
 
 protected:
@@ -57,6 +56,27 @@ protected:
                     const VkShaderStageFlagBits stage, Shader &shader);
 
   virtual bool createPipeline() = 0;
+
+private:
+  bool resolveBinding(const BindingId &binding, uint32_t &set,
+                      uint32_t &bindingIndex);
+
+  void writeResolvedBinding(const ReflectedDescriptorBinding &rdb,
+                            const DescriptorBinding &binding,
+                            uint32_t frameSet);
+
+  void writeBuffer(uint32_t set, uint32_t binding, uint32_t frameSet,
+                   const ReflectedDescriptorBinding &rdb,
+                   const BufferBinding &buffer);
+  void writeImage(uint32_t set, uint32_t binding, uint32_t frameSet,
+                  const ReflectedDescriptorBinding &rdb,
+                  const ImageBinding &image);
+  void writeSampler(uint32_t set, uint32_t binding, uint32_t frameSet,
+                    const ReflectedDescriptorBinding &rdb,
+                    const SamplerBinding &sampler);
+  void writeCombined(uint32_t set, uint32_t binding, uint32_t frameSet,
+                     const ReflectedDescriptorBinding &rdb,
+                     const CombinedImageSamplerBinding &combined);
 
 protected:
   VkDevice m_device = VK_NULL_HANDLE;

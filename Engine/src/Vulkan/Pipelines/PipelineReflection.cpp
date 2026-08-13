@@ -1,4 +1,5 @@
 #include "PipelineReflection.hpp"
+#include <cstdint>
 
 namespace vvhl {
 
@@ -21,16 +22,16 @@ bool PipelineReflection::add(const ShaderReflection &shaderReflection) {
     if (it->descriptorType != descriptor.descriptorType) {
       LOGE("Descriptor binding conflict: set=%u, binding=%u: "
            "descriptor type mismatch (%d vs %d)",
-           descriptor.set, descriptor.binding,
-           uint(it->descriptorType), uint(descriptor.descriptorType));
+           descriptor.set, descriptor.binding, uint(it->descriptorType),
+           uint(descriptor.descriptorType));
       return false;
     }
 
     if (it->descriptorCount != descriptor.descriptorCount) {
       LOGE("Descriptor binding conflict: set=%u, binding=%u: "
            "descriptor count mismatch (%u vs %u)",
-           descriptor.set, descriptor.binding,
-           it->descriptorCount, descriptor.descriptorCount);
+           descriptor.set, descriptor.binding, it->descriptorCount,
+           descriptor.descriptorCount);
       return false;
     }
 
@@ -53,6 +54,31 @@ bool PipelineReflection::add(const ShaderReflection &shaderReflection) {
   }
 
   return true;
+}
+
+bool PipelineReflection::findByName(std::string name,
+                                    ReflectedDescriptorBinding &output) {
+  for (auto &[setNumber, bindings] : m_descriptorBindings) {
+    for (auto &binding : bindings) {
+      if (!binding.name.empty() &&
+          std::strcmp(binding.name.c_str(), name.c_str())) {
+        output = binding;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool PipelineReflection::findById(uint32_t setId, uint32_t bindingId,
+                                  ReflectedDescriptorBinding &output) {
+  for (auto &binding : m_descriptorBindings[setId]) {
+    if (binding.binding == bindingId) {
+      output = binding;
+      return true;
+    }
+  }
+  return false;
 }
 
 void PipelineReflection::destroy() {

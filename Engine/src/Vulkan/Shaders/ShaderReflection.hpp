@@ -8,12 +8,12 @@ namespace vvhl {
 struct ReflectedDescriptorBinding {
   uint32_t set = 0;
   uint32_t binding = 0;
-  std::string name;
+  std::string name = "";
 
   VkDescriptorType descriptorType{};
   uint32_t descriptorCount = 1;
   VkShaderStageFlags stageFlags = 0;
-  VkImageLayout defaultImageLayout;
+  VkImageLayout defaultImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 };
 
 struct ShaderInterfaceVariable {
