@@ -17,6 +17,8 @@ bool Pipeline::write(BindingId id, T resourceBind, const uint32_t frameSet) {
   if (!resolveBindingId(id, setId, bindingId, rdb))
     return false;
 
+  applyAutolayout(resourceBind, rdb.defaultImageLayout);
+
   m_descriptorGroups[setId].sets[frameSet].write(bindingId, resourceBind,
                                                  rdb.descriptorType);
 }
@@ -29,6 +31,8 @@ bool Pipeline::writeAllFrames(BindingId id, T resourceBind) {
   if (!resolveBindingId(id, setId, bindingId, rdb))
     return false;
 
+  applyAutolayout(resourceBind, rdb.defaultImageLayout);
+
   for (auto &set : m_descriptorGroups[setId].sets)
     set.write(bindingId, resourceBind, rdb.descriptorType);
 }
@@ -38,6 +42,22 @@ void Pipeline::updateDescriptors() {
     for (auto &set : group.sets) {
       set.update();
     }
+  }
+}
+
+void Pipeline::bind(VkCommandBuffer cmd, uint32_t frameIndex) {
+  vkCmdBindPipeline(cmd, m_bindPoint, m_pipeline);
+
+  std::vector<VkDescriptorSet> sets;
+  sets.reserve(m_descriptorGroups.size());
+  for (const auto &[setNumber, group] : m_descriptorGroups) {
+    sets.push_back(group.sets[frameIndex].handle());
+  }
+
+  if (!sets.empty()) {
+    vkCmdBindDescriptorSets(cmd, m_bindPoint, m_layout, 0,
+                            static_cast<uint32_t>(sets.size()), sets.data(), 0,
+                            nullptr);
   }
 }
 
@@ -55,7 +75,8 @@ bool Pipeline::attachmentSetup() {
     vkLayouts.push_back(layout.handle());
 
     m_descriptorGroups[set] = {.layout = std::move(layout),
-                               .sets = std::vector<DescriptorSet>()};
+                               .sets = std::vector<DescriptorSet>(
+                                   EngineSettings::maxFramesInFlight())};
 
     std::vector<VkDescriptorSetLayout> layoutVector(
         EngineSettings::maxFramesInFlight(), layout.handle());
@@ -109,9 +130,11 @@ bool Pipeline::createShader(const ShaderInput &input,
         using T = std::decay_t<decltype(source)>;
 
         if constexpr (std::is_same_v<T, ShaderSource>) {
-          success = shader.initialize(m_device, source, stage, input.entryPoint);
+          success =
+              shader.initialize(m_device, source, stage, input.entryPoint);
         } else if constexpr (std::is_same_v<T, ShaderBinary>) {
-          success = shader.initialize(m_device, source, stage, input.entryPoint);
+          success =
+              shader.initialize(m_device, source, stage, input.entryPoint);
         }
       },
       input.code);
@@ -159,7 +182,37 @@ bool Pipeline::resolveBindingId(const BindingId &id, uint32_t &set,
   return succes;
 }
 
-void Pipeline::destroy() {
+template <WriteDescriptor T>
+void applyAutolayout(T &resourceBind, VkImageLayout defaultLayout) {
+
+  using DescType = std::decay_t<decltype(resourceBind)>;
+  if constexpr (std::is_same_v<DescType, ImageWriteDescriptor> ||
+                std::is_same_v<DescType, CombinedImageSamplerWriteDescriptor>) {
+    if (resourceBind.imageLayout == _autoLayout) {
+      resourceBind.imageLayout = defaultLayout;
+    }
+  } else if constexpr (std::is_same_v<DescType,
+                                      std::vector<ImageWriteDescriptor>> ||
+                       std::is_same_v<
+                           DescType,
+                           std::vector<CombinedImageSamplerWriteDescriptor>>) {
+    for (auto &rb : resourceBind) {
+      if (rb.imageLayout == _autoLayout) {
+        rb.imageLayout = defaultLayout;
+      }
+    }
+  }
+}
+
+void Pipeline::destroyBase() {
+  if (m_pipeline != VK_NULL_HANDLE) {
+    vkDestroyPipeline(m_device, m_pipeline, nullptr);
+    m_pipeline = VK_NULL_HANDLE;
+  }
+  if (m_layout != VK_NULL_HANDLE) {
+    vkDestroyPipelineLayout(m_device, m_layout, nullptr);
+    m_layout = VK_NULL_HANDLE;
+  }
   m_reflection.destroy();
   for (auto &[set, group] : m_descriptorGroups) {
     group.layout.destroy();

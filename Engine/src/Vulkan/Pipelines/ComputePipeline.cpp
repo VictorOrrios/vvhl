@@ -5,11 +5,13 @@ namespace vvhl {
 bool ComputePipeline::initialize(const CreateInfo &createInfo) {
   destroy();
 
-  if (createInfo.app->context().deviceHandle() == VK_NULL_HANDLE ||
-      m_pool == nullptr || m_resourceManager == nullptr) {
+  m_bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
+
+  if (createInfo.app == nullptr || 
+    createInfo.app->context().deviceHandle() == VK_NULL_HANDLE) {
     LOGE("Pipeline created with empty references")
     return false;
-  }
+}
 
   m_device = createInfo.app->context().deviceHandle();
   m_flags = createInfo.flags;
@@ -59,6 +61,15 @@ bool ComputePipeline::createPipeline() {
     return false;
   }
   return true;
+}
+
+void ComputePipeline::dispatch(VkCommandBuffer cmd, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) const{
+  vkCmdDispatch(cmd,groupCountX,groupCountY,groupCountZ);
+}
+
+void ComputePipeline::destroy(){
+  m_shader.destroy();
+  destroyBase();
 }
 
 } // namespace vvhl

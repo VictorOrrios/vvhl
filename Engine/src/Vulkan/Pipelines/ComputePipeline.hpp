@@ -8,7 +8,7 @@ namespace vvhl {
 class ComputePipeline : public Pipeline {
 public:
   struct CreateInfo {
-    App* app;
+    App *app;
     ShaderInput shaderInput;
     VkPipelineCreateFlags flags = 0;
   };
@@ -21,6 +21,11 @@ public:
   ComputePipeline &operator=(const ComputePipeline &) = delete;
 
   bool initialize(const CreateInfo &createInfo);
+
+  virtual void destroy() override;
+
+  void dispatch(VkCommandBuffer cmd, uint32_t groupCountX, uint32_t groupCountY,
+                uint32_t groupCountZ) const;
 
 protected:
   bool createPipeline() override;

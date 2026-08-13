@@ -7,6 +7,7 @@
 #include "Vulkan/Pipelines/PipelineReflection.hpp"
 #include "Vulkan/Shaders/Shader.hpp"
 #include "vvhl/Resources/ResourceManager.hpp"
+#include <vulkan/vulkan_core.h>
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
@@ -38,6 +39,8 @@ public:
 
   void updateDescriptors();
 
+  void bind(VkCommandBuffer cmd, uint32_t frameIndex);
+
 public:
   VkPipeline handle() const { return m_pipeline; }
   VkPipelineLayout layout() const { return m_layout; }
@@ -49,6 +52,8 @@ protected:
   };
 
 protected:
+  void destroyBase();
+
   bool attachmentSetup();
 
   bool createLayout(std::span<const VkDescriptorSetLayout> descriptorSetLayouts,
@@ -64,7 +69,12 @@ private:
                         uint32_t &bindingIndex,
                         ReflectedDescriptorBinding &rdb);
 
+  template <WriteDescriptor T>
+  void applyAutolayout(T &resourceBind, VkImageLayout defaultLayout);
+
 protected:
+  VkPipelineBindPoint m_bindPoint = VK_PIPELINE_BIND_POINT_MAX_ENUM;
+
   VkDevice m_device = VK_NULL_HANDLE;
   VkPipeline m_pipeline = VK_NULL_HANDLE;
   VkPipelineLayout m_layout = VK_NULL_HANDLE;
