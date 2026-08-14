@@ -116,7 +116,8 @@ VkPresentModeKHR Swapchain::choosePresentMode() const {
   // FIFO        -> Allways aviable (VSync)
   // MAILBOX     -> Triple buffering, low lag
   // IMMEDIATE   -> Tearing, least lag
-  VkPresentModeKHR preferred = EngineSettings::get().swapchain.preferredPresentMode;
+  VkPresentModeKHR preferred =
+      EngineSettings::get().swapchain.preferredPresentMode;
 
   for (VkPresentModeKHR mode : presentModes) {
     if (mode == preferred)
@@ -157,6 +158,12 @@ bool Swapchain::retrieveImages() {
   if (imageCount == 0) {
     LOGE("Swapchain contains no images");
     return false;
+  }
+
+  if (imageCount != EngineSettings::maxFramesInFlight()) {
+    LOGW("Number of images in swapchain ({}) doesn't match max frames in "
+         "flight ({})",
+         imageCount, EngineSettings::maxFramesInFlight())
   }
 
   m_images.resize(imageCount);
