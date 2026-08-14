@@ -1,7 +1,4 @@
 #include "./FrameManager.hpp"
-#include "Vulkan/Commands/Queue.hpp"
-#include "Vulkan/Sync/Semaphore.hpp"
-#include <vulkan/vulkan_core.h>
 
 namespace vvhl {
 
