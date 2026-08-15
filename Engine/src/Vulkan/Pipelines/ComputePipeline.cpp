@@ -7,16 +7,16 @@ bool ComputePipeline::initialize(const CreateInfo &createInfo) {
 
   m_bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
 
-  if (createInfo.app == nullptr || 
-    createInfo.app->context().deviceHandle() == VK_NULL_HANDLE) {
+  if (createInfo.renderPass == nullptr || 
+    createInfo.renderPass->context().deviceHandle() == VK_NULL_HANDLE) {
     LOGE("Pipeline created with empty references")
     return false;
 }
 
-  m_device = createInfo.app->context().deviceHandle();
+  m_device = createInfo.renderPass->context().deviceHandle();
   m_flags = createInfo.flags;
-  m_pool = &createInfo.app->descriptorPool();
-  m_resourceManager = &createInfo.app->resourceManager();
+  m_pool = &createInfo.renderPass->descriptorPool();
+  m_resourceManager = &createInfo.renderPass->resourceManager();
 
   if (!createShader(createInfo.shaderInput, VK_SHADER_STAGE_COMPUTE_BIT,
                     m_shader)) {

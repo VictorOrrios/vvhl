@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pipeline.hpp"
+#include "RenderPass/RenderPass.hpp"
 #include "vvhl/Core/App.hpp"
 
 namespace vvhl {
@@ -8,7 +9,7 @@ namespace vvhl {
 class ComputePipeline : public Pipeline {
 public:
   struct CreateInfo {
-    App *app;
+    RenderPass *renderPass;
     ShaderInput shaderInput;
     VkPipelineCreateFlags flags = 0;
   };

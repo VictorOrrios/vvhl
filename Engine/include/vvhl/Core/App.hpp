@@ -23,12 +23,10 @@ public:
 
 public:
   VulkanContext &context() { return m_context; }
-  DescriptorPool &descriptorPool() { return m_descPool; }
   ResourceManager &resourceManager() { return m_resourceManager; }
 
 private:
   VulkanContext m_context;
-  DescriptorPool m_descPool;
   ResourceManager m_resourceManager;
 };
 

@@ -5,12 +5,13 @@
 #include "Vulkan/Descriptors/DescriptorSetLayout.hpp"
 #include "Vulkan/Shaders/Shader.hpp"
 #include "vvhl/Core/EngineConfig.hpp"
-#include <cstdint>
 
 namespace vvhl {
 
 template <WriteDescriptor T>
 bool Pipeline::write(BindingId id, T resourceBind, const uint32_t frameSet) {
+  ASSERT(frameSet < EngineSettings::maxFramesInFlight())
+
   uint32_t setId, bindingId;
   ReflectedDescriptorBinding rdb;
 
