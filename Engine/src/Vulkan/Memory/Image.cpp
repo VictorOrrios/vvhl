@@ -1,5 +1,5 @@
 
-#include "Image.hpp"
+#include <vvhl/Vulkan/Memory/Image.hpp>
 
 namespace vvhl {
 

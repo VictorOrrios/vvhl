@@ -1,8 +1,7 @@
 #pragma once
 
 #include "CommandBuffer.hpp"
-#include <Vulkan/Context/Device.hpp>
-#include <vvhl/vvhl.hpp>
+#include <vvhl/Vulkan/Context/Device.hpp>
 
 namespace vvhl {
 

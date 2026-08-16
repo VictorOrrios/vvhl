@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Vulkan/Context/Device.hpp"
-#include <vvhl/vvhl.hpp>
+#include <vvhl/Vulkan/Context/Device.hpp>
 
 namespace vvhl {
 class TimeLineSemaphore {

@@ -1,5 +1,4 @@
-#include "Queue.hpp"
-#include <vulkan/vulkan_core.h>
+#include <vvhl/Vulkan/Commands/Queue.hpp>
 
 namespace vvhl {
 

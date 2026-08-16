@@ -16,7 +16,7 @@ public:
 
   virtual void destroy();  
 
-  void execute(VkCommandBuffer cmdBuff, uint32_t currentFrame);
+  void execute(VkCommandBuffer cmd, uint32_t currentFrame);
 
 public:
   VulkanContext &context() { return *m_context; }
@@ -27,7 +27,7 @@ protected:
   bool initializeBase(App &app);
   void destroyBase();
 
-  virtual void onRender(VkCommandBuffer cmdBuff, uint32_t currentFrame);
+  virtual void onRender(VkCommandBuffer cmd, uint32_t currentFrame);
 
 protected:
   VulkanContext *m_context = nullptr;

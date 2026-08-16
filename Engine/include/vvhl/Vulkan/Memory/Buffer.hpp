@@ -34,7 +34,7 @@ public:
   void unmap();
 
 public:
-  vk::Buffer handle() const { return m_buffer; }
+  VkBuffer handle() const { return m_buffer; }
   VkDeviceSize size() const { return m_desc.size; }
   BufferDescription description() const { return m_desc; }
 

@@ -1,6 +1,5 @@
 
-#include "Fence.hpp"
-#include <vulkan/vulkan_core.h>
+#include <vvhl/Vulkan/Sync/Fence.hpp>
 
 namespace vvhl {
 

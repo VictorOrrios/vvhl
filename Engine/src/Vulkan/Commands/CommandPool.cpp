@@ -1,6 +1,6 @@
 
-#include "CommandPool.hpp"
-#include "CommandBuffer.hpp"
+#include <vvhl/Vulkan/Commands/CommandPool.hpp>
+#include <vvhl/Vulkan/Commands/CommandBuffer.hpp>
 
 namespace vvhl {
 

@@ -1,14 +1,20 @@
 #pragma once
 
+#include <vvhl/Core/Logger.hpp>
+
 namespace vvhl {
 
 class GLFWContext {
 public:
-  GLFWContext();
-  ~GLFWContext();
+  static bool init() {
+    if (!glfwInit()) {
+      LOGE("Failed to initialize glfw")
+      return false;
+    }
+    return true;
+  }
 
-  GLFWContext(const GLFWContext &) = delete;
-  GLFWContext &operator=(const GLFWContext &) = delete;
+  static void terminate() { glfwTerminate(); }
 
   static std::vector<const char *> getRequiredExtensions() {
     uint32_t count = 0;

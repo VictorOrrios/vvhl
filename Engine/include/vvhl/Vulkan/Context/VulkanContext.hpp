@@ -1,9 +1,7 @@
 #pragma once
 
-#include "./Device.hpp"
-#include "./Swapchain.hpp"
-#include <vulkan/vulkan_core.h>
-#include <vvhl/vvhl.hpp>
+#include "Device.hpp"
+#include "Swapchain.hpp"
 
 namespace vvhl {
 
@@ -24,7 +22,8 @@ public:
   VkSurfaceKHR surface() const { return m_surface; };
   VmaAllocator allocator() const { return m_device->allocator(); };
   VkDevice deviceHandle() const { return m_device->handle(); };
-  Device& device() { return *m_device; }
+  Device &device() { return *m_device; }
+  Swapchain &swapchain() { return *m_swapchain; }
 
   static std::vector<VkExtensionProperties> availableExtensions() {
     uint32_t extensionCount = 0;

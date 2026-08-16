@@ -3,20 +3,19 @@
 #include <vvhl/Events/EventDispatcher.hpp>
 
 namespace vvhl {
-
-class Window {
-public:
-  struct WindowSpecification {
+struct WindowSpecification {
     std::string Title = "VVHL";
     uint32_t Width = 1280;
     uint32_t Height = 720;
     bool Resizable = true;
   };
 
-  Window(WindowSpecification spec, vvhl::EventDispatcher &dispatcher);
+class Window {
+public:
+  Window();
   ~Window() { destroy(); }
 
-  void create();
+  void initialize(WindowSpecification spec, EventDispatcher &dispatcher);
   void destroy();
 
   void close();
@@ -66,7 +65,7 @@ private:
 
 private:
   WindowSpecification m_spec;
-  vvhl::EventDispatcher &m_dispatcher;
+  EventDispatcher* m_dispatcher;
 
   GLFWwindow *m_glfwHandle = nullptr;
 

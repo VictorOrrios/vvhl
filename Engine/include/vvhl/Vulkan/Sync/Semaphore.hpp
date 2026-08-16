@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Vulkan/Context/Device.hpp"
-#include <vulkan/vulkan_core.h>
-#include <vvhl/vvhl.hpp>
+#include <vvhl/Vulkan/Context/Device.hpp>
 
 namespace vvhl {
 class Semaphore {

@@ -1,4 +1,4 @@
-#include "Sampler.hpp"
+#include <vvhl/Vulkan/Memory/Sampler.hpp>
 
 namespace vvhl {
 

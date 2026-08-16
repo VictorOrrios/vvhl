@@ -10,13 +10,11 @@ static Window *getWindow(GLFWwindow *window) {
   return static_cast<Window *>(glfwGetWindowUserPointer(window));
 }
 
-Window::Window(WindowSpecification spec, vvhl::EventDispatcher &dispatcher)
-    : m_spec(std::move(spec)), m_dispatcher(dispatcher) {}
+void Window::initialize(WindowSpecification spec, EventDispatcher &dispatcher) {
+  m_spec = spec;
+  m_dispatcher = &dispatcher;
 
-void Window::create() {
-  // glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  //  TODO: Vulkan is GLFW_NO_API, OpenGL is GLFW_OPENGL_API
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, m_spec.Resizable);
 
   m_glfwHandle = glfwCreateWindow(m_spec.Width, m_spec.Height,
@@ -25,17 +23,13 @@ void Window::create() {
   if (!m_glfwHandle)
     throw std::runtime_error("Failed to create window");
 
-  // TODO: Delete this, this is for OpenGL basic setup
-  glfwMakeContextCurrent(m_glfwHandle);
-  glfwSwapInterval(1);
-
   glfwSetWindowUserPointer(m_glfwHandle, this);
 
   // Register window callbacks
   registerCallbacks();
 
   // Initialize and register input callbacks
-  vvhl::Input::initialize(m_dispatcher, m_glfwHandle);
+  vvhl::Input::initialize(*m_dispatcher, m_glfwHandle);
 }
 
 void Window::destroy() {
@@ -150,7 +144,7 @@ void Window::WindowSizeCallback(GLFWwindow *window, int width, int height) {
 
   self->m_spec.Width = static_cast<uint32_t>(width);
   self->m_spec.Height = static_cast<uint32_t>(height);
-  self->m_dispatcher.dispatch(
+  self->m_dispatcher->dispatch(
       vvhl::WindowResizeEvent(self, self->m_spec.Width, self->m_spec.Height));
 }
 
@@ -158,41 +152,41 @@ void Window::FramebufferSizeCallback(GLFWwindow *window, int width,
                                      int height) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher.dispatch(vvhl::FramebufferResizeEvent(
+  self->m_dispatcher->dispatch(vvhl::FramebufferResizeEvent(
       self, static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
 }
 
 void Window::WindowCloseCallback(GLFWwindow *window) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher.dispatch(vvhl::WindowCloseEvent(self));
+  self->m_dispatcher->dispatch(vvhl::WindowCloseEvent(self));
 }
 
 void Window::WindowFocusCallback(GLFWwindow *window, int focused) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher.dispatch(
+  self->m_dispatcher->dispatch(
       vvhl::WindowFocusEvent(self, focused == GLFW_TRUE));
 }
 
 void Window::WindowIconifyCallback(GLFWwindow *window, int iconified) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher.dispatch(
+  self->m_dispatcher->dispatch(
       vvhl::WindowMinimizeEvent(self, iconified == GLFW_TRUE));
 }
 
 void Window::WindowMaximizeCallback(GLFWwindow *window, int maximized) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher.dispatch(
+  self->m_dispatcher->dispatch(
       vvhl::WindowMaximizeEvent(self, maximized == GLFW_TRUE));
 }
 
 void Window::WindowPositionCallback(GLFWwindow *window, int x, int y) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher.dispatch(vvhl::WindowMoveEvent(self, x, y));
+  self->m_dispatcher->dispatch(vvhl::WindowMoveEvent(self, x, y));
 }
 
 }; // namespace vvhl

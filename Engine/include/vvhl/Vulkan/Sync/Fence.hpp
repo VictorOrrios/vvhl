@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vvhl/vvhl.hpp>
-#include <Vulkan/Context/Device.hpp>
+#include <vvhl/Vulkan/Context/Device.hpp>
 
 namespace vvhl {
 

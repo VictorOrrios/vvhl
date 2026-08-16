@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CommandPool.hpp"
-#include "Vulkan/Context/Device.hpp"
+#include <vvhl/Vulkan/Commands/CommandPool.hpp>
+#include <vvhl/Vulkan/Context/Device.hpp>
 
 namespace vvhl {
 class CommandSystem {

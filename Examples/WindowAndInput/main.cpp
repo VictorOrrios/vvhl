@@ -1,8 +1,10 @@
 // Window and input example
 
-// TODO: Change OpenGL GLFW usage when Vulkan basics are done (Application)
+// TODO: Restore to functionality
 
-#include <../../Engine/src/Core/GLFWContext/GLFWContext.hpp>
+/*
+
+#include "vvhl/Core/GLFWContext.hpp"
 #include <vvhl/vvhl.hpp>
 
 using namespace vvhl;
@@ -14,7 +16,8 @@ int main() {
 
   EventDispatcher dispatcher;
 
-  Window window(
+  Window window;
+  window.initialize(
       {
           .Title = "VVHL Sandbox",
           .Width = 1280,
@@ -22,8 +25,6 @@ int main() {
           .Resizable = true,
       },
       dispatcher);
-
-  window.create();
 
   dispatcher.subscribe<WindowResizeEvent>([](const WindowResizeEvent &e) {
     LOGI("Resize {}x{}", e.Width, e.Height);
@@ -149,5 +150,10 @@ int main() {
     Input::endFrame();
   }
 
+  return 0;
+}
+
+*/
+int main() {
   return 0;
 }

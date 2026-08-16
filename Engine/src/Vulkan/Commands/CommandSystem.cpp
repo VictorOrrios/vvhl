@@ -1,6 +1,5 @@
 
-#include "CommandSystem.hpp"
-#include "Vulkan/Commands/CommandPool.hpp"
+#include <vvhl/Vulkan/Commands/CommandSystem.hpp>
 
 namespace vvhl {
 

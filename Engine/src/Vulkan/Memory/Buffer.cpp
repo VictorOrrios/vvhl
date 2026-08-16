@@ -1,4 +1,4 @@
-#include "Buffer.hpp"
+#include <vvhl/Vulkan/Memory/Buffer.hpp>
 
 namespace vvhl {
 

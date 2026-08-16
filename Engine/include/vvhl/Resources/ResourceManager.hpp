@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Vulkan/Context/VulkanContext.hpp>
-#include <Vulkan/Memory/Buffer.hpp>
-#include <Vulkan/Memory/Image.hpp>
-#include <Vulkan/Memory/Sampler.hpp>
+#include <vvhl/Vulkan/Context/VulkanContext.hpp>
+#include <vvhl/Vulkan/Memory/Buffer.hpp>
+#include <vvhl/Vulkan/Memory/Image.hpp>
+#include <vvhl/Vulkan/Memory/Sampler.hpp>
 
 namespace vvhl {
   

@@ -1,6 +1,5 @@
 
-#include "TimeLineSemaphore.hpp"
-#include <vulkan/vulkan_core.h>
+#include <vvhl/Vulkan/Sync/TimeLineSemaphore.hpp>
 
 namespace vvhl {
 

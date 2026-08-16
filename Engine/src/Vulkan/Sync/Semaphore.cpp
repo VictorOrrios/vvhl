@@ -1,6 +1,5 @@
 
-#include "Semaphore.hpp"
-#include <vulkan/vulkan_core.h>
+#include <vvhl/Vulkan/Sync/Semaphore.hpp>
 
 namespace vvhl {
 

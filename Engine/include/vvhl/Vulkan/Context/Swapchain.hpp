@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Device.hpp"
-#include <vvhl/vvhl.hpp>
 
 namespace vvhl {
 

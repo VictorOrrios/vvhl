@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Vulkan/Context/VulkanContext.hpp"
-#include <vvhl/vvhl.hpp>
+#include <vvhl/Vulkan/Context/VulkanContext.hpp>
 
 namespace vvhl {
 

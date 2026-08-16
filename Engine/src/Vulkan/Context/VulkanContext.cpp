@@ -1,8 +1,8 @@
 
-#include "VulkanContext.hpp"
-#include "Core/GLFWContext/GLFWContext.hpp"
-#include "vvhl/Core/BuildConfig.hpp"
-#include "vvhl/Core/EngineConfig.hpp"
+#include <vvhl/Vulkan/Context/VulkanContext.hpp>
+#include <vvhl/Core/BuildConfig.hpp>
+#include <vvhl/Core/EngineConfig.hpp>
+#include <vvhl/Core/GLFWContext.hpp>
 
 namespace vvhl {
 

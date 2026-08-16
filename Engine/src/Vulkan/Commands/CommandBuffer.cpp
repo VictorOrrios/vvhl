@@ -1,5 +1,5 @@
 
-#include "CommandBuffer.hpp"
+#include <vvhl/Vulkan/Commands/CommandBuffer.hpp>
 
 namespace vvhl {
 

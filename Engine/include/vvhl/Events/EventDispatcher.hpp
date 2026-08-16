@@ -49,6 +49,10 @@ public:
       listener.callback(event);
   }
 
+  void destroy(){
+    m_listeners.clear();
+  }
+
 private:
   struct Listener {
     ListenerID id;
