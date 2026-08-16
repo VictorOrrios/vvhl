@@ -2,6 +2,20 @@
 
 namespace vvhl {
 
+Buffer::Buffer(Buffer &&other) noexcept
+    : m_allocator(other.m_allocator), m_buffer(other.m_buffer),
+      m_allocation(other.m_allocation),
+      m_allocationInfo(other.m_allocationInfo), m_desc(other.m_desc),
+      m_mappedPtr(other.m_mappedPtr) {
+
+  other.m_allocator = VK_NULL_HANDLE;
+  other.m_buffer = VK_NULL_HANDLE;
+  other.m_allocation = nullptr;
+  other.m_allocationInfo = {};
+  other.m_desc = {};
+  other.m_mappedPtr = nullptr;
+}
+
 bool Buffer::create(VmaAllocator allocator, const BufferDescription &desc) {
   m_allocator = allocator;
   m_desc = desc;

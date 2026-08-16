@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Vulkan/Descriptors/DescriptorBinding.hpp"
+#include "DescriptorBinding.hpp"
 #include <vvhl/Resources/ResourceManager.hpp>
-#include <vvhl/vvhl.hpp>
 
 namespace vvhl {
 
@@ -48,6 +47,8 @@ public:
 
 public:
   VkDescriptorSet handle() const { return m_descriptorSet; }
+  VkWriteDescriptorSet
+  genericVkWrite(uint32_t binding, const VkDescriptorType descriptorType) const;
 
 private:
   struct PendingWrite {
@@ -55,9 +56,6 @@ private:
     std::vector<VkDescriptorBufferInfo> bufferInfos;
     std::vector<VkDescriptorImageInfo> imageInfos;
   };
-
-  VkWriteDescriptorSet genericVkWrite(uint32_t binding,
-                                      const VkDescriptorType descriptorType) const;
 
 private:
   VkDevice m_device = VK_NULL_HANDLE;

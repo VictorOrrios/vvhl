@@ -1,3 +1,5 @@
+#include "vvhl/Core/EngineConfig.hpp"
+#include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
 #include <vvhl/Core/GLFWContext.hpp>
 #include <vvhl/Core/Window.hpp>
@@ -24,7 +26,7 @@ bool App::initializeBase(const AppConfig &config) {
     return false;
   }
 
-  if(!m_cmdSystem.initialize(m_context.device())){
+  if (!m_cmdSystem.initialize(m_context.device())) {
     destroy();
     return false;
   }
@@ -35,11 +37,43 @@ bool App::initializeBase(const AppConfig &config) {
     return false;
   }
 
+  if (!m_imguiLayer.initialize(m_context, m_window)) {
+    destroy();
+    return false;
+  }
+
+  if (!createViewport()) {
+    destroy();
+    return false;
+  }
+
+  return true;
+}
+
+bool App::createViewport() {
+  VkExtent2D viewportSize = m_imguiLayer.getViewportExtent();
+  m_viewport = m_resourceManager.createImage(
+      {.format = EngineSettings::get().swapchain.preferredFormat,
+       .width = viewportSize.width,
+       .height = viewportSize.height});
+
+  m_viewportSampler = m_resourceManager.createSampler({
+      .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+      .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+      .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+  });
+
+  m_viewportSet = m_imguiLayer.createViewportTextureId(
+      m_resourceManager.image(m_viewport).view(),
+      m_resourceManager.sampler(m_viewportSampler).handle());
+
   return true;
 }
 
 void App::destroyBase() {
   m_context.device().waitIdle();
+
+  m_imguiLayer.destroy();
   m_frameManager.destroy();
   m_cmdSystem.destroy();
   m_cmdPool = nullptr;
@@ -64,9 +98,15 @@ void App::run() {
       destroy();
       return;
     }
+    auto extent = m_context.swapchain().details().extent;
 
     // Record cmd
-    onRender(f->cmdBuffer.handle(), outputView, f->frameNumber);
+    onRender(f->cmdBuffer.handle(), f->frameNumber);
+
+    // Draw gui
+    m_imguiLayer.beginFrame();
+    renderGUI();
+    m_imguiLayer.endFrame(f->cmdBuffer.handle(), outputView, extent);
 
     // Queue submit cmd, present swapchain img, end frame
     if (!m_frameManager.endFrame()) {
@@ -74,6 +114,16 @@ void App::run() {
       return;
     }
   }
+}
+
+void App::renderGUI() {
+  ImGui::Begin("Viewport");
+
+  ImVec2 avail = ImGui::GetContentRegionAvail();
+
+  ImGui::Image(m_viewportSet, avail);
+
+  ImGui::End();
 }
 
 } // namespace vvhl

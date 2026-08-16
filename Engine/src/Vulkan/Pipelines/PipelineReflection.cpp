@@ -1,5 +1,4 @@
-#include "PipelineReflection.hpp"
-#include <cstdint>
+#include <vvhl/Vulkan/Pipelines/PipelineReflection.hpp>
 
 namespace vvhl {
 

@@ -160,12 +160,6 @@ bool Swapchain::retrieveImages() {
     return false;
   }
 
-  if (imageCount != EngineSettings::maxFramesInFlight()) {
-    LOGW("Number of images in swapchain ({}) doesn't match max frames in "
-         "flight ({})",
-         imageCount, EngineSettings::maxFramesInFlight())
-  }
-
   m_images.resize(imageCount);
 
   if (vkGetSwapchainImagesKHR(m_device->handle(), m_swapchain, &imageCount,

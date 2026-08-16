@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cstdint>
+#include <cstddef>
+#include <functional>
+
 namespace vvhl {
 
 class UUID {

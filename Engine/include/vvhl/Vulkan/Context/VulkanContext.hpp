@@ -2,6 +2,7 @@
 
 #include "Device.hpp"
 #include "Swapchain.hpp"
+#include <vvhl/Core/Window.hpp>
 
 namespace vvhl {
 

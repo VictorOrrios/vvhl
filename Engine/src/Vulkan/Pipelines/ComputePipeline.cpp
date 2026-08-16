@@ -1,5 +1,5 @@
 
-#include "ComputePipeline.hpp"
+#include <vvhl/Vulkan/Pipelines/ComputePipeline.hpp>
 
 namespace vvhl {
 bool ComputePipeline::initialize(const CreateInfo &createInfo) {

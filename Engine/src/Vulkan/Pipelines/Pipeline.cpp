@@ -1,42 +1,7 @@
 
-#include "Pipeline.hpp"
-#include "Vulkan/Descriptors/DescriptorBinding.hpp"
-#include "Vulkan/Descriptors/DescriptorSet.hpp"
-#include "Vulkan/Descriptors/DescriptorSetLayout.hpp"
-#include "Vulkan/Shaders/Shader.hpp"
-#include "vvhl/Core/EngineConfig.hpp"
+#include <vvhl/Vulkan/Pipelines/Pipeline.hpp>
 
 namespace vvhl {
-
-template <WriteDescriptor T>
-bool Pipeline::write(BindingId id, T resourceBind, const uint32_t frameSet) {
-  ASSERT(frameSet < EngineSettings::maxFramesInFlight())
-
-  uint32_t setId, bindingId;
-  ReflectedDescriptorBinding rdb;
-
-  if (!resolveBindingId(id, setId, bindingId, rdb))
-    return false;
-
-  applyAutolayout(resourceBind, rdb.defaultImageLayout);
-
-  m_descriptorGroups[setId].sets[frameSet].write(bindingId, resourceBind,
-                                                 rdb.descriptorType);
-}
-
-template <WriteDescriptor T>
-bool Pipeline::writeAllFrames(BindingId id, T resourceBind) {
-  uint32_t setId, bindingId;
-  ReflectedDescriptorBinding rdb;
-
-  if (!resolveBindingId(id, setId, bindingId, rdb))
-    return false;
-
-  applyAutolayout(resourceBind, rdb.defaultImageLayout);
-
-  for (auto &set : m_descriptorGroups[setId].sets)
-    set.write(bindingId, resourceBind, rdb.descriptorType);
-}
 
 void Pipeline::updateDescriptors() {
   for (auto &[setNumber, group] : m_descriptorGroups) {
@@ -181,28 +146,6 @@ bool Pipeline::resolveBindingId(const BindingId &id, uint32_t &set,
       id);
 
   return succes;
-}
-
-template <WriteDescriptor T>
-void applyAutolayout(T &resourceBind, VkImageLayout defaultLayout) {
-
-  using DescType = std::decay_t<decltype(resourceBind)>;
-  if constexpr (std::is_same_v<DescType, ImageWriteDescriptor> ||
-                std::is_same_v<DescType, CombinedImageSamplerWriteDescriptor>) {
-    if (resourceBind.imageLayout == _autoLayout) {
-      resourceBind.imageLayout = defaultLayout;
-    }
-  } else if constexpr (std::is_same_v<DescType,
-                                      std::vector<ImageWriteDescriptor>> ||
-                       std::is_same_v<
-                           DescType,
-                           std::vector<CombinedImageSamplerWriteDescriptor>>) {
-    for (auto &rb : resourceBind) {
-      if (rb.imageLayout == _autoLayout) {
-        rb.imageLayout = defaultLayout;
-      }
-    }
-  }
 }
 
 void Pipeline::destroyBase() {

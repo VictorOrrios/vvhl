@@ -4,6 +4,8 @@
 
 namespace vvhl {
 
+class Window;
+
 class WindowEvent : public Event {
 public:
   explicit WindowEvent(Window *window) : WindowPtr(window) {}

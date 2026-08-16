@@ -1,11 +1,14 @@
 #pragma once
 
+#include <vvhl/Core/Window.hpp>
+#include <vvhl/Vulkan/Descriptors/DescriptorSet.hpp>
 #include <vvhl/Core/FrameManager.hpp>
+#include <vvhl/Events/EventDispatcher.hpp>
+#include <vvhl/ImGui/ImGuiLayer.hpp>
+#include <vvhl/Resources/ResourceManager.hpp>
 #include <vvhl/Vulkan/Commands/CommandPool.hpp>
 #include <vvhl/Vulkan/Commands/CommandSystem.hpp>
 #include <vvhl/Vulkan/Context/VulkanContext.hpp>
-#include <vvhl/Events/EventDispatcher.hpp>
-#include <vvhl/Resources/ResourceManager.hpp>
 
 namespace vvhl {
 
@@ -20,29 +23,35 @@ struct AppConfig {
 class App {
 public:
   App() = default;
-  ~App() { destroy(); }
+  ~App() = default;
 
   App(const App &) = delete;
   App &operator=(const App &) = delete;
 
-  virtual void destroy();
+  virtual void destroy() { destroyBase(); };
 
   void run();
 
 public:
   VulkanContext &context() { return m_context; }
   ResourceManager &resourceManager() { return m_resourceManager; }
+  virtual void onRender(VkCommandBuffer, uint32_t) {};
 
 protected:
   bool initializeBase(const AppConfig &config);
   void destroyBase();
 
 protected:
-  virtual void onRender(VkCommandBuffer cmdBuff, VkImageView outputView, uint32_t currentFrame);
   // on resize
 
+protected:
+  ImageHandle m_viewport;
+  SamplerHandle m_viewportSampler;
+  VkDescriptorSet m_viewportSet;
+
 private:
-  void submitCmd();
+  void renderGUI();
+  bool createViewport();
 
 private:
   Window m_window;
@@ -51,8 +60,9 @@ private:
   ResourceManager m_resourceManager;
   CommandSystem m_cmdSystem;
   FrameManager m_frameManager;
-
-  CommandPool* m_cmdPool = nullptr;
+  ImGuiLayer m_imguiLayer;
+  DescriptorSet m_descSet;
+  CommandPool *m_cmdPool = nullptr;
 
   bool m_shouldClose = false;
 };

@@ -3,6 +3,19 @@
 
 namespace vvhl {
 
+Image::Image(Image &&other) noexcept
+    : m_context(other.m_context), m_image(other.m_image), m_view(other.m_view),
+      m_allocation(other.m_allocation),
+      m_allocationInfo(other.m_allocationInfo), m_desc(other.m_desc) {
+
+  other.m_context = nullptr;
+  other.m_image = VK_NULL_HANDLE;
+  other.m_view = VK_NULL_HANDLE;
+  other.m_allocation = nullptr;
+  other.m_allocationInfo = {};
+  other.m_desc = {};
+}
+
 bool Image::create(VulkanContext &context, const ImageDescription &desc) {
   m_context = &context;
 
@@ -47,7 +60,8 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
 
   viewInfo.subresourceRange.aspectMask = getAspectMask(desc.format);
 
-  result = vkCreateImageView(context.deviceHandle(), &viewInfo, nullptr, &m_view);
+  result =
+      vkCreateImageView(context.deviceHandle(), &viewInfo, nullptr, &m_view);
 
   if (result != VK_SUCCESS) {
     LOGE("Failed to create image view");
@@ -64,7 +78,7 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
   return true;
 }
 
-VkImageAspectFlags getAspectMask(VkFormat format) {
+VkImageAspectFlags Image::getAspectMask(VkFormat format) {
   switch (format) {
   // Depth only
   case VK_FORMAT_D16_UNORM:

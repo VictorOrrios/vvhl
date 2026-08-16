@@ -1,7 +1,5 @@
 
-#include "DescriptorSetLayout.hpp"
-#include <vector>
-#include <vulkan/vulkan_core.h>
+#include <vvhl/Vulkan/Descriptors/DescriptorSetLayout.hpp>
 
 namespace vvhl {
 

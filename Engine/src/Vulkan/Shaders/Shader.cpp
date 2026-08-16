@@ -1,6 +1,6 @@
 
-#include "Shader.hpp"
-#include "ShaderCompiler.hpp"
+#include <vvhl/Vulkan/Shaders/Shader.hpp>
+#include <vvhl/Vulkan/Shaders/ShaderCompiler.hpp>
 
 namespace vvhl {
 

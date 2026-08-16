@@ -1,5 +1,5 @@
 
-#include "DescriptorPool.hpp"
+#include <vvhl/Vulkan/Descriptors/DescriptorPool.hpp>
 
 namespace vvhl {
 

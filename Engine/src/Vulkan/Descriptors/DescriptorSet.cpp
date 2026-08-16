@@ -1,4 +1,5 @@
-#include "DescriptorSet.hpp"
+
+#include <vvhl/Vulkan/Descriptors/DescriptorSet.hpp>
 
 namespace vvhl {
 

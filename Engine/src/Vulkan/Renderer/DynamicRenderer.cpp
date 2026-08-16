@@ -1,5 +1,5 @@
-#include "DynamicRenderer.hpp"
-#include "vvhl/Core/Logger.hpp"
+#include <vvhl/Vulkan/Renderer/DynamicRenderer.hpp>
+#include <vvhl/Core/Logger.hpp>
 
 namespace vvhl {
 

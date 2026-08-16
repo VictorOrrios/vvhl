@@ -1,5 +1,5 @@
 
-#include "RenderPass.hpp"
+#include <vvhl/RenderPass/RenderPass.hpp>
 
 namespace vvhl {
 
@@ -18,9 +18,7 @@ void RenderPass::destroyBase() {
 }
 
 void RenderPass::execute(VkCommandBuffer cmd, uint32_t currentFrame){
-  m_renderer.begin(cmd);
   onRender(cmd,currentFrame);
-  m_renderer.end(cmd);
 }
 
 } // namespace vvhl

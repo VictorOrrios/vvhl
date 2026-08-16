@@ -1,8 +1,7 @@
 
 #pragma once
 
-#include <Vulkan/Shaders/ShaderReflection.hpp>
-#include <vvhl/vvhl.hpp>
+#include <vvhl/Vulkan/Shaders/ShaderReflection.hpp>
 
 namespace vvhl {
 

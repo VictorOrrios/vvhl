@@ -32,7 +32,7 @@
 // SPIRV REFLECT
 #include <spirv_reflect.h>
 
-// GLTF
+// GLFW
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -42,22 +42,19 @@
 #include <fmt/os.h>
 #include <fmt/ranges.h>
 
+// IMGUI
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
+#define IMGUI_ENABLE_DOCKING
+#define IMGUI_ENABLE_VIEWPORT
+
 // CORE
 #include <vvhl/Core/Assert.hpp>
 #include <vvhl/Core/BuildConfig.hpp>
 #include <vvhl/Core/EngineConfig.hpp>
 #include <vvhl/Core/Logger.hpp>
 #include <vvhl/Core/UUID.hpp>
-
-#include <vvhl/Core/Input.hpp>
-#include <vvhl/Core/Window.hpp>
-
-// EVENTS
-#include <vvhl/Events/Event.hpp>
-#include <vvhl/Events/EventDispatcher.hpp>
-#include <vvhl/Events/KeyboardEvents.hpp>
-#include <vvhl/Events/MouseEvents.hpp>
-#include <vvhl/Events/WindowEvents.hpp>
 
 // SLOTMAP
 #include <vvhl/SlotMap/SlotMap.hpp>

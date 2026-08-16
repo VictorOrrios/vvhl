@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vvhl/vvhl.hpp>
-
 namespace vvhl {
 
 class ShaderCompiler {

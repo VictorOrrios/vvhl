@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vvhl/Events/EventDispatcher.hpp>
+#include <vvhl/vvhl.hpp>
 
 namespace vvhl {
 struct WindowSpecification {
@@ -12,7 +13,7 @@ struct WindowSpecification {
 
 class Window {
 public:
-  Window();
+  Window() = default;
   ~Window() { destroy(); }
 
   void initialize(WindowSpecification spec, EventDispatcher &dispatcher);

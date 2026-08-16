@@ -2,6 +2,15 @@
 
 namespace vvhl {
 
+Sampler::Sampler(Sampler &&other) noexcept
+    : m_device(other.m_device), m_sampler(other.m_sampler),
+      m_desc(other.m_desc) {
+
+  other.m_device = VK_NULL_HANDLE;
+  other.m_sampler = VK_NULL_HANDLE;
+  other.m_desc = {};
+}
+
 bool Sampler::create(Device &device, const SamplerDescription &desc) {
 
   VkSamplerCreateInfo samplerInfo{};
