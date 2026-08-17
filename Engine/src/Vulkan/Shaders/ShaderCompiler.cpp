@@ -1,4 +1,5 @@
 
+#include <filesystem>
 #include <vvhl/Vulkan/Shaders/ShaderCompiler.hpp>
 #include <vvhl/vvhl.hpp>
 

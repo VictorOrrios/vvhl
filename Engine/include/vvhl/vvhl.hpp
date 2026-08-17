@@ -25,6 +25,7 @@
 // VULKAN
 #include <volk.h>
 // NOTE: Volk already loads vulkan.h, do not include
+#include <vulkan/vk_enum_string_helper.h>
 
 // VMA
 #include <vma/vk_mem_alloc.h>

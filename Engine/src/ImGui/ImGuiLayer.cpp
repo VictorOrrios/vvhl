@@ -4,11 +4,6 @@
 #include <vvhl/ImGui/ImGuiLayer.hpp>
 
 namespace vvhl {
-  static PFN_vkVoidFunction ImGuiVulkanLoader(const char* function_name, void* user_data) {
-    VkDevice device = static_cast<VkDevice>(user_data);
-    LOGD("Loading function")
-    return vkGetDeviceProcAddr(device, function_name);
-}
 
 bool ImGuiLayer::initialize(VulkanContext &context, Window &window) {
   m_context = &context;
@@ -40,33 +35,6 @@ bool ImGuiLayer::initialize(VulkanContext &context, Window &window) {
     return false;
   }
 
-  // Verificaciones
-  ASSERT(context.instance() != VK_NULL_HANDLE)
-  ASSERT(context.device().physicalHandle() != VK_NULL_HANDLE)
-  ASSERT(m_device != VK_NULL_HANDLE)
-  ASSERT(context.device().graphicsQueue().handle() != VK_NULL_HANDLE)
-  ASSERT(m_descriptorPool.handle() != VK_NULL_HANDLE)
-  LOGI("Queue family: {}", context.device().graphicsFamily())
-  LOGI("MAX FIF: {}", EngineSettings::maxFramesInFlight())
-  LOGI("Color format: {}",
-       static_cast<int>(EngineSettings::get().swapchain.preferredFormat));
-
-  // Verificar soporte de dynamic rendering
-  VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
-  dynamicRenderingFeatures.sType =
-      VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-
-  VkPhysicalDeviceFeatures2 features2{};
-  features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-  features2.pNext = &dynamicRenderingFeatures;
-
-  vkGetPhysicalDeviceFeatures2(context.device().physicalHandle(), &features2);
-
-  if (!dynamicRenderingFeatures.dynamicRendering) {
-    LOGE("Dynamic rendering not supported!");
-    return false;
-  }
-
   ImGui_ImplVulkan_InitInfo initInfo = {};
   initInfo.ApiVersion = EngineSettings::get().instance.apiVersion;
   initInfo.Instance = context.instance();
@@ -81,13 +49,11 @@ bool ImGuiLayer::initialize(VulkanContext &context, Window &window) {
   initInfo.CheckVkResultFn = checkVkResult;
   initInfo.UseDynamicRendering = true;
 
-  LOGD("PipelineInfoMain")
   initInfo.PipelineInfoMain = {};
   initInfo.PipelineInfoMain.RenderPass = VK_NULL_HANDLE;
   initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
   initInfo.PipelineInfoMain.Subpass = 0;
 
-  LOGD("dynamic")
   initInfo.PipelineInfoMain.PipelineRenderingCreateInfo = {};
   initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
@@ -99,51 +65,11 @@ bool ImGuiLayer::initialize(VulkanContext &context, Window &window) {
   initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount =
       1;
 
-  LOGD("Checking Vulkan functions...");
-  LOGD("vkCmdBeginRendering: {}", (void *)vkCmdBeginRendering);
-  LOGD("vkCmdEndRendering: {}", (void *)vkCmdEndRendering);
-  LOGD("vkCmdBeginRenderingKHR: {}", (void *)vkCmdBeginRenderingKHR);
-  LOGD("API Version: {}.{}.{}",
-       VK_API_VERSION_MAJOR(EngineSettings::get().instance.apiVersion),
-       VK_API_VERSION_MINOR(EngineSettings::get().instance.apiVersion),
-       VK_API_VERSION_PATCH(EngineSettings::get().instance.apiVersion));
-
-  VkDevice device = context.device().handle();
-  LOGD("Device handle: {}", (void *)device);
-  LOGD("Device is null: {}", device == VK_NULL_HANDLE);
-
-  // Verificar que vkGetDeviceProcAddr funciona
-  PFN_vkVoidFunction testFunc =
-      vkGetDeviceProcAddr(device, "vkCmdBeginRendering");
-  LOGD("Test vkGetDeviceProcAddr result: {}", (void *)testFunc);
-
-  /*
-  ImGui_ImplVulkan_LoadFunctions(
-      EngineSettings::get().instance.apiVersion, // Versión de API
-      [](const char *function_name, void *user_data) {
-        VkDevice device = static_cast<VkDevice>(user_data);
-        LOGD("Loaded function")
-        return vkGetDeviceProcAddr(device, function_name);
-      },
-      (void *)context.device().handle() // user_data
-  );
-  */
-
-  ImGui_ImplVulkan_LoadFunctions(
-      EngineSettings::get().instance.apiVersion,
-      ImGuiVulkanLoader,  // Función estática, no lambda
-      (void*)context.device().handle()
-  );
-
-
-  LOGD("vulkan init")
   if (!ImGui_ImplVulkan_Init(&initInfo)) {
     LOGE("Failed initializing imgui vulkan implementation")
     // destroy();
     return false;
   }
-
-  LOGD("END")
 
   return true;
 }

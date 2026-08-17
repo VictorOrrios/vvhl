@@ -1,4 +1,5 @@
 
+#include "vvhl/Core/Logger.hpp"
 #include <vvhl/Vulkan/Memory/Image.hpp>
 
 namespace vvhl {
@@ -18,7 +19,6 @@ Image::Image(Image &&other) noexcept
 
 bool Image::create(VulkanContext &context, const ImageDescription &desc) {
   m_context = &context;
-
   m_desc = desc;
 
   VkImageCreateInfo imageInfo{};
@@ -43,7 +43,7 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
                                    &m_image, &m_allocation, &m_allocationInfo);
 
   if (result != VK_SUCCESS) {
-    LOGE("Failed to create image");
+    LOGE("Failed to create image {}", string_VkResult(result));
     return false;
   }
 

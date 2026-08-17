@@ -25,6 +25,7 @@ BufferHandle ResourceManager::createBuffer(const BufferDescription &desc) {
   ASSERT(m_context);
   BufferHandle handle = m_buffers.emplace();
   if (!m_buffers.get(handle).create(m_context->allocator(), desc)) {
+    LOGE("Failed at creating a buffer in the resource manager")
     return {UINT32_MAX, UINT32_MAX};
   };
   return handle;
@@ -33,7 +34,8 @@ BufferHandle ResourceManager::createBuffer(const BufferDescription &desc) {
 ImageHandle ResourceManager::createImage(const ImageDescription &desc) {
   ASSERT(m_context);
   ImageHandle handle = m_images.emplace();
-  if (m_images.get(handle).create(*m_context, desc)) {
+  if (!m_images.get(handle).create(*m_context, desc)) {
+    LOGE("Failed at creating an image in the resource manager")
     return {UINT32_MAX, UINT32_MAX};
   };
   return handle;
@@ -42,7 +44,8 @@ ImageHandle ResourceManager::createImage(const ImageDescription &desc) {
 SamplerHandle ResourceManager::createSampler(const SamplerDescription &desc) {
   ASSERT(m_context);
   SamplerHandle handle = m_samplers.emplace();
-  if (m_samplers.get(handle).create(m_context->device(), desc)) {
+  if (!m_samplers.get(handle).create(m_context->device(), desc)) {
+    LOGE("Failed at creating a sampler in the resource manager")
     return {UINT32_MAX, UINT32_MAX};
   };
   return handle;

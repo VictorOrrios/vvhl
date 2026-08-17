@@ -1,6 +1,7 @@
 // Triangle example for vvhl
 
 #include "vvhl/Core/App.hpp"
+#include "vvhl/Core/EngineConfig.hpp"
 #include "vvhl/Resources/ResourceManager.hpp"
 #include "vvhl/Vulkan/Renderer/DynamicRenderer.hpp"
 #include <vulkan/vulkan_core.h>
@@ -23,17 +24,22 @@ public:
 
     // INPUT
     m_mainImage = input.mainInputOutput;
+    m_descPool.accumulate({VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1});
+    m_descPool.accumulateSet(1);
 
     // OUTPUT
 
-    // PIPELINES
-    m_pipeline.initialize({
-        .renderPass = this,
-        .shaderInput = {"triangle.slang"},
-    });
+    // DESCRIPTOR POOL
+    m_descPool.create(m_context->device().handle());
+
+        // PIPELINES
+        m_pipeline.initialize({
+            .renderPass = this,
+            .shaderInput = {"./Examples/Triangle/triangle.slang"},
+        });
 
     // DESCRIPTORS
-    m_pipeline.writeAllFrames<ImageWriteDescriptor>("outImage",
+    m_pipeline.writeAllFrames<ImageWriteDescriptor>(std::pair(0,0),
                                                     {.handle = m_mainImage});
     m_pipeline.updateDescriptors();
 

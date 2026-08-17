@@ -78,7 +78,8 @@ DescriptorPool::allocate(std::span<const VkDescriptorSetLayout> layouts) {
 }
 
 void DescriptorPool::accumulate(const PoolSize &poolSize) {
-  m_typeCounts[poolSize.type] += poolSize.descriptorCount;
+  m_typeCounts[poolSize.type] +=
+      poolSize.descriptorCount * EngineSettings::maxFramesInFlight();
 }
 
 void DescriptorPool::accumulate(std::span<const PoolSize> poolSizes) {
@@ -86,6 +87,8 @@ void DescriptorPool::accumulate(std::span<const PoolSize> poolSizes) {
     accumulate(poolSize);
 }
 
-void DescriptorPool::accumulateSet(uint32_t numSets) { m_setCount += numSets; }
+void DescriptorPool::accumulateSet(uint32_t numSets) {
+  m_setCount += numSets * EngineSettings::maxFramesInFlight();
+}
 
 } // namespace vvhl

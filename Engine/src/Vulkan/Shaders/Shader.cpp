@@ -19,7 +19,7 @@ bool Shader::initialize(VkDevice device, std::span<const uint32_t> spirv, VkShad
 
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  createInfo.codeSize = spirv.size();
+  createInfo.codeSize = spirv.size() * sizeof(uint32_t);
   createInfo.pCode = reinterpret_cast<const uint32_t *>(spirv.data());
 
   if (vkCreateShaderModule(device, &createInfo, nullptr, &m_module) !=

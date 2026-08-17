@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vulkan/vulkan_core.h>
 #include <vvhl/Vulkan/Commands/Queue.hpp>
 #include <vvhl/vvhl.hpp>
 

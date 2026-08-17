@@ -310,12 +310,29 @@ bool Device::createAllocator(VkInstance instance) {
   VmaVulkanFunctions functions{};
   functions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
   functions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+  functions.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
+  functions.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties;
+  functions.vkAllocateMemory = vkAllocateMemory;
+  functions.vkFreeMemory = vkFreeMemory;
+  functions.vkMapMemory = vkMapMemory;
+  functions.vkUnmapMemory = vkUnmapMemory;
+  functions.vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges;
+  functions.vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges;
+  functions.vkBindBufferMemory = vkBindBufferMemory;
+  functions.vkBindImageMemory = vkBindImageMemory;
+  functions.vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements;
+  functions.vkGetImageMemoryRequirements = vkGetImageMemoryRequirements;
+  functions.vkCreateBuffer = vkCreateBuffer;
+  functions.vkDestroyBuffer = vkDestroyBuffer;
+  functions.vkCreateImage = vkCreateImage;
+  functions.vkDestroyImage = vkDestroyImage;
+  functions.vkCmdCopyBuffer = vkCmdCopyBuffer;
 
   VmaAllocatorCreateInfo createInfo{};
   createInfo.instance = instance;
   createInfo.physicalDevice = m_physicalDevice;
   createInfo.device = m_device;
-  createInfo.vulkanApiVersion = VK_API_VERSION_1_4;
+  createInfo.vulkanApiVersion = EngineSettings::get().instance.apiVersion;
   createInfo.pVulkanFunctions = &functions;
 
   if (vmaCreateAllocator(&createInfo, &m_allocator) != VK_SUCCESS) {

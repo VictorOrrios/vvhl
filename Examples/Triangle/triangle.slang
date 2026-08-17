@@ -3,7 +3,7 @@ RWTexture2D<float4> outImage;
 
 [shader("compute")]
 [numthreads(16, 16, 1)]
-void computeMain(uint3 threadIdx: SV_DispatchThreadID)
+void main(uint3 threadIdx: SV_DispatchThreadID)
 {
     int2 fragCoord = threadIdx.xy;
     int2 iResolution;

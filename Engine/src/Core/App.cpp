@@ -61,11 +61,18 @@ bool App::initializeBase(const AppConfig &config) {
 }
 
 bool App::createViewport() {
-  VkExtent2D viewportSize = m_imguiLayer.getViewportExtent();
-  m_viewport = m_resourceManager.createImage(
-      {.format = EngineSettings::get().swapchain.preferredFormat,
-       .width = viewportSize.width,
-       .height = viewportSize.height});
+  // TODO: Change to dynamic viewport resizing
+  VkExtent2D viewportSize =
+      VkExtent2D(m_window.getWidth(), m_window.getHeight());
+  LOGD("Viewport size {}x{}", viewportSize.width, viewportSize.height)
+
+  m_viewport = m_resourceManager.createImage({
+      .format = EngineSettings::get().swapchain.preferredFormat,
+      .width = viewportSize.width,
+      .height = viewportSize.height,
+      .usage =  VK_IMAGE_USAGE_STORAGE_BIT |      
+             VK_IMAGE_USAGE_SAMPLED_BIT
+  });
 
   m_viewportSampler = m_resourceManager.createSampler({
       .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,

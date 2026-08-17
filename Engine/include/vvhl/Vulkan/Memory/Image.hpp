@@ -24,7 +24,7 @@ struct ImageDescription {
 
   VkImageCreateFlags createFlags = 0;
 
-  VkImageUsageFlags usage = 0;
+  VkImageUsageFlags usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
   
   VkImageViewType viewType = VkImageViewType::VK_IMAGE_VIEW_TYPE_2D;
 

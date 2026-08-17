@@ -1,4 +1,5 @@
 
+#include "vvhl/Vulkan/Descriptors/DescriptorSetLayout.hpp"
 #include <vvhl/Vulkan/Pipelines/Pipeline.hpp>
 
 namespace vvhl {
@@ -45,7 +46,7 @@ bool Pipeline::attachmentSetup() {
                                    EngineSettings::maxFramesInFlight())};
 
     std::vector<VkDescriptorSetLayout> layoutVector(
-        EngineSettings::maxFramesInFlight(), layout.handle());
+        EngineSettings::maxFramesInFlight(), m_descriptorGroups[set].layout.handle());
 
     std::vector<VkDescriptorSet> vkSets = m_pool->allocate(layoutVector);
 
