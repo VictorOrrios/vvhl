@@ -1,6 +1,9 @@
 
-#include <vvhl/Vulkan/Commands/CommandPool.hpp>
+#include "vvhl/Core/Logger.hpp"
+#include "vvhl/Vulkan/Commands/Queue.hpp"
+#include <vulkan/vulkan_core.h>
 #include <vvhl/Vulkan/Commands/CommandBuffer.hpp>
+#include <vvhl/Vulkan/Commands/CommandPool.hpp>
 
 namespace vvhl {
 

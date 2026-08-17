@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vvhl/Vulkan/Descriptors/DescriptorSet.hpp>
-#include <vvhl/Vulkan/Renderer/DynamicRenderer.hpp>
-#include <vvhl/Vulkan/Descriptors/DescriptorPool.hpp>
 #include <vvhl/Vulkan/Commands/CommandSystem.hpp>
 #include <vvhl/Vulkan/Context/VulkanContext.hpp>
+#include <vvhl/Vulkan/Descriptors/DescriptorPool.hpp>
+#include <vvhl/Vulkan/Descriptors/DescriptorSet.hpp>
+#include <vvhl/Vulkan/Renderer/DynamicRenderer.hpp>
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
@@ -34,6 +34,12 @@ private:
 
   VkCommandBuffer beginSingleTimeCommands(CommandPool &cmdPool);
   void endSingleTimeCommands(CommandPool &cmdPool, VkCommandBuffer cmd);
+
+  static void checkVkResult(VkResult err) {
+    if (err != VK_SUCCESS) {
+      LOGE("Vulkan error in ImGui: {}", static_cast<int>(err));
+    }
+  }
 
 private:
   VkDevice m_device = VK_NULL_HANDLE;

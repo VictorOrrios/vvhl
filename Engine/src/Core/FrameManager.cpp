@@ -12,7 +12,7 @@ bool FrameManager::initialize(VulkanContext &context, CommandPool &cmdPool) {
                .fence = Fence(),
                .imageAvailable = Semaphore(),
                .renderFinished = Semaphore(),
-               .cmdBuffer = m_cmdPool->allocate()};
+               .cmdBuffer = cmdPool.allocate()};
 
     success &= f.fence.initialize(context.device());
     success &= f.imageAvailable.initialize(context.device());

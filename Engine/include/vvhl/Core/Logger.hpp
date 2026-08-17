@@ -3,7 +3,7 @@
 
 class Logger{
 public:
-    static void Init();
+    static void init();
 };
 
 // Debug
@@ -20,3 +20,6 @@ public:
 
 // Critical
 #define LOGC(...) spdlog::critical(__VA_ARGS__);
+
+// Flush
+#define LOGDUMP() spdlog::dump_backtrace();

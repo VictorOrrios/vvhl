@@ -1,65 +1,149 @@
 
 #include "vvhl/Core/EngineConfig.hpp"
-#include <vulkan/vulkan_core.h>
+#include "vvhl/Core/Logger.hpp"
 #include <vvhl/ImGui/ImGuiLayer.hpp>
 
 namespace vvhl {
+  static PFN_vkVoidFunction ImGuiVulkanLoader(const char* function_name, void* user_data) {
+    VkDevice device = static_cast<VkDevice>(user_data);
+    LOGD("Loading function")
+    return vkGetDeviceProcAddr(device, function_name);
+}
 
 bool ImGuiLayer::initialize(VulkanContext &context, Window &window) {
   m_context = &context;
   m_window = &window;
   m_device = context.device().handle();
 
-  // Create descriptor pool
   if (!createDescriptorPool()) {
     destroy();
     return false;
   }
 
-  // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   ImGui::StyleColorsDark();
 
-  // Setup scaling
   float main_scale =
       ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
   ImGuiStyle &style = ImGui::GetStyle();
   style.ScaleAllSizes(main_scale);
   style.FontScaleDpi = main_scale;
-  style.FontSizeBase = 20.0f;
-  io.Fonts->AddFontDefaultVector();
+  // style.FontSizeBase = 20.0f;
+  // io.Fonts->AddFontDefaultVector();
 
-  // Setup vulkan backend
-  ImGui_ImplGlfw_InitForVulkan(window.getNativeHandle(), true);
+  if (!ImGui_ImplGlfw_InitForVulkan(window.getNativeHandle(), true)) {
+    LOGE("Failed to initialize GLFW backend");
+    destroy();
+    return false;
+  }
+
+  // Verificaciones
+  ASSERT(context.instance() != VK_NULL_HANDLE)
+  ASSERT(context.device().physicalHandle() != VK_NULL_HANDLE)
+  ASSERT(m_device != VK_NULL_HANDLE)
+  ASSERT(context.device().graphicsQueue().handle() != VK_NULL_HANDLE)
+  ASSERT(m_descriptorPool.handle() != VK_NULL_HANDLE)
+  LOGI("Queue family: {}", context.device().graphicsFamily())
+  LOGI("MAX FIF: {}", EngineSettings::maxFramesInFlight())
+  LOGI("Color format: {}",
+       static_cast<int>(EngineSettings::get().swapchain.preferredFormat));
+
+  // Verificar soporte de dynamic rendering
+  VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
+  dynamicRenderingFeatures.sType =
+      VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+
+  VkPhysicalDeviceFeatures2 features2{};
+  features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+  features2.pNext = &dynamicRenderingFeatures;
+
+  vkGetPhysicalDeviceFeatures2(context.device().physicalHandle(), &features2);
+
+  if (!dynamicRenderingFeatures.dynamicRendering) {
+    LOGE("Dynamic rendering not supported!");
+    return false;
+  }
 
   ImGui_ImplVulkan_InitInfo initInfo = {};
   initInfo.ApiVersion = EngineSettings::get().instance.apiVersion;
   initInfo.Instance = context.instance();
   initInfo.PhysicalDevice = context.device().physicalHandle();
-  initInfo.Device = m_device;
+  initInfo.Device = context.device().handle();
   initInfo.QueueFamily = context.device().graphicsFamily();
   initInfo.Queue = context.device().graphicsQueue().handle();
   initInfo.DescriptorPool = m_descriptorPool.handle();
+  initInfo.PipelineCache = VK_NULL_HANDLE;
   initInfo.MinImageCount = 2;
   initInfo.ImageCount = EngineSettings::maxFramesInFlight();
+  initInfo.CheckVkResultFn = checkVkResult;
+  initInfo.UseDynamicRendering = true;
 
-  // Configure dynamic rendering
-  VkPipelineRenderingCreateInfo renderingInfo = {};
-  renderingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
-  renderingInfo.colorAttachmentCount = 1;
-  VkFormat colorFormat = EngineSettings::get().swapchain.preferredFormat;
-  renderingInfo.pColorAttachmentFormats = &colorFormat;
-  initInfo.PipelineInfoMain.PipelineRenderingCreateInfo = renderingInfo;
+  LOGD("PipelineInfoMain")
+  initInfo.PipelineInfoMain = {};
   initInfo.PipelineInfoMain.RenderPass = VK_NULL_HANDLE;
   initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+  initInfo.PipelineInfoMain.Subpass = 0;
 
+  LOGD("dynamic")
+  initInfo.PipelineInfoMain.PipelineRenderingCreateInfo = {};
+  initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+  initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount =
+      1;
+  initInfo.PipelineInfoMain.PipelineRenderingCreateInfo
+      .pColorAttachmentFormats =
+      &EngineSettings::get().swapchain.preferredFormat;
+  initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount =
+      1;
+
+  LOGD("Checking Vulkan functions...");
+  LOGD("vkCmdBeginRendering: {}", (void *)vkCmdBeginRendering);
+  LOGD("vkCmdEndRendering: {}", (void *)vkCmdEndRendering);
+  LOGD("vkCmdBeginRenderingKHR: {}", (void *)vkCmdBeginRenderingKHR);
+  LOGD("API Version: {}.{}.{}",
+       VK_API_VERSION_MAJOR(EngineSettings::get().instance.apiVersion),
+       VK_API_VERSION_MINOR(EngineSettings::get().instance.apiVersion),
+       VK_API_VERSION_PATCH(EngineSettings::get().instance.apiVersion));
+
+  VkDevice device = context.device().handle();
+  LOGD("Device handle: {}", (void *)device);
+  LOGD("Device is null: {}", device == VK_NULL_HANDLE);
+
+  // Verificar que vkGetDeviceProcAddr funciona
+  PFN_vkVoidFunction testFunc =
+      vkGetDeviceProcAddr(device, "vkCmdBeginRendering");
+  LOGD("Test vkGetDeviceProcAddr result: {}", (void *)testFunc);
+
+  /*
+  ImGui_ImplVulkan_LoadFunctions(
+      EngineSettings::get().instance.apiVersion, // Versión de API
+      [](const char *function_name, void *user_data) {
+        VkDevice device = static_cast<VkDevice>(user_data);
+        LOGD("Loaded function")
+        return vkGetDeviceProcAddr(device, function_name);
+      },
+      (void *)context.device().handle() // user_data
+  );
+  */
+
+  ImGui_ImplVulkan_LoadFunctions(
+      EngineSettings::get().instance.apiVersion,
+      ImGuiVulkanLoader,  // Función estática, no lambda
+      (void*)context.device().handle()
+  );
+
+
+  LOGD("vulkan init")
   if (!ImGui_ImplVulkan_Init(&initInfo)) {
-    destroy();
+    LOGE("Failed initializing imgui vulkan implementation")
+    // destroy();
     return false;
   }
+
+  LOGD("END")
 
   return true;
 }
@@ -67,11 +151,15 @@ bool ImGuiLayer::initialize(VulkanContext &context, Window &window) {
 bool ImGuiLayer::createDescriptorPool() {
   DescriptorPool::PoolSize pool_sizes[] = {
       {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-       IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE},
-      {VK_DESCRIPTOR_TYPE_SAMPLER, IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE},
+       IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE + 10},
+      {VK_DESCRIPTOR_TYPE_SAMPLER,
+       IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE + 10},
   };
 
   m_descriptorPool.accumulate(pool_sizes);
+  for (auto &pool_size : pool_sizes)
+    m_descriptorPool.accumulateSet(pool_size.descriptorCount);
+  m_descriptorPool.accumulateSet(5);
   if (!m_descriptorPool.create(
           m_device, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)) {
     LOGE("Failed creating ImGui Descriptor Pool")

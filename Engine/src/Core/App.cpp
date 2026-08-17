@@ -1,4 +1,5 @@
 #include "vvhl/Core/EngineConfig.hpp"
+#include "vvhl/Vulkan/Commands/Queue.hpp"
 #include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
 #include <vvhl/Core/GLFWContext.hpp>
@@ -8,44 +9,53 @@
 namespace vvhl {
 
 bool App::initializeBase(const AppConfig &config) {
+  Logger::init();
 
   GLFWContext::init();
+  LOGI("Initialized: GLFW Context")
 
   m_eventDispatcher.subscribe<WindowCloseEvent>(
       [this](const WindowCloseEvent &) { m_shouldClose = true; });
 
   m_window.initialize(config.windowSpec, m_eventDispatcher);
+  LOGI("Initialized: Window")
 
   if (!m_context.initialize(m_window)) {
     destroy();
     return false;
   }
+  LOGI("Initialized: Vulkan context")
 
   if (!m_resourceManager.initialize(m_context)) {
     destroy();
     return false;
   }
+  LOGI("Initialized: Resource manager")
 
   if (!m_cmdSystem.initialize(m_context.device())) {
     destroy();
     return false;
   }
   m_cmdPool = &m_cmdSystem.graphicsPool();
+  LOGI("Initialized: Command system")
 
   if (!m_frameManager.initialize(m_context, *m_cmdPool)) {
     destroy();
     return false;
   }
+  LOGI("Initialized: Frame manager")
 
   if (!m_imguiLayer.initialize(m_context, m_window)) {
     destroy();
     return false;
   }
+  LOGI("Initialized: ImGui Layer")
 
   if (!createViewport()) {
     destroy();
     return false;
   }
+  LOGI("Initialized: Viewport")
 
   return true;
 }

@@ -46,8 +46,6 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#define IMGUI_ENABLE_DOCKING
-#define IMGUI_ENABLE_VIEWPORT
 
 // CORE
 #include <vvhl/Core/Assert.hpp>

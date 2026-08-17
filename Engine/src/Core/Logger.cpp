@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-void Logger::Init() {
+void Logger::init() {
   spdlog::set_pattern("[%^%L%$] %v");
 
 #if defined(BUILD_DEV) || defined(BUILD_DEBUG)

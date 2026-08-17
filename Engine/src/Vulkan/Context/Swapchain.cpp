@@ -107,6 +107,8 @@ VkSurfaceFormatKHR Swapchain::chooseSurfaceFormat() const {
       return format;
   }
 
+  LOGW("Preferred surface format or color space for swapchain images not found, defaulting")
+
   return formats.front();
 }
 

@@ -4,10 +4,15 @@
 namespace vvhl {
 
 bool DescriptorPool::create(VkDevice device,
-                                VkDescriptorPoolCreateFlags flags) {
+                            VkDescriptorPoolCreateFlags flags) {
 
-  if (m_typeCounts.empty() || m_setCount == 0) {
-    LOGE("Can not initialize an empty descriptor pool")
+  if (m_typeCounts.empty()) {
+    LOGE("Can not initialize an empty descriptor pool: Type counts are all 0")
+    return false;
+  }
+
+  if (m_setCount <= 0) {
+    LOGE("Can not initialize an empty descriptor pool: 0 maximum sets")
     return false;
   }
 
@@ -26,7 +31,7 @@ bool DescriptorPool::create(VkDevice device,
   createInfo.maxSets = m_setCount;
   createInfo.flags = flags;
 
-  if (vkCreateDescriptorPool(m_device, &createInfo, nullptr, &m_pool) !=
+  if (vkCreateDescriptorPool(device, &createInfo, nullptr, &m_pool) !=
       VK_SUCCESS) {
     LOGE("Failed to create descriptor pool")
     return false;

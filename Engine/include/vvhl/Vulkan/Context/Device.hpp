@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vvhl/vvhl.hpp>
+#include <vulkan/vulkan_core.h>
 #include <vvhl/Vulkan/Commands/Queue.hpp>
+#include <vvhl/vvhl.hpp>
 
 namespace vvhl {
 
@@ -33,10 +34,10 @@ public:
   VkPhysicalDevice physicalHandle() const { return m_physicalDevice; }
 
   // Queues
-  Queue& graphicsQueue() { return m_graphicsQueue; }
-  Queue& computeQueue() { return m_computeQueue; }
-  Queue& transferQueue() { return m_transferQueue; }
-  Queue& presentQueue() { return m_presentQueue; }
+  Queue &graphicsQueue() { return m_graphicsQueue; }
+  Queue &computeQueue() { return m_computeQueue; }
+  Queue &transferQueue() { return m_transferQueue; }
+  Queue &presentQueue() { return m_presentQueue; }
 
   // Queue families
   uint32_t graphicsFamily() const { return *m_queueFamilies.graphics; }
@@ -89,7 +90,7 @@ private:
 
 private:
   inline static constexpr std::array DeviceExtensions{
-      VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME};
 
   inline static constexpr std::array ValidationLayers{
       "VK_LAYER_KHRONOS_validation"};
