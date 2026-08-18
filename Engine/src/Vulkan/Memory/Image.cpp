@@ -58,7 +58,11 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = desc.arrayLayers;
 
-  viewInfo.subresourceRange.aspectMask = getAspectMask(desc.format);
+  if(desc.aspectMask == _autoAspectMask){
+    viewInfo.subresourceRange.aspectMask = getAspectMask(desc.format);
+  }else{
+    viewInfo.subresourceRange.aspectMask = desc.aspectMask;
+  }
 
   result =
       vkCreateImageView(context.deviceHandle(), &viewInfo, nullptr, &m_view);

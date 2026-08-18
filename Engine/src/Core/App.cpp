@@ -1,5 +1,4 @@
 #include "vvhl/Core/EngineConfig.hpp"
-#include "vvhl/Vulkan/Commands/Queue.hpp"
 #include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
 #include <vvhl/Core/GLFWContext.hpp>
@@ -66,13 +65,17 @@ bool App::createViewport() {
       VkExtent2D(m_window.getWidth(), m_window.getHeight());
   LOGD("Viewport size {}x{}", viewportSize.width, viewportSize.height)
 
-  m_viewport = m_resourceManager.createImage({
-      .format = EngineSettings::get().swapchain.preferredFormat,
-      .width = viewportSize.width,
-      .height = viewportSize.height,
-      .usage =  VK_IMAGE_USAGE_STORAGE_BIT |      
-             VK_IMAGE_USAGE_SAMPLED_BIT
-  });
+  m_viewport = m_resourceManager.createImage(
+      {.format = VK_FORMAT_B8G8R8A8_UNORM,
+       .width = viewportSize.width,
+       .height = viewportSize.height,
+       .usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | // To render
+        VK_IMAGE_USAGE_SAMPLED_BIT |                  // To sample in imgui
+        VK_IMAGE_USAGE_STORAGE_BIT |                  // RWTextures
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT |             // To blit/copy
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,              // To read back
+        .aspectMask=VK_IMAGE_ASPECT_COLOR_BIT,
+      });
 
   m_viewportSampler = m_resourceManager.createSampler({
       .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
@@ -107,9 +110,12 @@ void App::run() {
   FrameManager::Frame *f;
   VkImageView outputView;
   while (!m_shouldClose) {
+    LOGD("poll")
+
     // Poll glfw events
     m_window.pollEvents();
 
+    LOGD("begin")
     // Wait fence, begin cmd, acquire image
     if (!m_frameManager.beginFrame(f, outputView)) {
       destroy();
@@ -117,15 +123,18 @@ void App::run() {
     }
     auto extent = m_context.swapchain().details().extent;
 
+    LOGD("onRender")
     // Record cmd
     onRender(f->cmdBuffer.handle(), f->frameNumber);
 
+    LOGD("imgui begin")
     // Draw gui
     m_imguiLayer.beginFrame();
     renderGUI();
     m_imguiLayer.endFrame(f->cmdBuffer.handle(), outputView, extent);
 
-    // Queue submit cmd, present swapchain img, end frame
+    LOGD("end")
+    // End cmd, Queue submit cmd, present swapchain img, end frame
     if (!m_frameManager.endFrame()) {
       destroy();
       return;

@@ -32,14 +32,14 @@ public:
     // DESCRIPTOR POOL
     m_descPool.create(m_context->device().handle());
 
-        // PIPELINES
-        m_pipeline.initialize({
-            .renderPass = this,
-            .shaderInput = {"./Examples/Triangle/triangle.slang"},
-        });
+    // PIPELINES
+    m_pipeline.initialize({
+        .renderPass = this,
+        .shaderInput = {"./Examples/Triangle/triangle.slang"},
+    });
 
     // DESCRIPTORS
-    m_pipeline.writeAllFrames<ImageWriteDescriptor>(std::pair(0,0),
+    m_pipeline.writeAllFrames<ImageWriteDescriptor>(std::pair(0, 0),
                                                     {.handle = m_mainImage});
     m_pipeline.updateDescriptors();
 
@@ -55,16 +55,18 @@ public:
 
   void destroy() override { destroyBase(); }
 
-  void onRender(VkCommandBuffer cmd, uint32_t) override {
+  void onRender(VkCommandBuffer cmd, uint32_t frameIndex) override {
+    LOGD("Renderpass on render")
 
-    m_renderer.begin(cmd);
+    //m_renderer.begin(cmd);
 
     VkExtent3D extent3d = m_resourceManager->image(m_mainImage).extent();
     VkExtent2D extent2d(extent3d.width, extent3d.height);
     VkExtent2D groupCount = calcGroupCounts(extent2d, 16);
-    m_pipeline.dispatch(cmd, groupCount.width, groupCount.height, 1);
+    m_pipeline.bindAndDispatch(cmd, frameIndex, groupCount.width,
+                               groupCount.height, 1);
 
-    m_renderer.end(cmd);
+    //m_renderer.end(cmd);
   }
 
 private:
@@ -85,6 +87,7 @@ public:
   }
 
   void onRender(VkCommandBuffer cmd, uint32_t currentFrame) override {
+    LOGD("App on render")
     m_pass.onRender(cmd, currentFrame);
   }
 
@@ -99,6 +102,7 @@ int main() {
 
   app.initialize({.windowSpec = {}});
 
+  LOGD("App init done")
   app.run();
 
   app.destroy();

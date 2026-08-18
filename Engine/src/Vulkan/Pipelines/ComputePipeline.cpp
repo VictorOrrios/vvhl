@@ -7,11 +7,11 @@ bool ComputePipeline::initialize(const CreateInfo &createInfo) {
 
   m_bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
 
-  if (createInfo.renderPass == nullptr || 
-    createInfo.renderPass->context().deviceHandle() == VK_NULL_HANDLE) {
+  if (createInfo.renderPass == nullptr ||
+      createInfo.renderPass->context().deviceHandle() == VK_NULL_HANDLE) {
     LOGE("Pipeline created with empty references")
     return false;
-}
+  }
 
   m_device = createInfo.renderPass->context().deviceHandle();
   m_flags = createInfo.flags;
@@ -63,11 +63,43 @@ bool ComputePipeline::createPipeline() {
   return true;
 }
 
-void ComputePipeline::dispatch(VkCommandBuffer cmd, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) const{
-  vkCmdDispatch(cmd,groupCountX,groupCountY,groupCountZ);
+void ComputePipeline::dispatch(VkCommandBuffer cmd, uint32_t groupCountX,
+                               uint32_t groupCountY,
+                               uint32_t groupCountZ) const {
+  vkCmdDispatch(cmd, groupCountX, groupCountY, groupCountZ);
 }
 
-void ComputePipeline::destroy(){
+void ComputePipeline::bind(VkCommandBuffer cmd) const {
+  ASSERT(m_pipeline != VK_NULL_HANDLE)
+  vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipeline);
+}
+
+void ComputePipeline::bindDescriptors(VkCommandBuffer cmd,
+                                      uint32_t frameIndex) const {
+  if (!m_descriptorGroups.empty()) {
+    std::vector<VkDescriptorSet> sets;
+    sets.reserve(m_descriptorGroups.size());
+
+    for (const auto &[set, group] : m_descriptorGroups) {
+      sets.push_back(group.sets[frameIndex].handle());
+    }
+
+    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_layout, 0,
+                            static_cast<uint32_t>(sets.size()), sets.data(), 0,
+                            nullptr);
+  }
+}
+
+void ComputePipeline::bindAndDispatch(VkCommandBuffer cmd, uint32_t frameIndex,
+                                      uint32_t groupCountX,
+                                      uint32_t groupCountY,
+                                      uint32_t groupCountZ) const {
+  bind(cmd);
+  bindDescriptors(cmd, frameIndex);
+  dispatch(cmd, groupCountX, groupCountY, groupCountZ);
+}
+
+void ComputePipeline::destroy() {
   m_shader.destroy();
   destroyBase();
 }

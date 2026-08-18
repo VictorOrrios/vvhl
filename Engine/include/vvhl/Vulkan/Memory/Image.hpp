@@ -6,6 +6,8 @@ namespace vvhl {
 
 class VulkanContext;
 
+constexpr VkImageAspectFlags _autoAspectMask = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;
+
 struct ImageDescription {
   VkImageType type = VK_IMAGE_TYPE_2D;
 
@@ -27,6 +29,8 @@ struct ImageDescription {
   VkImageUsageFlags usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
   
   VkImageViewType viewType = VkImageViewType::VK_IMAGE_VIEW_TYPE_2D;
+
+  VkImageAspectFlags aspectMask = _autoAspectMask;
 
   VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
   VmaAllocationCreateFlags allocationFlags = 0;
