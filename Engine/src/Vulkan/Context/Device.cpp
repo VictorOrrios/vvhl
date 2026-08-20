@@ -1,6 +1,6 @@
 
-#include <vvhl/Vulkan/Context/Device.hpp>
 #include <vvhl/Core/EngineConfig.hpp>
+#include <vvhl/Vulkan/Context/Device.hpp>
 
 namespace vvhl {
 
@@ -250,9 +250,16 @@ bool Device::createLogicalDevice() {
   VkPhysicalDeviceFeatures enabledFeatures =
       EngineSettings::get().device.requiredFeatures;
 
-      VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
-  dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+  VkPhysicalDeviceSynchronization2Features synchronization2Features{};
+  synchronization2Features.sType =
+      VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+  synchronization2Features.synchronization2 = VK_TRUE;
+
+  VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
+  dynamicRenderingFeatures.sType =
+      VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
   dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+  dynamicRenderingFeatures.pNext = &synchronization2Features;
 
   VkDeviceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -311,7 +318,8 @@ bool Device::createAllocator(VkInstance instance) {
   functions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
   functions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
   functions.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
-  functions.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties;
+  functions.vkGetPhysicalDeviceMemoryProperties =
+      vkGetPhysicalDeviceMemoryProperties;
   functions.vkAllocateMemory = vkAllocateMemory;
   functions.vkFreeMemory = vkFreeMemory;
   functions.vkMapMemory = vkMapMemory;

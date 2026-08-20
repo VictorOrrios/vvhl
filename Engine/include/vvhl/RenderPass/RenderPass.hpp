@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vvhl/Core/App.hpp"
+#include "vvhl/Vulkan/Sync/Barriermanager.hpp"
 #include <vvhl/Vulkan/Descriptors/DescriptorPool.hpp>
 #include <vvhl/Vulkan/Renderer/DynamicRenderer.hpp>
 
@@ -34,6 +35,7 @@ protected:
   ResourceManager *m_resourceManager = nullptr;
   DescriptorPool m_descPool;
   DynamicRenderer m_renderer;
+  BarrierManager m_barriers;
 };
 
 } // namespace vvhl

@@ -16,9 +16,9 @@ Buffer::Buffer(Buffer &&other) noexcept
   other.m_mappedPtr = nullptr;
 }
 
-bool Buffer::create(VmaAllocator allocator, const BufferDescription &desc) {
+bool Buffer::create(VmaAllocator allocator,
+                    const BufferCreateDescription &desc) {
   m_allocator = allocator;
-  m_desc = desc;
 
   VkBufferCreateInfo bufferInfo{};
   bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -41,6 +41,11 @@ bool Buffer::create(VmaAllocator allocator, const BufferDescription &desc) {
 
   if (m_allocationInfo.pMappedData)
     m_mappedPtr = m_allocationInfo.pMappedData;
+
+  m_desc.size = desc.size;
+  m_desc.usage = desc.usage;
+  m_desc.memoryUsage = desc.memoryUsage;
+  m_desc.allocationFlags = desc.allocationFlags;
 
   return true;
 }

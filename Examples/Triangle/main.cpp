@@ -4,7 +4,6 @@
 #include "vvhl/Core/EngineConfig.hpp"
 #include "vvhl/Resources/ResourceManager.hpp"
 #include "vvhl/Vulkan/Renderer/DynamicRenderer.hpp"
-#include <vulkan/vulkan_core.h>
 #include <vvhl/RenderPass/RenderPass.hpp>
 #include <vvhl/Vulkan/Pipelines/ComputePipeline.hpp>
 #include <vvhl/vvhl.hpp>
@@ -39,13 +38,13 @@ public:
     });
 
     // DESCRIPTORS
-    m_pipeline.writeAllFrames<ImageWriteDescriptor>(std::pair(0, 0),
-                                                    {.handle = m_mainImage});
+    m_pipeline.writeAllFrames<ImageWriteDescriptor>(
+        std::pair(0, 0),
+        {.handle = m_mainImage, .imageLayout = VK_IMAGE_LAYOUT_GENERAL});
     m_pipeline.updateDescriptors();
 
     // CONFIG
-    VkExtent3D extent3d = m_resourceManager->image(m_mainImage).extent();
-    VkExtent2D extent2d(extent3d.width, extent3d.height);
+    VkExtent2D extent2d = m_resourceManager->image(m_mainImage).extent2D();
     RenderingConfig rConf = RenderingConfig::singleColor(
         m_resourceManager->image(m_mainImage).view(), extent2d);
     m_renderer.updateRenderingInfo(rConf);
@@ -58,15 +57,21 @@ public:
   void onRender(VkCommandBuffer cmd, uint32_t frameIndex) override {
     LOGD("Renderpass on render")
 
-    //m_renderer.begin(cmd);
+    // m_renderer.begin(cmd);
 
-    VkExtent3D extent3d = m_resourceManager->image(m_mainImage).extent();
-    VkExtent2D extent2d(extent3d.width, extent3d.height);
-    VkExtent2D groupCount = calcGroupCounts(extent2d, 16);
+    m_barriers.imageBarrier(m_mainImage)->toLayout(VK_IMAGE_LAYOUT_GENERAL);
+    m_barriers.submit(cmd);
+
+    VkExtent2D groupCount =
+        calcGroupCounts(m_resourceManager->image(m_mainImage).extent2D(), 16);
     m_pipeline.bindAndDispatch(cmd, frameIndex, groupCount.width,
                                groupCount.height, 1);
 
-    //m_renderer.end(cmd);
+    m_barriers.imageBarrier(m_mainImage)
+        ->toLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    m_barriers.submit(cmd);
+
+    // m_renderer.end(cmd);
   }
 
 private:

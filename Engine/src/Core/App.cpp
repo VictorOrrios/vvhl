@@ -1,5 +1,3 @@
-#include "vvhl/Core/EngineConfig.hpp"
-#include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
 #include <vvhl/Core/GLFWContext.hpp>
 #include <vvhl/Core/Window.hpp>
@@ -69,11 +67,11 @@ bool App::createViewport() {
       {.format = VK_FORMAT_B8G8R8A8_UNORM,
        .width = viewportSize.width,
        .height = viewportSize.height,
-       .usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | // To render
-        VK_IMAGE_USAGE_SAMPLED_BIT |                  // To sample in imgui
-        VK_IMAGE_USAGE_STORAGE_BIT |                  // RWTextures
-        VK_IMAGE_USAGE_TRANSFER_DST_BIT |             // To blit/copy
-        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,              // To read back
+       .usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | // Graphics pipelines
+        VK_IMAGE_USAGE_STORAGE_BIT |                  // Compute pipelines
+        VK_IMAGE_USAGE_SAMPLED_BIT |                  // ImGui sampling
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT |             // To blit/copy if necesary
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,              // To read back for debugging or exports
         .aspectMask=VK_IMAGE_ASPECT_COLOR_BIT,
       });
 

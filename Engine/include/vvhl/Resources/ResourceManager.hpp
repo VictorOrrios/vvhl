@@ -30,9 +30,9 @@ public:
   bool initialize(VulkanContext &context);
   void destroy();
 
-  BufferHandle createBuffer(const BufferDescription &desc);
+  BufferHandle createBuffer(const BufferCreateDescription &desc);
 
-  ImageHandle createImage(const ImageDescription &desc);
+  ImageHandle createImage(const ImageCreateDescription &desc);
 
   SamplerHandle createSampler(const SamplerDescription &desc);
 

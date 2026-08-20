@@ -17,9 +17,8 @@ Image::Image(Image &&other) noexcept
   other.m_desc = {};
 }
 
-bool Image::create(VulkanContext &context, const ImageDescription &desc) {
+bool Image::create(VulkanContext &context, const ImageCreateDescription &desc) {
   m_context = &context;
-  m_desc = desc;
 
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -58,9 +57,9 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = desc.arrayLayers;
 
-  if(desc.aspectMask == _autoAspectMask){
+  if (desc.aspectMask == _autoAspectMask) {
     viewInfo.subresourceRange.aspectMask = getAspectMask(desc.format);
-  }else{
+  } else {
     viewInfo.subresourceRange.aspectMask = desc.aspectMask;
   }
 
@@ -78,6 +77,20 @@ bool Image::create(VulkanContext &context, const ImageDescription &desc) {
 
     return false;
   }
+
+  m_desc.type = desc.type;
+  m_desc.format = desc.format;
+  m_desc.width = desc.width;
+  m_desc.height = desc.height;
+  m_desc.depth = desc.depth;
+  m_desc.samples = desc.samples;
+  m_desc.tiling = desc.tiling;
+  m_desc.createFlags = desc.createFlags;
+  m_desc.usage = desc.usage;
+  m_desc.viewType = desc.viewType;
+  m_desc.aspectMask = desc.aspectMask;
+  m_desc.memoryUsage = desc.memoryUsage;
+  m_desc.allocationFlags = desc.allocationFlags;
 
   return true;
 }
@@ -123,6 +136,15 @@ void Image::destroy() {
   m_desc = {};
 
   m_context = nullptr;
+}
+
+void Image::setSyncState(ImageSyncState state) {
+  m_desc.syncState.access = state.access;
+  m_desc.syncState.baseMipLevel = state.baseMipLevel;
+  m_desc.syncState.mipLevelCount = state.mipLevelCount;
+  m_desc.syncState.baseArrayLayer = state.baseArrayLayer;
+  m_desc.syncState.arrayLayerCount = state.arrayLayerCount;
+  m_desc.syncState.layout = state.layout;
 }
 
 } // namespace vvhl

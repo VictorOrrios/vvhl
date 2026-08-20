@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Vulkan/Memory/Sampler.hpp>
+#include <vvhl/Vulkan/Memory/Sampler.hpp>
 
 namespace vvhl::SamplerPresets {
 

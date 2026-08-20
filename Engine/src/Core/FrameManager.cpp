@@ -1,4 +1,3 @@
-#include "vvhl/Core/Window.hpp"
 #include "vvhl/Vulkan/Context/Device.hpp"
 #include <vvhl/Core/FrameManager.hpp>
 

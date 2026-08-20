@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Vulkan/Memory/Image.hpp>
+#include <vvhl/Vulkan/Memory/Image.hpp>
 
 namespace vvhl::ImagePresets {
 
-inline constexpr ImageDescription Texture2D{
+inline constexpr ImageCreateDescription Texture2D{
     .type = VK_IMAGE_TYPE_2D,
     .format = VK_FORMAT_R8G8B8A8_UNORM,
 
@@ -13,7 +13,7 @@ inline constexpr ImageDescription Texture2D{
     .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
 };
 
-inline constexpr ImageDescription HDRTexture{
+inline constexpr ImageCreateDescription HDRTexture{
     .type = VK_IMAGE_TYPE_2D,
     .format = VK_FORMAT_R16G16B16A16_SFLOAT,
 
@@ -22,7 +22,7 @@ inline constexpr ImageDescription HDRTexture{
     .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
 };
 
-inline constexpr ImageDescription RenderTarget{
+inline constexpr ImageCreateDescription RenderTarget{
     .type = VK_IMAGE_TYPE_2D,
     .format = VK_FORMAT_R8G8B8A8_UNORM,
 
@@ -31,7 +31,7 @@ inline constexpr ImageDescription RenderTarget{
     .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
 };
 
-inline constexpr ImageDescription Depth{
+inline constexpr ImageCreateDescription Depth{
     .type = VK_IMAGE_TYPE_2D,
     .format = VK_FORMAT_D32_SFLOAT,
 
@@ -41,7 +41,7 @@ inline constexpr ImageDescription Depth{
     .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
 };
 
-inline constexpr ImageDescription Storage{
+inline constexpr ImageCreateDescription Storage{
     .type = VK_IMAGE_TYPE_2D,
     .format = VK_FORMAT_R16G16B16A16_SFLOAT,
 
@@ -50,7 +50,7 @@ inline constexpr ImageDescription Storage{
     .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
 };
 
-inline constexpr ImageDescription CubeMap{
+inline constexpr ImageCreateDescription CubeMap{
     .type = VK_IMAGE_TYPE_2D,
     .format = VK_FORMAT_R8G8B8A8_UNORM,
 

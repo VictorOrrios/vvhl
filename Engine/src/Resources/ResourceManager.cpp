@@ -21,7 +21,7 @@ void ResourceManager::destroy() {
   m_context = nullptr;
 }
 
-BufferHandle ResourceManager::createBuffer(const BufferDescription &desc) {
+BufferHandle ResourceManager::createBuffer(const BufferCreateDescription &desc) {
   ASSERT(m_context);
   BufferHandle handle = m_buffers.emplace();
   if (!m_buffers.get(handle).create(m_context->allocator(), desc)) {
@@ -31,7 +31,7 @@ BufferHandle ResourceManager::createBuffer(const BufferDescription &desc) {
   return handle;
 }
 
-ImageHandle ResourceManager::createImage(const ImageDescription &desc) {
+ImageHandle ResourceManager::createImage(const ImageCreateDescription &desc) {
   ASSERT(m_context);
   ImageHandle handle = m_images.emplace();
   if (!m_images.get(handle).create(*m_context, desc)) {
