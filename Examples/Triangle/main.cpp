@@ -52,7 +52,10 @@ public:
     return true;
   }
 
-  void destroy() override { destroyBase(); }
+  void destroy() override { 
+    m_pipeline.destroy();
+    destroyBase(); 
+  }
 
   void onRender(VkCommandBuffer cmd, uint32_t frameIndex) override {
     LOGD("Renderpass on render")

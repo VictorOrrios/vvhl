@@ -38,7 +38,7 @@ struct SamplerDescription {
 class Sampler {
 public:
   Sampler() = default;
-  ~Sampler() { destroy(); };
+  ~Sampler() = default;
 
   Sampler(const Sampler &) = delete;
   Sampler &operator=(const Sampler &) = delete;

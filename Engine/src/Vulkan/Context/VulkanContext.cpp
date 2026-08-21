@@ -167,10 +167,10 @@ void VulkanContext::destroy() {
   m_device->waitIdle();
 
   if (m_swapchain)
-    m_swapchain.reset();
+    m_swapchain->destroy();
 
   if (m_device)
-    m_device.reset();
+    m_device->destroy();
 
   if (m_surface != VK_NULL_HANDLE)
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);

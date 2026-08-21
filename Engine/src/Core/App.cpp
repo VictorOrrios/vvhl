@@ -1,3 +1,4 @@
+#include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
 #include <vvhl/Core/GLFWContext.hpp>
 #include <vvhl/Core/Window.hpp>
@@ -91,13 +92,20 @@ bool App::createViewport() {
 void App::destroyBase() {
   m_context.device().waitIdle();
 
+    LOGD("m_imguiLayer")
   m_imguiLayer.destroy();
+    LOGD("m_frameManager")
   m_frameManager.destroy();
+    LOGD("m_cmdSystem")
   m_cmdSystem.destroy();
   m_cmdPool = nullptr;
+    LOGD("m_resourceManager")
   m_resourceManager.destroy();
+    LOGD("m_context")
   m_context.destroy();
+    LOGD("m_window")
   m_window.destroy();
+    LOGD("m_eventDispatcher")
   m_eventDispatcher.destroy();
   m_shouldClose = false;
 
@@ -138,6 +146,8 @@ void App::run() {
       return;
     }
   }
+  // Wait idle before closing
+  m_context.device().waitIdle();
 }
 
 void App::renderGUI() {

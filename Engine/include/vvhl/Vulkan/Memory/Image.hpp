@@ -78,7 +78,7 @@ struct ImageDescription {
 class Image {
 public:
   Image() = default;
-  ~Image() { destroy(); };
+  ~Image() = default;
 
   Image(const Image &) = delete;
   Image &operator=(const Image &) = delete;

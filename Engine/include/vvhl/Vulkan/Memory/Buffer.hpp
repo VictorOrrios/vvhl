@@ -34,7 +34,7 @@ struct BufferDescription {
 class Buffer {
 public:
   Buffer() = default;
-  ~Buffer() { destroy(); };
+  ~Buffer() = default;
 
   Buffer(const Buffer &) = delete;
   Buffer &operator=(const Buffer &) = delete;

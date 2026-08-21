@@ -260,6 +260,7 @@ void Swapchain::destroy() {
   m_images.clear();
   m_imageViews.clear();
   m_wrapImages.clear();
+  m_semaphores.clear();
 }
 
 bool Swapchain::createSemaphores() {
@@ -287,9 +288,6 @@ void Swapchain::destroySemaphores() {
   for (auto &semaphore : m_semaphores) {
     semaphore.destroy();
   }
-
-  m_semaphores.clear();
-  m_semaphores.shrink_to_fit();
 }
 
 void Swapchain::destroySwapchain() {
