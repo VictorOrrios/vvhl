@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vvhl/Vulkan/Sync/Barriermanager.hpp"
 #include <vvhl/Vulkan/Commands/CommandPool.hpp>
 #include <vvhl/Vulkan/Context/VulkanContext.hpp>
 #include <vvhl/Vulkan/Sync/Fence.hpp>
@@ -14,7 +15,6 @@ public:
     uint32_t frameNumber;
     Fence fence;
     Semaphore imageAvailable;
-    Semaphore renderFinished;
     CommandBuffer cmdBuffer;
   };
 
@@ -40,6 +40,7 @@ private:
   CommandPool *m_cmdPool = nullptr;
   uint32_t m_currentFrame = 0;
   std::vector<Frame> m_frames;
+  BarrierManager m_barrierManager;
 
   const uint32_t m_maxFramesInFlight = EngineSettings::maxFramesInFlight();
 };

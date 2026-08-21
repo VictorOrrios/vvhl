@@ -7,6 +7,8 @@
 namespace vvhl {
 
 class Device;
+class Swapchain;
+class Image;
 
 class VulkanContext {
 public:

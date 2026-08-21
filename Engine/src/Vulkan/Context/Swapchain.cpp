@@ -1,13 +1,15 @@
 
-#include <vvhl/Vulkan/Context/Swapchain.hpp>
+#include <cstdint>
 #include <vvhl/Core/EngineConfig.hpp>
+#include <vvhl/Vulkan/Context/Swapchain.hpp>
 
 namespace vvhl {
 
-bool Swapchain::initialize(Device &device, VkSurfaceKHR surface, uint32_t width,
-                           uint32_t height) {
+bool Swapchain::initialize(VulkanContext &context, VkSurfaceKHR surface,
+                           uint32_t width, uint32_t height) {
 
-  m_device = &device;
+  m_context = &context;
+  m_device = &context.device();
   m_surface = surface;
   m_swapchainSupport = m_device->querySwapchainSupport(surface);
 
@@ -21,6 +23,13 @@ bool Swapchain::initialize(Device &device, VkSurfaceKHR surface, uint32_t width,
     destroy();
     return false;
   }
+
+  if (!createSemaphores()) {
+    destroy();
+    return false;
+  }
+
+  wrapImages();
 
   return true;
 }
@@ -107,7 +116,8 @@ VkSurfaceFormatKHR Swapchain::chooseSurfaceFormat() const {
       return format;
   }
 
-  LOGW("Preferred surface format or color space for swapchain images not found, defaulting")
+  LOGW("Preferred surface format or color space for swapchain images not "
+       "found, defaulting")
 
   return formats.front();
 }
@@ -210,10 +220,57 @@ bool Swapchain::createImageViews() {
   return true;
 }
 
+void Swapchain::wrapImages() {
+  ASSERT(m_images.size() == m_imageViews.size())
+  m_wrapImages.reserve(m_images.size());
+
+  for (uint32_t i = 0; i < m_images.size(); i++) {
+    ImageDescription desc;
+    desc.type = VK_IMAGE_TYPE_2D;
+    desc.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    desc.format = m_details.surfaceFormat.format;
+    desc.width = m_details.extent.width;
+    desc.height = m_details.extent.height;
+    desc.depth = 1;
+
+    desc.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    desc.syncState.baseMipLevel = 0;
+    desc.syncState.mipLevelCount = 1;
+    desc.syncState.baseArrayLayer = 0;
+    desc.syncState.arrayLayerCount = 1;
+    desc.syncState.layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    desc.syncState.access = 0;
+
+    desc.usage =
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+    desc.samples = VK_SAMPLE_COUNT_1_BIT;
+    desc.tiling = VK_IMAGE_TILING_OPTIMAL;
+
+    m_wrapImages.push_back({});
+    m_wrapImages.back().wrap(*m_context, m_images[i], m_imageViews[i], desc);
+  }
+}
+
 void Swapchain::destroy() {
+  destroySemaphores();
   destroyImageViews();
   destroySwapchain();
   m_images.clear();
+  m_imageViews.clear();
+  m_wrapImages.clear();
+}
+
+bool Swapchain::createSemaphores() {
+  m_semaphores.reserve(m_images.size());
+  for (uint32_t i = 0; i < m_images.size(); i++) {
+    m_semaphores.push_back({});
+    if (!m_semaphores.back().initialize(*m_device))
+      return false;
+  }
+
+  return true;
 }
 
 void Swapchain::destroyImageViews() {
@@ -224,6 +281,15 @@ void Swapchain::destroyImageViews() {
 
   m_imageViews.clear();
   m_imageViews.shrink_to_fit();
+}
+
+void Swapchain::destroySemaphores() {
+  for (auto &semaphore : m_semaphores) {
+    semaphore.destroy();
+  }
+
+  m_semaphores.clear();
+  m_semaphores.shrink_to_fit();
 }
 
 void Swapchain::destroySwapchain() {
@@ -252,14 +318,12 @@ bool Swapchain::recreate() {
   return true;
 }
 
-VkResult Swapchain::acquireNextImage(VkSemaphore semaphore, VkFence fence,
-                                     uint32_t &imageIndex) {
+VkResult Swapchain::advanceImage(VkSemaphore semaphore, VkFence fence) {
   return vkAcquireNextImageKHR(m_device->handle(), m_swapchain, UINT64_MAX,
-                               semaphore, fence, &imageIndex);
+                               semaphore, fence, &m_currIndex);
 }
 
-VkResult Swapchain::presentImage(uint32_t imageIndex,
-                                 VkSemaphore waitSemaphore) {
+VkResult Swapchain::presentImage(VkSemaphore waitSemaphore) {
   VkPresentInfoKHR presentInfo{};
   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
@@ -269,7 +333,7 @@ VkResult Swapchain::presentImage(uint32_t imageIndex,
   presentInfo.swapchainCount = 1;
   presentInfo.pSwapchains = &m_swapchain;
 
-  presentInfo.pImageIndices = &imageIndex;
+  presentInfo.pImageIndices = &m_currIndex;
 
   return vkQueuePresentKHR(m_device->presentQueue().handle(), &presentInfo);
 }

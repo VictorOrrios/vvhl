@@ -114,14 +114,14 @@ void App::run() {
     m_window.pollEvents();
 
     LOGD("begin")
-    // Wait fence, begin cmd, acquire image
+    // Wait fence, begin cmd, acquire image, transition layout
     if (!m_frameManager.beginFrame(f, outputView)) {
       destroy();
       return;
     }
     auto extent = m_context.swapchain().details().extent;
 
-    LOGD("onRender")
+    LOGD("onRender {}",f->frameNumber)
     // Record cmd
     onRender(f->cmdBuffer.handle(), f->frameNumber);
 
@@ -132,7 +132,7 @@ void App::run() {
     m_imguiLayer.endFrame(f->cmdBuffer.handle(), outputView, extent);
 
     LOGD("end")
-    // End cmd, Queue submit cmd, present swapchain img, end frame
+    // Transition layout, end cmd, Queue submit cmd, present swapchain img, end frame
     if (!m_frameManager.endFrame()) {
       destroy();
       return;

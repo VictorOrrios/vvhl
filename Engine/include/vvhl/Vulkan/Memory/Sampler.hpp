@@ -4,6 +4,9 @@
 
 namespace vvhl {
 
+class Sampler;
+using SamplerHandle = Handle<Sampler>;
+
 class Device;
 
 struct SamplerDescription {

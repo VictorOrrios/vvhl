@@ -7,14 +7,13 @@
 
 namespace vvhl {
   
-struct BufferDescription;
-struct ImageDescription;
+struct BufferCreateDescription;
+struct ImageCreateDescription;
 struct SamplerDescription;
 class Buffer;
 class Image;
 class Sampler;
 class VulkanContext;
-
 using BufferHandle = Handle<Buffer>;
 using ImageHandle = Handle<Image>;
 using SamplerHandle = Handle<Sampler>;

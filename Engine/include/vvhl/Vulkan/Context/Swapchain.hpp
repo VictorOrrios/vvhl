@@ -1,8 +1,14 @@
 #pragma once
 
 #include "Device.hpp"
+#include "vvhl/Vulkan/Memory/Image.hpp"
+#include "vvhl/Vulkan/Sync/Semaphore.hpp"
+#include <vvhl/Vulkan/Context/VulkanContext.hpp>
 
 namespace vvhl {
+
+class Image;
+class VulkanContext;
 
 struct SwapchainDetails {
   VkSurfaceFormatKHR surfaceFormat{};
@@ -18,34 +24,34 @@ public:
   Swapchain(const Swapchain &) = delete;
   Swapchain &operator=(const Swapchain &) = delete;
 
-  bool initialize(Device &device, VkSurfaceKHR surface, uint32_t width,
+  bool initialize(VulkanContext &context, VkSurfaceKHR surface, uint32_t width,
                   uint32_t height);
 
   void destroy();
 
   bool recreate();
 
-  VkResult acquireNextImage(VkSemaphore semaphore, VkFence fence,
-                            uint32_t &imageIndex);
+  VkResult advanceImage(VkSemaphore semaphore, VkFence fence);
 
-  VkResult presentImage(uint32_t imageIndex, VkSemaphore waitSemaphore);
+  VkResult presentImage(VkSemaphore waitSemaphore);
 
 public:
-  // Vulkan handle
   VkSwapchainKHR handle() const { return m_swapchain; }
 
-  // Images
   uint32_t imageCount() const { return static_cast<uint32_t>(m_images.size()); }
 
   const std::vector<VkImage> &images() const { return m_images; }
 
   const std::vector<VkImageView> &imageViews() const { return m_imageViews; }
 
-  VkImage image(uint32_t index) const { return m_images[index]; }
+  VkImage image() const { return m_images[m_currIndex]; }
 
-  VkImageView imageView(uint32_t index) const { return m_imageViews[index]; }
+  VkImageView imageView() const { return m_imageViews[m_currIndex]; }
 
-  // Config
+  Image &imageWrap() { return m_wrapImages[m_currIndex]; }
+
+  Semaphore& semaphore() { return m_semaphores[m_currIndex]; }
+
   SwapchainDetails details() const { return m_details; }
 
 private:
@@ -54,6 +60,10 @@ private:
   bool retrieveImages();
 
   bool createImageViews();
+
+  bool createSemaphores();
+
+  void wrapImages();
 
   VkSurfaceFormatKHR chooseSurfaceFormat() const;
 
@@ -65,18 +75,22 @@ private:
 
   void destroySwapchain();
 
+  void destroySemaphores();
+
 private:
+  VulkanContext *m_context = nullptr;
   Device *m_device = nullptr;
 
+  VkSurfaceKHR m_surface = VK_NULL_HANDLE;
+  VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
   Device::SwapchainSupport m_swapchainSupport{};
 
-  VkSurfaceKHR m_surface = VK_NULL_HANDLE;
-
-  VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
-
+  std::vector<Image> m_wrapImages;
   std::vector<VkImage> m_images;
-
   std::vector<VkImageView> m_imageViews;
+
+  uint32_t m_currIndex = 0;
+  std::vector<Semaphore> m_semaphores;
 
   SwapchainDetails m_details;
 };

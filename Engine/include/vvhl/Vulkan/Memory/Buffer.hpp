@@ -4,6 +4,8 @@
 #include <vvhl/vvhl.hpp>
 
 namespace vvhl {
+class Buffer;
+using BufferHandle = Handle<Buffer>;
 
 struct BufferCreateDescription {
   VkDeviceSize size = 0;

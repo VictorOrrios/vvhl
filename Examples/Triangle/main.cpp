@@ -59,14 +59,18 @@ public:
 
     // m_renderer.begin(cmd);
 
+    LOGD("image barrier 1")
     m_barriers.imageBarrier(m_mainImage)->toLayout(VK_IMAGE_LAYOUT_GENERAL);
     m_barriers.submit(cmd);
 
+    LOGD("calc group counts")
     VkExtent2D groupCount =
         calcGroupCounts(m_resourceManager->image(m_mainImage).extent2D(), 16);
+    LOGD("bind and dispatch {}",frameIndex)
     m_pipeline.bindAndDispatch(cmd, frameIndex, groupCount.width,
                                groupCount.height, 1);
 
+    LOGD("image barrier 2")
     m_barriers.imageBarrier(m_mainImage)
         ->toLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     m_barriers.submit(cmd);

@@ -27,7 +27,7 @@ bool VulkanContext::initialize(const Window &window) {
     return false;
 
   m_swapchain = std::make_unique<Swapchain>();
-  if (!m_swapchain->initialize(*m_device, m_surface, window.getWidth(),
+  if (!m_swapchain->initialize(*this, m_surface, window.getWidth(),
                                window.getHeight()))
     return false;
 

@@ -1,4 +1,6 @@
 #include "vvhl/Vulkan/Context/Device.hpp"
+#include "vvhl/Vulkan/Sync/Barriermanager.hpp"
+#include <vulkan/vulkan_core.h>
 #include <vvhl/Core/FrameManager.hpp>
 
 namespace vvhl {
@@ -12,12 +14,10 @@ bool FrameManager::initialize(VulkanContext &context, CommandPool &cmdPool) {
     Frame f = {.frameNumber = i,
                .fence = Fence(),
                .imageAvailable = Semaphore(),
-               .renderFinished = Semaphore(),
                .cmdBuffer = cmdPool.allocate()};
 
-    success &= f.fence.initialize(context.device(),true);
+    success &= f.fence.initialize(context.device(), true);
     success &= f.imageAvailable.initialize(context.device());
-    success &= f.renderFinished.initialize(context.device());
 
     m_frames.push_back(std::move(f));
   }
@@ -35,8 +35,8 @@ void FrameManager::destroy() {
   for (auto &frame : m_frames) {
     frame.fence.destroy();
     frame.imageAvailable.destroy();
-    frame.renderFinished.destroy();
   }
+  m_barrierManager.destroy();
   m_frames.clear();
   m_context = nullptr;
   m_cmdPool = nullptr;
@@ -47,6 +47,9 @@ bool FrameManager::beginFrame(Frame *&currentFrame, VkImageView &outputView) {
   ASSERT(m_context != nullptr)
 
   currentFrame = &m_frames[m_currentFrame];
+
+  ASSERT(m_currentFrame < m_maxFramesInFlight)
+  ASSERT(currentFrame->frameNumber < m_maxFramesInFlight)
 
   // Wait for main fence
   if (currentFrame->fence.wait() != VK_SUCCESS) {
@@ -69,14 +72,24 @@ bool FrameManager::beginFrame(Frame *&currentFrame, VkImageView &outputView) {
     return false;
 
   // Acquire next swapchain image (output)
-  if (m_context->swapchain().acquireNextImage(
-          currentFrame->imageAvailable.handle(), VK_NULL_HANDLE,
-          currentFrame->frameNumber) != VK_SUCCESS) {
+  if (m_context->swapchain().advanceImage(currentFrame->imageAvailable.handle(),
+                                          VK_NULL_HANDLE) != VK_SUCCESS) {
     LOGE("Error acquiring next swapchain image")
     return false;
   }
 
-  outputView = m_context->swapchain().imageView(currentFrame->frameNumber);
+  // Transition swapchain target to color attachment layout
+  m_barrierManager.imageBarrier(m_context->swapchain().imageWrap())
+      ->toLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+      ->stage(VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,            // srcStage
+              VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT // dstStage
+              )
+      ->access(0,                                     // srcAccess
+               VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT // dstAccess
+      );
+  m_barrierManager.submit(currentFrame->cmdBuffer.handle());
+
+  outputView = m_context->swapchain().imageView();
 
   return true;
 }
@@ -99,12 +112,24 @@ bool FrameManager::endFrame() {
   submitInfo.pCommandBuffers = cmdBuffers;
   submitInfo.commandBufferCount = 1;
 
-  VkSemaphore signalSemaphores[] = {f.renderFinished.handle()};
+  VkSemaphore signalSemaphores[] = {
+      m_context->swapchain().semaphore().handle()};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
+  // Transition swapchain target to present layout
+  m_barrierManager.imageBarrier(m_context->swapchain().imageWrap())
+      ->toLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+      ->stage(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT, // srcStage
+              VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT           // dstStage
+              )
+      ->access(VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT, // srcAccess
+               0                                       // dstAccess
+      );
+  m_barrierManager.submit(f.cmdBuffer.handle());
+
   // End command buffer
-  if(!f.cmdBuffer.end())
+  if (!f.cmdBuffer.end())
     return false;
 
   // Submit to queue
@@ -113,7 +138,7 @@ bool FrameManager::endFrame() {
 
   // Present to swapchain
   if (m_context->swapchain().presentImage(
-          f.frameNumber, f.renderFinished.handle()) != VK_SUCCESS) {
+          m_context->swapchain().semaphore().handle()) != VK_SUCCESS) {
     LOGE("Error presenting swapchain image")
     return false;
   }

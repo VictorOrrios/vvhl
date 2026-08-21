@@ -1,10 +1,12 @@
 #pragma once
 
-#include "vvhl/Vulkan/Memory/SyncState.hpp"
 #include <vvhl/Vulkan/Context/VulkanContext.hpp>
+#include "vvhl/Vulkan/Memory/SyncState.hpp"
 
 namespace vvhl {
-
+class Image;
+using ImageHandle = Handle<Image>;
+  
 class VulkanContext;
 
 constexpr VkImageAspectFlags _autoAspectMask =
@@ -86,6 +88,10 @@ public:
 
   bool create(VulkanContext &context, const ImageCreateDescription &desc);
 
+  // For swapchain images
+  void wrap(VulkanContext &context, VkImage image, VkImageView imageView,
+            const ImageDescription &desc);
+
   void destroy();
 
 public:
@@ -97,9 +103,7 @@ public:
     return {m_desc.width, m_desc.height, m_desc.depth};
   }
 
-  VkExtent2D extent2D() const {
-    return {m_desc.width, m_desc.height};
-  }
+  VkExtent2D extent2D() const { return {m_desc.width, m_desc.height}; }
 
   VkFormat format() const { return m_desc.format; }
 

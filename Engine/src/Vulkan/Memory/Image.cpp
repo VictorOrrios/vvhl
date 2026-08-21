@@ -1,5 +1,7 @@
 
 #include "vvhl/Core/Logger.hpp"
+#include "vvhl/Core/Window.hpp"
+#include <vulkan/vulkan_core.h>
 #include <vvhl/Vulkan/Memory/Image.hpp>
 
 namespace vvhl {
@@ -93,6 +95,15 @@ bool Image::create(VulkanContext &context, const ImageCreateDescription &desc) {
   m_desc.allocationFlags = desc.allocationFlags;
 
   return true;
+}
+
+void Image::wrap(VulkanContext &context, VkImage image, VkImageView imageView,
+                 const ImageDescription &desc) {
+  ASSERT(m_image == VK_NULL_HANDLE)
+  m_context = &context;
+  m_image = image;
+  m_view = imageView;
+  m_desc = desc;
 }
 
 VkImageAspectFlags Image::getAspectMask(VkFormat format) {
