@@ -8,7 +8,7 @@ namespace vvhl {
 class DescriptorSetLayout {
 public:
   DescriptorSetLayout() = default;
-  ~DescriptorSetLayout() { destroy(); };
+  ~DescriptorSetLayout()  = default;
 
   DescriptorSetLayout(const DescriptorSetLayout &) = delete;
   DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;

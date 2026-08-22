@@ -1,3 +1,4 @@
+#include "vvhl/ImGui/ImGuiLayer.hpp"
 #include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
 #include <vvhl/Core/GLFWContext.hpp>
@@ -60,21 +61,22 @@ bool App::initializeBase(const AppConfig &config) {
 
 bool App::createViewport() {
   // TODO: Change to dynamic viewport resizing
-  VkExtent2D viewportSize =
-      VkExtent2D(m_window.getWidth(), m_window.getHeight());
+  //VkExtent2D viewportSize = VkExtent2D(m_window.getWidth(), m_window.getHeight());
+  VkExtent2D viewportSize = VkExtent2D(100,100);
   LOGD("Viewport size {}x{}", viewportSize.width, viewportSize.height)
 
-  m_viewport = m_resourceManager.createImage(
-      {.format = VK_FORMAT_B8G8R8A8_UNORM,
-       .width = viewportSize.width,
-       .height = viewportSize.height,
-       .usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | // Graphics pipelines
-        VK_IMAGE_USAGE_STORAGE_BIT |                  // Compute pipelines
-        VK_IMAGE_USAGE_SAMPLED_BIT |                  // ImGui sampling
-        VK_IMAGE_USAGE_TRANSFER_DST_BIT |             // To blit/copy if necesary
-        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,              // To read back for debugging or exports
-        .aspectMask=VK_IMAGE_ASPECT_COLOR_BIT,
-      });
+  m_viewport = m_resourceManager.createImage({
+      .format = VK_FORMAT_B8G8R8A8_UNORM,
+      .width = viewportSize.width,
+      .height = viewportSize.height,
+      .usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | // Graphics pipelines
+               VK_IMAGE_USAGE_STORAGE_BIT |          // Compute pipelines
+               VK_IMAGE_USAGE_SAMPLED_BIT |          // ImGui sampling
+               VK_IMAGE_USAGE_TRANSFER_DST_BIT |     // To blit/copy if necesary
+               VK_IMAGE_USAGE_TRANSFER_SRC_BIT, // To read back for debugging or
+                                                // exports
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+  });
 
   m_viewportSampler = m_resourceManager.createSampler({
       .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
@@ -92,20 +94,13 @@ bool App::createViewport() {
 void App::destroyBase() {
   m_context.device().waitIdle();
 
-    LOGD("m_imguiLayer")
   m_imguiLayer.destroy();
-    LOGD("m_frameManager")
   m_frameManager.destroy();
-    LOGD("m_cmdSystem")
   m_cmdSystem.destroy();
   m_cmdPool = nullptr;
-    LOGD("m_resourceManager")
   m_resourceManager.destroy();
-    LOGD("m_context")
   m_context.destroy();
-    LOGD("m_window")
   m_window.destroy();
-    LOGD("m_eventDispatcher")
   m_eventDispatcher.destroy();
   m_shouldClose = false;
 
@@ -116,12 +111,9 @@ void App::run() {
   FrameManager::Frame *f;
   VkImageView outputView;
   while (!m_shouldClose) {
-    LOGD("poll")
-
     // Poll glfw events
     m_window.pollEvents();
 
-    LOGD("begin")
     // Wait fence, begin cmd, acquire image, transition layout
     if (!m_frameManager.beginFrame(f, outputView)) {
       destroy();
@@ -129,18 +121,16 @@ void App::run() {
     }
     auto extent = m_context.swapchain().details().extent;
 
-    LOGD("onRender {}",f->frameNumber)
     // Record cmd
     onRender(f->cmdBuffer.handle(), f->frameNumber);
 
-    LOGD("imgui begin")
     // Draw gui
     m_imguiLayer.beginFrame();
     renderGUI();
     m_imguiLayer.endFrame(f->cmdBuffer.handle(), outputView, extent);
 
-    LOGD("end")
-    // Transition layout, end cmd, Queue submit cmd, present swapchain img, end frame
+    // Transition layout, end cmd, Queue submit cmd, present swapchain img, end
+    // frame
     if (!m_frameManager.endFrame()) {
       destroy();
       return;
@@ -153,7 +143,11 @@ void App::run() {
 void App::renderGUI() {
   ImGui::Begin("Viewport");
 
+  ImGui::Text("TEST TEXT");
+
   ImVec2 avail = ImGui::GetContentRegionAvail();
+  avail.x=100;
+  avail.y=100;
 
   ImGui::Image(m_viewportSet, avail);
 

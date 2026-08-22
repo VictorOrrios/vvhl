@@ -6,7 +6,7 @@ namespace vvhl {
 class TimeLineSemaphore {
 public:
   TimeLineSemaphore() = default;
-  ~TimeLineSemaphore() { destroy(); };
+  ~TimeLineSemaphore() = default;
 
   TimeLineSemaphore(const TimeLineSemaphore &) = delete;
   TimeLineSemaphore &operator=(const TimeLineSemaphore &) = delete;

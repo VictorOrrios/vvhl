@@ -14,7 +14,7 @@ struct WindowSpecification {
 class Window {
 public:
   Window() = default;
-  ~Window() { destroy(); }
+  ~Window() = default;
 
   void initialize(WindowSpecification spec, EventDispatcher &dispatcher);
   void destroy();

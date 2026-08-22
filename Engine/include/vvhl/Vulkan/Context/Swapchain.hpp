@@ -19,7 +19,7 @@ struct SwapchainDetails {
 class Swapchain {
 public:
   Swapchain() = default;
-  ~Swapchain() { destroy(); };
+  ~Swapchain() = default;
 
   Swapchain(const Swapchain &) = delete;
   Swapchain &operator=(const Swapchain &) = delete;

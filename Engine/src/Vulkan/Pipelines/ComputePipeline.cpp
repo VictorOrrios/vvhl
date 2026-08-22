@@ -76,19 +76,14 @@ void ComputePipeline::bind(VkCommandBuffer cmd) const {
 
 void ComputePipeline::bindDescriptors(VkCommandBuffer cmd,
                                       uint32_t frameIndex) const {
-  LOGD("A")
   if (!m_descriptorGroups.empty()) {
-    LOGD("B")
     std::vector<VkDescriptorSet> sets;
-    LOGD("C")
     sets.reserve(m_descriptorGroups.size());
 
-    LOGD("D {}",frameIndex)
     for (const auto &[set, group] : m_descriptorGroups) {
       sets.push_back(group.sets[frameIndex].handle());
     }
 
-    LOGD("E")
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_layout, 0,
                             static_cast<uint32_t>(sets.size()), sets.data(), 0,
                             nullptr);
@@ -99,11 +94,8 @@ void ComputePipeline::bindAndDispatch(VkCommandBuffer cmd, uint32_t frameIndex,
                                       uint32_t groupCountX,
                                       uint32_t groupCountY,
                                       uint32_t groupCountZ) const {
-  LOGD("BIND")
   bind(cmd);
-  LOGD("BIND DESCRIPTORS")
   bindDescriptors(cmd, frameIndex);
-  LOGD("DISPATCH")
   dispatch(cmd, groupCountX, groupCountY, groupCountZ);
 }
 

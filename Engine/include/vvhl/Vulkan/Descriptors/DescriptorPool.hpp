@@ -13,7 +13,7 @@ public:
 
 public:
   DescriptorPool() = default;
-  ~DescriptorPool() { destroy(); }
+  ~DescriptorPool() = default;
 
   DescriptorPool(const DescriptorPool &) = delete;
   DescriptorPool &operator=(const DescriptorPool &) = delete;

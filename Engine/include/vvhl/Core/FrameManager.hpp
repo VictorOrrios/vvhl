@@ -20,7 +20,7 @@ public:
 
 public:
   FrameManager() = default;
-  ~FrameManager() { destroy(); };
+  ~FrameManager() = default;
 
   FrameManager(const FrameManager &) = delete;
   FrameManager &operator=(const FrameManager &) = delete;

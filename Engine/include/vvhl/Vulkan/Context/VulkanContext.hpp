@@ -13,7 +13,7 @@ class Image;
 class VulkanContext {
 public:
   VulkanContext() = default;
-  ~VulkanContext() { destroy(); };
+  ~VulkanContext() = default;
 
   VulkanContext(const VulkanContext &) = delete;
   VulkanContext &operator=(const VulkanContext &) = delete;

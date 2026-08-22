@@ -8,7 +8,7 @@ namespace vvhl {
 class DescriptorSet {
 public:
   DescriptorSet() = default;
-  ~DescriptorSet() { destroy(); }
+  ~DescriptorSet() = default;
 
   DescriptorSet(const DescriptorSet &) = delete;
   DescriptorSet &operator=(const DescriptorSet &) = delete;

@@ -8,7 +8,7 @@ namespace vvhl {
 class PipelineReflection {
 public:
   PipelineReflection() = default;
-  ~PipelineReflection() { destroy(); }
+  ~PipelineReflection() = default;
 
   PipelineReflection(const PipelineReflection &) = delete;
   PipelineReflection &operator=(const PipelineReflection &) = delete;

@@ -102,7 +102,7 @@ class BarrierManager {
 
 public:
   BarrierManager() = default;
-  ~BarrierManager() { destroy(); };
+  ~BarrierManager() = default;
 
   BarrierManager(const BarrierManager &) = delete;
   BarrierManager &operator=(const BarrierManager &) = delete;

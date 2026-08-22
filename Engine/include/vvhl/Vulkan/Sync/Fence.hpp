@@ -7,7 +7,7 @@ namespace vvhl {
 class Fence {
 public:
   Fence() = default;
-  ~Fence() { destroy(); };
+  ~Fence() = default;
 
   Fence(const Fence &) = delete;
   Fence &operator=(const Fence &) = delete;

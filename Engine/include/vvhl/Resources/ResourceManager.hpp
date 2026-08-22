@@ -21,7 +21,7 @@ using SamplerHandle = Handle<Sampler>;
 class ResourceManager {
 public:
   ResourceManager() = default;
-  ~ResourceManager() { destroy(); };
+  ~ResourceManager() = default;
 
   ResourceManager(const ResourceManager &) = delete;
   ResourceManager &operator=(const ResourceManager &) = delete;

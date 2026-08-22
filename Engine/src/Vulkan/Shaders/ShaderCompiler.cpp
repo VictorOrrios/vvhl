@@ -149,6 +149,8 @@ bool ShaderCompiler::compile(const std::string &sourcePath,
     return false;
   }
 
+  LOGI("Shader compiled: {}", sourcePath);
+
   return true;
 }
 

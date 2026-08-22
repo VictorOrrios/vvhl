@@ -24,7 +24,7 @@ struct ShaderInterfaceVariable {
 class ShaderReflection {
 public:
   ShaderReflection() = default;
-  ~ShaderReflection() { destroy(); };
+  ~ShaderReflection() = default;
 
   ShaderReflection(const ShaderReflection &) = delete;
   ShaderReflection &operator=(const ShaderReflection &) = delete;

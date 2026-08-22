@@ -11,6 +11,9 @@ using ListenerID = UUID;
 
 class EventDispatcher {
 public:
+  EventDispatcher() = default;
+  ~EventDispatcher()  = default;
+
   template <typename EventType>
   ListenerID subscribe(std::function<void(const EventType &)> callback) {
     ListenerID id;

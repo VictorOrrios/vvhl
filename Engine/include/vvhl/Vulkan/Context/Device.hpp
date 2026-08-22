@@ -8,7 +8,7 @@ namespace vvhl {
 class Device {
 public:
   Device() = default;
-  ~Device() { destroy(); };
+  ~Device() = default;
 
   Device(const Device &) = delete;
   Device &operator=(const Device &) = delete;

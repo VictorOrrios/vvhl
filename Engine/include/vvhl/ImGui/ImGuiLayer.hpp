@@ -12,7 +12,7 @@ namespace vvhl {
 class ImGuiLayer {
 public:
   ImGuiLayer() = default;
-  ~ImGuiLayer() { destroy(); }
+  ~ImGuiLayer() = default;
 
   ImGuiLayer(const ImGuiLayer &) = delete;
   ImGuiLayer &operator=(const ImGuiLayer &) = delete;

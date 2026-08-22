@@ -6,7 +6,7 @@ namespace vvhl {
 class Semaphore {
 public:
   Semaphore() = default;
-  ~Semaphore() { destroy(); };
+  ~Semaphore() = default;
 
   Semaphore(const Semaphore &) = delete;
   Semaphore &operator=(const Semaphore &) = delete;

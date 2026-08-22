@@ -7,7 +7,7 @@ namespace vvhl {
 class CommandSystem {
 public:
   CommandSystem() = default;
-  ~CommandSystem() { destroy(); };
+  ~CommandSystem()  = default;
 
   CommandSystem(const CommandSystem &) = delete;
   CommandSystem &operator=(const CommandSystem &) = delete;
