@@ -25,6 +25,7 @@
 [submodule "ThirdParty/imgui"]
 	path = ThirdParty/imgui
 	url = https://github.com/ocornut/imgui.git
+	branch = docking
 [submodule "ThirdParty/imguizmo"]
 	path = ThirdParty/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git

@@ -19,6 +19,7 @@ bool ImGuiLayer::initialize(VulkanContext &context, Window &window) {
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   ImGui::StyleColorsDark();
 
   float main_scale =

@@ -1,3 +1,4 @@
+#include "imgui_internal.h"
 #include "vvhl/ImGui/ImGuiLayer.hpp"
 #include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
@@ -61,8 +62,9 @@ bool App::initializeBase(const AppConfig &config) {
 
 bool App::createViewport() {
   // TODO: Change to dynamic viewport resizing
-  //VkExtent2D viewportSize = VkExtent2D(m_window.getWidth(), m_window.getHeight());
-  VkExtent2D viewportSize = VkExtent2D(100,100);
+  // VkExtent2D viewportSize = VkExtent2D(m_window.getWidth(),
+  // m_window.getHeight());
+  VkExtent2D viewportSize = VkExtent2D(100, 100);
   LOGD("Viewport size {}x{}", viewportSize.width, viewportSize.height)
 
   m_viewport = m_resourceManager.createImage({
@@ -141,15 +143,52 @@ void App::run() {
 }
 
 void App::renderGUI() {
+  ImGuiID dockspace_id = ImGui::GetID("Dockspace");
+  ImGuiViewport *viewport = ImGui::GetMainViewport();
+
+  // Create settings
+  if (ImGui::DockBuilderGetNode(dockspace_id) == nullptr) {
+    ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+    ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
+    ImGuiID dock_id_left = 0;
+    ImGuiID dock_id_main = dockspace_id;
+    ImGui::DockBuilderSplitNode(dock_id_main, ImGuiDir_Left, 0.20f,
+                                &dock_id_left, &dock_id_main);
+    ImGuiID dock_id_left_top = 0;
+    ImGuiID dock_id_left_bottom = 0;
+    ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Up, 0.50f,
+                                &dock_id_left_top, &dock_id_left_bottom);
+    ImGui::DockBuilderDockWindow("Viewport", dock_id_main);
+    ImGui::DockBuilderDockWindow("Panel A", dock_id_left_top);
+    ImGui::DockBuilderDockWindow("Panel B", dock_id_left_bottom);
+    ImGui::DockBuilderFinish(dockspace_id);
+  }
+
+  ImGui::DockSpaceOverViewport(dockspace_id, viewport);
+
   ImGui::Begin("Viewport");
 
-  ImGui::Text("TEST TEXT");
-
   ImVec2 avail = ImGui::GetContentRegionAvail();
-  avail.x=100;
-  avail.y=100;
+  avail.x = 100;
+  avail.y = 100;
 
   ImGui::Image(m_viewportSet, avail);
+
+  ImGui::End();
+
+  ImGui::Begin("Panel A");
+  ImGui::Text("Test of panel A");
+  static int counter = 0;
+  if (ImGui::Button("Increment")) {
+    counter++;
+  }
+  ImGui::Text("Counter: %d", counter);
+  ImGui::End();
+
+  ImGui::Begin("Panel B");
+  ImGui::Text("Test of panel B");
+  static float value = 0.5f;
+  ImGui::SliderFloat("Value", &value, 0.0f, 1.0f);
 
   ImGui::End();
 }
