@@ -21,6 +21,7 @@ Image::Image(Image &&other) noexcept
 
 bool Image::create(VulkanContext &context, const ImageCreateDescription &desc) {
   m_context = &context;
+  m_ownership = ImageOwnership::Owned;
 
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -29,7 +30,7 @@ bool Image::create(VulkanContext &context, const ImageCreateDescription &desc) {
   imageInfo.mipLevels = desc.mipLevels;
   imageInfo.arrayLayers = desc.arrayLayers;
   imageInfo.format = desc.format;
-  imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+  imageInfo.tiling = desc.tiling;
   imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   imageInfo.usage = desc.usage;
   imageInfo.samples = desc.samples;
@@ -104,6 +105,34 @@ void Image::wrap(VulkanContext &context, VkImage image, VkImageView imageView,
   m_image = image;
   m_view = imageView;
   m_desc = desc;
+  m_ownership = ImageOwnership::Wrapped;
+}
+
+bool Image::recreate(uint32_t width, uint32_t height) {
+  if (m_context == nullptr)
+    return false;
+
+  // Save the description and context because destroy() clears it.
+  VulkanContext* ctx = m_context;
+  ImageCreateDescription desc{};
+
+  desc.type = m_desc.type;
+  desc.format = m_desc.format;
+  desc.width = width; // New extent
+  desc.height = height;
+  desc.depth = m_desc.depth;
+  desc.samples = m_desc.samples;
+  desc.tiling = m_desc.tiling;
+  desc.createFlags = m_desc.createFlags;
+  desc.usage = m_desc.usage;
+  desc.viewType = m_desc.viewType;
+  desc.aspectMask = m_desc.aspectMask;
+  desc.memoryUsage = m_desc.memoryUsage;
+  desc.allocationFlags = m_desc.allocationFlags;
+
+  destroy();
+
+  return create(*ctx, desc);
 }
 
 VkImageAspectFlags Image::getAspectMask(VkFormat format) {
@@ -136,7 +165,7 @@ void Image::destroy() {
     m_view = VK_NULL_HANDLE;
   }
 
-  if (m_image != VK_NULL_HANDLE) {
+  if (m_ownership == ImageOwnership::Owned && m_image != VK_NULL_HANDLE) {
     vmaDestroyImage(m_context->allocator(), m_image, m_allocation);
     m_image = VK_NULL_HANDLE;
   }

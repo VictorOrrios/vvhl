@@ -1,4 +1,5 @@
 #include "imgui_internal.h"
+#include "vvhl/Events/AppEvents.hpp"
 #include "vvhl/ImGui/ImGuiLayer.hpp"
 #include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
@@ -56,21 +57,20 @@ bool App::initializeBase(const AppConfig &config) {
     return false;
   }
   LOGI("Initialized: Viewport")
-  
+
   m_eventDispatcher.subscribe<WindowResizeEvent>(
-    [this](const WindowResizeEvent& e) { this->onResize(e); }
-  );
+      [this](const WindowResizeEvent &e) { this->onWindowResize(e); });
+
+  m_eventDispatcher.subscribe<ViewportResizeEvent>(
+      [this](const ViewportResizeEvent &e) { this->onViewportResize(e); });
 
   return true;
 }
 
 bool App::createViewport() {
-  // TODO: Change to dynamic viewport resizing
-  // VkExtent2D viewportSize = VkExtent2D(m_window.getWidth(),
-  // m_window.getHeight());
   VkExtent2D viewportSize = VkExtent2D(100, 100);
-  LOGD("Viewport size {}x{}", viewportSize.width, viewportSize.height)
 
+  // Create image and sampler with the resource manager
   m_viewport = m_resourceManager.createImage({
       .format = VK_FORMAT_B8G8R8A8_UNORM,
       .width = viewportSize.width,
@@ -90,9 +90,18 @@ bool App::createViewport() {
       .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
   });
 
+  // Register image in imgui
   m_viewportSet = m_imguiLayer.createViewportTextureId(
       m_resourceManager.image(m_viewport).view(),
       m_resourceManager.sampler(m_viewportSampler).handle());
+
+  // Register image in gbuffers
+  if (!m_gbuffers.initialize(m_resourceManager)) {
+    return false;
+  }
+
+  // GBufferID 0 is reserved for the viewport
+  m_gbuffers.add(0, m_viewport);
 
   return true;
 }
@@ -100,6 +109,7 @@ bool App::createViewport() {
 void App::destroyBase() {
   m_context.device().waitIdle();
 
+  m_gbuffers.destroy();
   m_imguiLayer.destroy();
   m_frameManager.destroy();
   m_cmdSystem.destroy();
@@ -119,6 +129,13 @@ void App::run() {
   while (!m_shouldClose) {
     // Poll glfw events
     m_window.pollEvents();
+
+    // Resize events
+    if (m_dispatchViewportResizeEvent) {
+      m_context.device().waitIdle();
+      m_eventDispatcher.dispatch(
+          ViewportResizeEvent(m_viewportSize.x, m_viewportSize.y));
+    }
 
     // Wait fence, begin cmd, acquire image, transition layout
     if (!m_frameManager.beginFrame(f, outputView)) {
@@ -173,10 +190,14 @@ void App::renderGUI() {
   ImGui::Begin("Viewport");
 
   ImVec2 avail = ImGui::GetContentRegionAvail();
-  avail.x = 100;
-  avail.y = 100;
+
+  if (m_viewportSize.x != avail.x || m_viewportSize.y != avail.y) {
+    m_dispatchViewportResizeEvent = true;
+  }
 
   ImGui::Image(m_viewportSet, avail);
+
+  m_viewportSize = avail;
 
   ImGui::End();
 
@@ -197,10 +218,17 @@ void App::renderGUI() {
   ImGui::End();
 }
 
-void App::onResize(const WindowResizeEvent& e){
-  LOGI("Resize {}x{}",e.Width,e.Height)
-  m_context.swapchain().recreate(e.Width,e.Height);
+void App::onWindowResize(const WindowResizeEvent &e) {
+  m_context.swapchain().recreate(e.Width, e.Height);
 }
 
+void App::onViewportResize(const ViewportResizeEvent &e) {
+  m_gbuffers.resize(e.width, e.height);
+
+  ImGui_ImplVulkan_RemoveTexture(m_viewportSet);
+  m_viewportSet = m_imguiLayer.createViewportTextureId(
+      m_resourceManager.image(m_viewport).view(),
+      m_resourceManager.sampler(m_viewportSampler).handle());
+}
 
 } // namespace vvhl

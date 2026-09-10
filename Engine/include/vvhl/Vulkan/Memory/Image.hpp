@@ -1,12 +1,12 @@
 #pragma once
 
-#include <vvhl/Vulkan/Context/VulkanContext.hpp>
 #include "vvhl/Vulkan/Memory/SyncState.hpp"
+#include <vvhl/Vulkan/Context/VulkanContext.hpp>
 
 namespace vvhl {
 class Image;
 using ImageHandle = Handle<Image>;
-  
+
 class VulkanContext;
 
 constexpr VkImageAspectFlags _autoAspectMask =
@@ -92,6 +92,8 @@ public:
   void wrap(VulkanContext &context, VkImage image, VkImageView imageView,
             const ImageDescription &desc);
 
+  bool recreate(uint32_t width, uint32_t height);
+
   void destroy();
 
 public:
@@ -123,6 +125,8 @@ public:
 private:
   VkImageAspectFlags getAspectMask(VkFormat format);
 
+  enum class ImageOwnership { Owned, Wrapped };
+
 private:
   VulkanContext *m_context = nullptr;
 
@@ -133,6 +137,7 @@ private:
   VmaAllocationInfo m_allocationInfo{};
 
   ImageDescription m_desc{};
+  ImageOwnership m_ownership = ImageOwnership::Owned;
 };
 
 } // namespace vvhl

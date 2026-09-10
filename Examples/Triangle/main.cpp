@@ -2,9 +2,9 @@
 
 #include "vvhl/Core/App.hpp"
 #include "vvhl/Core/EngineConfig.hpp"
+#include "vvhl/Resources/GBuffers.hpp"
 #include "vvhl/Resources/ResourceManager.hpp"
 #include "vvhl/Vulkan/Renderer/DynamicRenderer.hpp"
-#include <vulkan/vulkan_core.h>
 #include <vvhl/RenderPass/RenderPass.hpp>
 #include <vvhl/Vulkan/Pipelines/ComputePipeline.hpp>
 #include <vvhl/vvhl.hpp>
@@ -15,7 +15,7 @@ class TrianglePass : public RenderPass {
 public:
   struct TrianglePassInput {
     App *app;
-    ImageHandle mainInputOutput;
+    GBufferID mainInputOutput;
   };
 
 public:
@@ -23,7 +23,7 @@ public:
     initializeBase(*input.app);
 
     // INPUT
-    m_mainImage = input.mainInputOutput;
+    m_mainImage = m_gbuffers->get(input.mainInputOutput);
     m_descPool.accumulate({VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1});
     m_descPool.accumulateSet(1);
 
@@ -108,16 +108,27 @@ public:
     // m_renderer.end(cmd);
   }
 
+  void onViewportResize(const ViewportResizeEvent &) override{
+    m_pipeline.writeAllFrames<ImageWriteDescriptor>(
+        std::pair(0, 0),
+        {.handle = m_mainImage, .imageLayout = VK_IMAGE_LAYOUT_GENERAL});
+    m_pipeline.updateDescriptors();
+  }
+
 private:
   ComputePipeline m_pipeline;
   ImageHandle m_mainImage;
 };
 
 class TriangleApp : public App {
+  enum GBufferIds {
+    RenderTarget = 0,
+  };
+
 public:
   void initialize(AppConfig config) {
     initializeBase(config);
-    m_pass.initialize({.app = this, .mainInputOutput = m_viewport});
+    m_pass.initialize({.app = this, .mainInputOutput = GBufferIds::RenderTarget});
   }
 
   void destroy() override {

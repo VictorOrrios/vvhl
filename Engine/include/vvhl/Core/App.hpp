@@ -1,6 +1,8 @@
 #pragma once
 
+#include "vvhl/Events/AppEvents.hpp"
 #include "vvhl/Events/WindowEvents.hpp"
+#include "vvhl/Resources/GBuffers.hpp"
 #include <vvhl/Core/Window.hpp>
 #include <vvhl/Vulkan/Descriptors/DescriptorSet.hpp>
 #include <vvhl/Core/FrameManager.hpp>
@@ -36,6 +38,8 @@ public:
 public:
   VulkanContext &context() { return m_context; }
   ResourceManager &resourceManager() { return m_resourceManager; }
+  EventDispatcher &eventDispatcher() { return m_eventDispatcher; }
+  GBuffers &gbuffers() { return m_gbuffers; }
   virtual void onRender(VkCommandBuffer, uint32_t) {};
 
 protected:
@@ -43,7 +47,8 @@ protected:
   void destroyBase();
 
 protected:
-  void onResize(const WindowResizeEvent& e);
+  void onWindowResize(const WindowResizeEvent& e);
+  void onViewportResize(const ViewportResizeEvent& e);
 
 protected:
   ImageHandle m_viewport;
@@ -59,6 +64,7 @@ private:
   EventDispatcher m_eventDispatcher;
   VulkanContext m_context;
   ResourceManager m_resourceManager;
+  GBuffers m_gbuffers;
   CommandSystem m_cmdSystem;
   FrameManager m_frameManager;
   ImGuiLayer m_imguiLayer;
@@ -66,6 +72,9 @@ private:
   CommandPool *m_cmdPool = nullptr;
 
   bool m_shouldClose = false;
+
+  ImVec2 m_viewportSize = ImVec2(-1, -1);
+  bool m_dispatchViewportResizeEvent = false;
 };
 
 } // namespace vvhl

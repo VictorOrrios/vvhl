@@ -1,6 +1,8 @@
 #pragma once
 
 #include "vvhl/Core/App.hpp"
+#include "vvhl/Events/EventDispatcher.hpp"
+#include "vvhl/Resources/GBuffers.hpp"
 #include "vvhl/Vulkan/Sync/Barriermanager.hpp"
 #include <vvhl/Vulkan/Descriptors/DescriptorPool.hpp>
 #include <vvhl/Vulkan/Renderer/DynamicRenderer.hpp>
@@ -29,10 +31,13 @@ protected:
   void destroyBase();
 
   virtual void onRender(VkCommandBuffer, uint32_t) {};
+  virtual void onViewportResize(const ViewportResizeEvent &) {};
 
 protected:
   VulkanContext *m_context = nullptr;
   ResourceManager *m_resourceManager = nullptr;
+  EventDispatcher *m_eventDispatcher = nullptr;
+  GBuffers *m_gbuffers = nullptr;
   DescriptorPool m_descPool;
   DynamicRenderer m_renderer;
   BarrierManager m_barriers;
