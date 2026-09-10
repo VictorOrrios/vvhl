@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vvhl/Events/WindowEvents.hpp"
 #include <vvhl/Core/Window.hpp>
 #include <vvhl/Vulkan/Descriptors/DescriptorSet.hpp>
 #include <vvhl/Core/FrameManager.hpp>
@@ -42,7 +43,7 @@ protected:
   void destroyBase();
 
 protected:
-  // on resize
+  void onResize(const WindowResizeEvent& e);
 
 protected:
   ImageHandle m_viewport;

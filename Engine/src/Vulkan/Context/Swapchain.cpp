@@ -295,25 +295,12 @@ void Swapchain::destroySwapchain() {
     vkDestroySwapchainKHR(m_device->handle(), m_swapchain, nullptr);
 }
 
-bool Swapchain::recreate() {
+bool Swapchain::recreate(uint32_t width, uint32_t height) {
   m_device->waitIdle();
 
   destroy();
 
-  m_swapchainSupport = m_device->querySwapchainSupport(m_surface);
-
-  if (!createSwapchain(m_details.extent.width, m_details.extent.height))
-    return false;
-
-  if (!retrieveImages())
-    return false;
-
-  if (!createImageViews()) {
-    destroy();
-    return false;
-  }
-
-  return true;
+  return initialize(*m_context, m_surface, width, height);
 }
 
 VkResult Swapchain::advanceImage(VkSemaphore semaphore, VkFence fence) {

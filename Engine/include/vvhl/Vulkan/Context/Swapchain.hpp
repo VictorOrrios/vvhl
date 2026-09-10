@@ -2,6 +2,7 @@
 
 #include "Device.hpp"
 #include "vvhl/Vulkan/Memory/Image.hpp"
+#include "vvhl/Vulkan/Memory/SyncState.hpp"
 #include "vvhl/Vulkan/Sync/Semaphore.hpp"
 #include <vvhl/Vulkan/Context/VulkanContext.hpp>
 
@@ -29,7 +30,7 @@ public:
 
   void destroy();
 
-  bool recreate();
+  bool recreate(uint32_t width, uint32_t height);
 
   VkResult advanceImage(VkSemaphore semaphore, VkFence fence);
 

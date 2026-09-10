@@ -56,6 +56,10 @@ bool App::initializeBase(const AppConfig &config) {
     return false;
   }
   LOGI("Initialized: Viewport")
+  
+  m_eventDispatcher.subscribe<WindowResizeEvent>(
+    [this](const WindowResizeEvent& e) { this->onResize(e); }
+  );
 
   return true;
 }
@@ -192,5 +196,11 @@ void App::renderGUI() {
 
   ImGui::End();
 }
+
+void App::onResize(const WindowResizeEvent& e){
+  LOGI("Resize {}x{}",e.Width,e.Height)
+  m_context.swapchain().recreate(e.Width,e.Height);
+}
+
 
 } // namespace vvhl
