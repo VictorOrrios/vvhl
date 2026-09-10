@@ -21,6 +21,7 @@ public:
 public:
   bool initialize(TrianglePassInput input) {
     initializeBase(*input.app);
+    m_name = "Triangle pass";
 
     // INPUT
     m_mainImage = m_gbuffers->get(input.mainInputOutput);
@@ -108,6 +109,12 @@ public:
     // m_renderer.end(cmd);
   }
 
+  void onRenderGUI() override{
+    if(ImGui::CollapsingHeader(m_name.c_str())){
+      ImGui::Text("Hola");
+    }
+  }
+
   void onViewportResize(const ViewportResizeEvent &) override{
     m_pipeline.writeAllFrames<ImageWriteDescriptor>(
         std::pair(0, 0),
@@ -138,6 +145,10 @@ public:
 
   void onRender(VkCommandBuffer cmd, uint32_t currentFrame) override {
     m_pass.onRender(cmd, currentFrame);
+  }
+
+  void onRenderGraphGUI() override{
+    m_pass.onRenderGUI();
   }
 
 private:

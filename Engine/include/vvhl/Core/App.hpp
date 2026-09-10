@@ -50,6 +50,8 @@ protected:
   void onWindowResize(const WindowResizeEvent& e);
   void onViewportResize(const ViewportResizeEvent& e);
 
+  virtual void onRenderGraphGUI() {};
+
 protected:
   ImageHandle m_viewport;
   SamplerHandle m_viewportSampler;

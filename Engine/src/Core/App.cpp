@@ -181,7 +181,7 @@ void App::renderGUI() {
                                 &dock_id_left_top, &dock_id_left_bottom);
     ImGui::DockBuilderDockWindow("Viewport", dock_id_main);
     ImGui::DockBuilderDockWindow("Panel A", dock_id_left_top);
-    ImGui::DockBuilderDockWindow("Panel B", dock_id_left_bottom);
+    ImGui::DockBuilderDockWindow("Render Graph", dock_id_left_bottom);
     ImGui::DockBuilderFinish(dockspace_id);
   }
 
@@ -210,11 +210,8 @@ void App::renderGUI() {
   ImGui::Text("Counter: %d", counter);
   ImGui::End();
 
-  ImGui::Begin("Panel B");
-  ImGui::Text("Test of panel B");
-  static float value = 0.5f;
-  ImGui::SliderFloat("Value", &value, 0.0f, 1.0f);
-
+  ImGui::Begin("Render Graph");
+  onRenderGraphGUI();
   ImGui::End();
 }
 

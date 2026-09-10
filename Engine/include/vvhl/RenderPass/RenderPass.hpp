@@ -4,6 +4,7 @@
 #include "vvhl/Events/EventDispatcher.hpp"
 #include "vvhl/Resources/GBuffers.hpp"
 #include "vvhl/Vulkan/Sync/Barriermanager.hpp"
+#include <string_view>
 #include <vvhl/Vulkan/Descriptors/DescriptorPool.hpp>
 #include <vvhl/Vulkan/Renderer/DynamicRenderer.hpp>
 
@@ -25,12 +26,14 @@ public:
   VulkanContext &context() { return *m_context; }
   ResourceManager &resourceManager() { return *m_resourceManager; }
   DescriptorPool &descriptorPool() { return m_descPool; }
+  std::string_view name() { return m_name; }
 
 protected:
   bool initializeBase(App &app);
   void destroyBase();
 
   virtual void onRender(VkCommandBuffer, uint32_t) {};
+  virtual void onRenderGUI() {};
   virtual void onViewportResize(const ViewportResizeEvent &) {};
 
 protected:
@@ -41,6 +44,7 @@ protected:
   DescriptorPool m_descPool;
   DynamicRenderer m_renderer;
   BarrierManager m_barriers;
+  std::string m_name = "My renderpass";
 };
 
 } // namespace vvhl
