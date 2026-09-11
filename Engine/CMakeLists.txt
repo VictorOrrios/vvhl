@@ -36,6 +36,7 @@ PUBLIC
     glm::glm
     fmt
     volk
+    GPUOpen::VulkanMemoryAllocator
     
     spdlog
 

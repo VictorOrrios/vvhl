@@ -1,7 +1,6 @@
 #include "imgui_internal.h"
 #include "vvhl/Events/AppEvents.hpp"
 #include "vvhl/ImGui/ImGuiLayer.hpp"
-#include <vulkan/vulkan_core.h>
 #include <vvhl/Core/App.hpp>
 #include <vvhl/Core/GLFWContext.hpp>
 #include <vvhl/Core/Window.hpp>

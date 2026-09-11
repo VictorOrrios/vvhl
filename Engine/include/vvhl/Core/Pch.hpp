@@ -24,7 +24,6 @@
 
 // Vulkan
 #include <volk.h>
-#include <vulkan/vulkan.hpp>
 
 // GLTF
 #define GLFW_INCLUDE_NONE

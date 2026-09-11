@@ -1,6 +1,5 @@
 #pragma once
 #include <spdlog/spdlog.h>
-#include <vulkan/vk_enum_string_helper.h>
 
 class Logger {
 public:

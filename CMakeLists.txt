@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.25)
 
+project(
+    VVHL
+    VERSION 1.0
+    LANGUAGES C CXX
+)
+
 find_package(Vulkan REQUIRED)
 
 find_program(GLSLC_EXECUTABLE
@@ -20,12 +26,6 @@ find_program(SLANGC_EXECUTABLE
 if(NOT SLANGC_EXECUTABLE)
     message(WARNING "slangc not found. Slang shaders will not be available.")
 endif()
-
-project(
-    VVHL
-    VERSION 1.0
-    LANGUAGES C CXX
-)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

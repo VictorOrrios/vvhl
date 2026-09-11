@@ -45,7 +45,7 @@ bool Image::create(VulkanContext &context, const ImageCreateDescription &desc) {
                                    &m_image, &m_allocation, &m_allocationInfo);
 
   if (result != VK_SUCCESS) {
-    LOGE("Failed to create image {}", string_VkResult(result));
+    LOGE("Failed to create image");
     return false;
   }
 
