@@ -274,13 +274,8 @@ bool Device::createLogicalDevice() {
 
   createInfo.pNext = &dynamicRenderingFeatures;
 
-  if (BuildConfig::EnableValidationLayers) {
-    createInfo.enabledLayerCount =
-        static_cast<uint32_t>(ValidationLayers.size());
-    createInfo.ppEnabledLayerNames = ValidationLayers.data();
-  } else {
-    createInfo.enabledLayerCount = 0;
-  }
+  // Allways 0 since Vulkan 1.0
+  createInfo.enabledLayerCount = 0;
 
   if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) !=
       VK_SUCCESS) {

@@ -67,8 +67,9 @@ bool VulkanContext::createInstance() {
     createInfo.enabledLayerCount = 0;
   }
 
-  if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS) {
-    LOGE("Failed to create instance");
+  auto res = vkCreateInstance(&createInfo, nullptr, &m_instance);
+  if (res != VK_SUCCESS) {
+    LOGE("Failed to create instance VkResult = {}", static_cast<int>(res));
     return false;
   } else {
     return true;
