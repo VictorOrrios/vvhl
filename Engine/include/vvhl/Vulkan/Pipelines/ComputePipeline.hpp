@@ -60,10 +60,6 @@ public:
   void dispatch(VkCommandBuffer cmd, uint32_t groupCountX, uint32_t groupCountY,
                 uint32_t groupCountZ) const;
 
-  void bind(VkCommandBuffer cmd) const;
-
-  void bindDescriptors(VkCommandBuffer cmd, uint32_t frameIndex) const;
-
 protected:
   bool createPipeline() override;
 

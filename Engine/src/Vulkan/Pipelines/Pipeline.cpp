@@ -12,7 +12,7 @@ void Pipeline::updateDescriptors() {
   }
 }
 
-void Pipeline::bind(VkCommandBuffer cmd, uint32_t frameIndex) {
+void Pipeline::bind(VkCommandBuffer cmd, uint32_t frameIndex) const {
   vkCmdBindPipeline(cmd, m_bindPoint, m_pipeline);
 
   std::vector<VkDescriptorSet> sets;

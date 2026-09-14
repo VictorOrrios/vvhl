@@ -63,7 +63,7 @@ public:
 
   void updateDescriptors();
 
-  void bind(VkCommandBuffer cmd, uint32_t frameIndex);
+  void bind(VkCommandBuffer cmd, uint32_t frameIndex) const;
 
 public:
   VkPipeline handle() const { return m_pipeline; }

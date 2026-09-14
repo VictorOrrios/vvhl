@@ -9,7 +9,7 @@ bool ComputePipeline::initialize(const CreateInfo &createInfo) {
 
   if (createInfo.renderPass == nullptr ||
       createInfo.renderPass->context().deviceHandle() == VK_NULL_HANDLE) {
-    LOGE("Pipeline created with empty references")
+    LOGE("Pipeline created with empty renderpass reference")
     return false;
   }
 
@@ -69,33 +69,11 @@ void ComputePipeline::dispatch(VkCommandBuffer cmd, uint32_t groupCountX,
   vkCmdDispatch(cmd, groupCountX, groupCountY, groupCountZ);
 }
 
-void ComputePipeline::bind(VkCommandBuffer cmd) const {
-  ASSERT(m_pipeline != VK_NULL_HANDLE)
-  vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipeline);
-}
-
-void ComputePipeline::bindDescriptors(VkCommandBuffer cmd,
-                                      uint32_t frameIndex) const {
-  if (!m_descriptorGroups.empty()) {
-    std::vector<VkDescriptorSet> sets;
-    sets.reserve(m_descriptorGroups.size());
-
-    for (const auto &[set, group] : m_descriptorGroups) {
-      sets.push_back(group.sets[frameIndex].handle());
-    }
-
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_layout, 0,
-                            static_cast<uint32_t>(sets.size()), sets.data(), 0,
-                            nullptr);
-  }
-}
-
 void ComputePipeline::bindAndDispatch(VkCommandBuffer cmd, uint32_t frameIndex,
                                       uint32_t groupCountX,
                                       uint32_t groupCountY,
                                       uint32_t groupCountZ) const {
-  bind(cmd);
-  bindDescriptors(cmd, frameIndex);
+  bind(cmd,frameIndex);
   dispatch(cmd, groupCountX, groupCountY, groupCountZ);
 }
 
