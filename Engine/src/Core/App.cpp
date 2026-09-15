@@ -14,9 +14,6 @@ bool App::initializeBase(const AppConfig &config) {
   GLFWContext::init();
   LOGI("Initialized: GLFW Context")
 
-  m_eventDispatcher.subscribe<WindowCloseEvent>(
-      [this](const WindowCloseEvent &) { m_shouldClose = true; });
-
   m_window.initialize(config.windowSpec, m_eventDispatcher);
   LOGI("Initialized: Window")
 
@@ -56,6 +53,9 @@ bool App::initializeBase(const AppConfig &config) {
     return false;
   }
   LOGI("Initialized: Viewport")
+
+  m_eventDispatcher.subscribe<WindowCloseEvent>(
+      [this](const WindowCloseEvent &) { LOGD("HELLO");m_shouldClose = true; });
 
   m_eventDispatcher.subscribe<WindowResizeEvent>(
       [this](const WindowResizeEvent &e) { this->onWindowResize(e); });
@@ -129,12 +129,8 @@ void App::run() {
     // Poll glfw events
     m_window.pollEvents();
 
-    // Resize events
-    if (m_dispatchViewportResizeEvent) {
-      m_context.device().waitIdle();
-      m_eventDispatcher.dispatch(
-          ViewportResizeEvent(m_viewportSize.x, m_viewportSize.y));
-    }
+    // Poll event dispatcher events
+    m_eventDispatcher.poll();
 
     // Wait fence, begin cmd, acquire image, transition layout
     if (!m_frameManager.beginFrame(f, outputView)) {
@@ -191,7 +187,7 @@ void App::renderGUI() {
   ImVec2 avail = ImGui::GetContentRegionAvail();
 
   if (m_viewportSize.x != avail.x || m_viewportSize.y != avail.y) {
-    m_dispatchViewportResizeEvent = true;
+    m_eventDispatcher.enqueue(ViewportResizeEvent(m_viewportSize.x, m_viewportSize.y));
   }
 
   ImGui::Image(m_viewportSet, avail);
@@ -226,5 +222,6 @@ void App::onViewportResize(const ViewportResizeEvent &e) {
       m_resourceManager.image(m_viewport).view(),
       m_resourceManager.sampler(m_viewportSampler).handle());
 }
+
 
 } // namespace vvhl

@@ -76,7 +76,6 @@ private:
   bool m_shouldClose = false;
 
   ImVec2 m_viewportSize = ImVec2(-1, -1);
-  bool m_dispatchViewportResizeEvent = false;
 };
 
 } // namespace vvhl

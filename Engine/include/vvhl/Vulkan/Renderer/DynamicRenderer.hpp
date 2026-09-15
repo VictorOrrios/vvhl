@@ -75,6 +75,10 @@ public:
   void updateRenderingInfo(const RenderingConfig &config);
   void invalidateRenderingInfo() { m_cached = false; }
 
+  void setViewportAndScissor(VkCommandBuffer cmd); // Auto
+  void setViewportAndScissor(VkCommandBuffer cmd, const VkRect2D &area); // Same viewport and scissor, depth 0.0-1.0
+  void setViewportAndScissor(VkCommandBuffer cmd, const VkViewport &viewport, const VkRect2D &scissor); // Custom
+
 private:
   struct CachedRendering {
     RenderingConfig config;

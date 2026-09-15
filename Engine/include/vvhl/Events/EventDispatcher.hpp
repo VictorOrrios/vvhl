@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <typeindex>
+#include <queue>
+#include <vvhl/Core/Logger.hpp>
 #include <vvhl/Core/UUID.hpp>
 #include <vvhl/Events/Event.hpp>
 
@@ -13,6 +15,12 @@ class EventDispatcher {
 public:
   EventDispatcher() = default;
   ~EventDispatcher()  = default;
+
+  void destroy(){ 
+    m_listeners.clear(); 
+    std::queue<Event> empty;
+    std::swap(m_eventQueue, empty);
+  }
 
   template <typename EventType>
   ListenerID subscribe(std::function<void(const EventType &)> callback) {
@@ -54,9 +62,27 @@ public:
       listener.callback(event);
   }
 
-  void destroy(){
-    m_listeners.clear();
+  template <typename EventType>
+    requires std::derived_from<EventType, Event>
+  void enqueue(const EventType &event) {
+    m_eventQueue.push(event);
   }
+
+  void poll() {
+    LOGD("Poll")
+    std::queue<Event> toProcess;
+    std::swap(toProcess, m_eventQueue);
+
+    while (!toProcess.empty()) {
+      LOGD("Dispatch")
+      dispatch(toProcess.front());
+      toProcess.pop();
+    }
+  }
+
+
+public:
+  size_t pendingCount() const { return m_eventQueue.size(); }
 
 private:
   struct Listener {
@@ -65,6 +91,7 @@ private:
   };
 
   std::unordered_map<std::type_index, std::vector<Listener>> m_listeners;
+  std::queue<Event> m_eventQueue;
 };
 
 } // namespace vvhl

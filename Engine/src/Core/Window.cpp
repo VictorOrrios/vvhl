@@ -144,7 +144,7 @@ void Window::WindowSizeCallback(GLFWwindow *window, int width, int height) {
 
   self->m_spec.Width = static_cast<uint32_t>(width);
   self->m_spec.Height = static_cast<uint32_t>(height);
-  self->m_dispatcher->dispatch(
+  self->m_dispatcher->enqueue(
       vvhl::WindowResizeEvent(self, self->m_spec.Width, self->m_spec.Height));
 }
 
@@ -152,41 +152,41 @@ void Window::FramebufferSizeCallback(GLFWwindow *window, int width,
                                      int height) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher->dispatch(vvhl::FramebufferResizeEvent(
+  self->m_dispatcher->enqueue(vvhl::FramebufferResizeEvent(
       self, static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
 }
 
 void Window::WindowCloseCallback(GLFWwindow *window) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher->dispatch(vvhl::WindowCloseEvent(self));
+  self->m_dispatcher->enqueue(vvhl::WindowCloseEvent(self));
 }
 
 void Window::WindowFocusCallback(GLFWwindow *window, int focused) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher->dispatch(
+  self->m_dispatcher->enqueue(
       vvhl::WindowFocusEvent(self, focused == GLFW_TRUE));
 }
 
 void Window::WindowIconifyCallback(GLFWwindow *window, int iconified) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher->dispatch(
+  self->m_dispatcher->enqueue(
       vvhl::WindowMinimizeEvent(self, iconified == GLFW_TRUE));
 }
 
 void Window::WindowMaximizeCallback(GLFWwindow *window, int maximized) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher->dispatch(
+  self->m_dispatcher->enqueue(
       vvhl::WindowMaximizeEvent(self, maximized == GLFW_TRUE));
 }
 
 void Window::WindowPositionCallback(GLFWwindow *window, int x, int y) {
   auto *self = getWindow(window);
 
-  self->m_dispatcher->dispatch(vvhl::WindowMoveEvent(self, x, y));
+  self->m_dispatcher->enqueue(vvhl::WindowMoveEvent(self, x, y));
 }
 
 }; // namespace vvhl

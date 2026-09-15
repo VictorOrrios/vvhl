@@ -98,6 +98,7 @@ namespace vvhl
       // FRAGMENT
       createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, m_createInfo.meshShaders.fragment);
     }
+    return true;
   }
 
   bool GraphicsPipeline::createPipeline()
@@ -228,16 +229,16 @@ namespace vvhl
   }
 
   void GraphicsPipeline::draw(VkCommandBuffer cmd, uint32_t vertexCount,
-                              uint32_t instanceCount = 1, uint32_t firstVertex = 0,
-                              uint32_t firstInstance = 0) const
+                              uint32_t instanceCount, uint32_t firstVertex,
+                              uint32_t firstInstance) const
   {
 
     vkCmdDraw(cmd, vertexCount, instanceCount, firstVertex, firstInstance);
   }
 
   void GraphicsPipeline::drawIndexed(VkCommandBuffer cmd, uint32_t indexCount,
-                                     uint32_t instanceCount = 1, uint32_t firstIndex = 0,
-                                     int32_t vertexOffset = 0, uint32_t firstInstance = 0) const
+                                     uint32_t instanceCount, uint32_t firstIndex,
+                                     int32_t vertexOffset, uint32_t firstInstance) const
   {
     vkCmdDrawIndexed(cmd, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
   }

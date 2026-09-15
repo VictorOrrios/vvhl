@@ -298,7 +298,11 @@ void Swapchain::destroySwapchain() {
 bool Swapchain::recreate(uint32_t width, uint32_t height) {
   m_device->waitIdle();
 
-  destroy();
+  destroyImageViews();
+  destroySwapchain();
+  m_images.clear();
+  m_imageViews.clear();
+  m_wrapImages.clear();
 
   return initialize(*m_context, m_surface, width, height);
 }

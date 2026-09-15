@@ -5,6 +5,10 @@ namespace vvhl {
 
 bool DescriptorPool::create(VkDevice device,
                             VkDescriptorPoolCreateFlags flags) {
+  if (device == VK_NULL_HANDLE) {
+    LOGE("Cannot create descriptor pool: device is VK_NULL_HANDLE")
+    return false;
+  }
 
   if (m_typeCounts.empty()) {
     LOGE("Can not initialize an empty descriptor pool: Type counts are all 0")
@@ -30,6 +34,11 @@ bool DescriptorPool::create(VkDevice device,
   createInfo.pPoolSizes = vkPoolSizes.data();
   createInfo.maxSets = m_setCount;
   createInfo.flags = flags;
+
+  LOGD("DESC POOL TYPE COUNTS:")
+  for(auto& i: m_typeCounts){
+    LOGD("{}:{}",int(i.first),i.second)
+  }
 
   if (vkCreateDescriptorPool(device, &createInfo, nullptr, &m_pool) !=
       VK_SUCCESS) {

@@ -276,7 +276,10 @@ struct ColorBlendState {
 // DYNAMIC STATE
 
 struct DynamicState {
-  std::vector<VkDynamicState> states;
+  std::vector<VkDynamicState> states = {
+    VK_DYNAMIC_STATE_VIEWPORT,
+    VK_DYNAMIC_STATE_SCISSOR,
+  };
 
   [[nodiscard]] VkPipelineDynamicStateCreateInfo toVkStruct() const {
     VkPipelineDynamicStateCreateInfo info{};
@@ -428,7 +431,7 @@ private:
   bool createRasterPipeline();
   bool createMeshPipeline();
 
-  void GraphicsPipeline::createShaderStage(VkShaderStageFlagBits stage,
+  void createShaderStage(VkShaderStageFlagBits stage,
   ShaderInput input);
 
 private:
