@@ -69,11 +69,11 @@ void Input::KeyCallback(GLFWwindow *, int key, int, int action, int mods) {
   s_keys[key] = ButtonState(GLFW_RELEASE);
 
   if (action == GLFW_PRESS) {
-    s_dispatcher->dispatch(KeyPressedEvent(key, mods, false));
+    s_dispatcher->enqueue(KeyPressedEvent(key, mods, false));
   } else if (action == GLFW_REPEAT) {
-    s_dispatcher->dispatch(KeyPressedEvent(key, mods, true));
+    s_dispatcher->enqueue(KeyPressedEvent(key, mods, true));
   } else if (action == GLFW_RELEASE) {
-    s_dispatcher->dispatch(KeyReleasedEvent(key, mods));
+    s_dispatcher->enqueue(KeyReleasedEvent(key, mods));
   }
 }
 
@@ -81,7 +81,7 @@ void Input::CharCallback(GLFWwindow *, unsigned int codepoint) {
   if (!s_dispatcher)
     return;
 
-  s_dispatcher->dispatch(CharInputEvent(codepoint));
+  s_dispatcher->enqueue(CharInputEvent(codepoint));
 }
 
 // MOUSE
@@ -93,10 +93,10 @@ void Input::MouseButtonCallback(GLFWwindow *, int button, int action, int) {
   s_mouseButtons[button] = ButtonState(GLFW_RELEASE);
 
   if (action == GLFW_PRESS) {
-    s_dispatcher->dispatch(
+    s_dispatcher->enqueue(
         MouseButtonPressedEvent(button, s_mousePosition.x, s_mousePosition.y));
   } else if (action == GLFW_RELEASE) {
-    s_dispatcher->dispatch(
+    s_dispatcher->enqueue(
         MouseButtonReleasedEvent(button, s_mousePosition.x, s_mousePosition.y));
   }
 }
@@ -110,14 +110,14 @@ void Input::CursorPositionCallback(GLFWwindow *, double x, double y) {
   s_mousePosition = {x, y};
   s_mouseDelta = s_mousePosition - s_previousMousePosition;
 
-  s_dispatcher->dispatch(MouseMovedEvent(x, y));
+  s_dispatcher->enqueue(MouseMovedEvent(x, y));
 }
 
 void Input::CursorEnterCallback(GLFWwindow *, int entered) {
   if (!s_dispatcher)
     return;
 
-  s_dispatcher->dispatch(MouseEnteredEvent(entered == GLFW_TRUE));
+  s_dispatcher->enqueue(MouseEnteredEvent(entered == GLFW_TRUE));
 }
 
 void Input::ScrollCallback(GLFWwindow *, double xOffset, double yOffset) {
@@ -127,7 +127,7 @@ void Input::ScrollCallback(GLFWwindow *, double xOffset, double yOffset) {
   // Update internal values
   s_scrollDelta = {xOffset, yOffset};
 
-  s_dispatcher->dispatch(MouseScrolledEvent(xOffset, yOffset));
+  s_dispatcher->enqueue(MouseScrolledEvent(xOffset, yOffset));
 }
 
 // CALLBACK REGISTRATION

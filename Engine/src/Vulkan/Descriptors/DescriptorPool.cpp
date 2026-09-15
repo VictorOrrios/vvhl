@@ -35,10 +35,6 @@ bool DescriptorPool::create(VkDevice device,
   createInfo.maxSets = m_setCount;
   createInfo.flags = flags;
 
-  LOGD("DESC POOL TYPE COUNTS:")
-  for(auto& i: m_typeCounts){
-    LOGD("{}:{}",int(i.first),i.second)
-  }
 
   if (vkCreateDescriptorPool(device, &createInfo, nullptr, &m_pool) !=
       VK_SUCCESS) {

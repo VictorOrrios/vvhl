@@ -55,10 +55,10 @@ bool App::initializeBase(const AppConfig &config) {
   LOGI("Initialized: Viewport")
 
   m_eventDispatcher.subscribe<WindowCloseEvent>(
-      [this](const WindowCloseEvent &) { LOGD("HELLO");m_shouldClose = true; });
+      [this](const WindowCloseEvent &) { m_shouldClose = true; });
 
-  m_eventDispatcher.subscribe<WindowResizeEvent>(
-      [this](const WindowResizeEvent &e) { this->onWindowResize(e); });
+  m_eventDispatcher.subscribe<FramebufferResizeEvent>(
+      [this](const FramebufferResizeEvent &e) { this->onFrameBufferResize(e); });
 
   m_eventDispatcher.subscribe<ViewportResizeEvent>(
       [this](const ViewportResizeEvent &e) { this->onViewportResize(e); });
@@ -187,7 +187,7 @@ void App::renderGUI() {
   ImVec2 avail = ImGui::GetContentRegionAvail();
 
   if (m_viewportSize.x != avail.x || m_viewportSize.y != avail.y) {
-    m_eventDispatcher.enqueue(ViewportResizeEvent(m_viewportSize.x, m_viewportSize.y));
+    m_eventDispatcher.enqueue(ViewportResizeEvent(avail.x, avail.y));
   }
 
   ImGui::Image(m_viewportSet, avail);
@@ -210,11 +210,14 @@ void App::renderGUI() {
   ImGui::End();
 }
 
-void App::onWindowResize(const WindowResizeEvent &e) {
+void App::onFrameBufferResize(const FramebufferResizeEvent &e) {
+  m_context.device().waitIdle();
+  return;
   m_context.swapchain().recreate(e.Width, e.Height);
 }
 
 void App::onViewportResize(const ViewportResizeEvent &e) {
+  m_context.device().waitIdle();
   m_gbuffers.resize(e.width, e.height);
 
   ImGui_ImplVulkan_RemoveTexture(m_viewportSet);

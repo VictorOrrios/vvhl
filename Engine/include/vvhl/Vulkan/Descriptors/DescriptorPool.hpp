@@ -37,7 +37,7 @@ private:
   VkDevice m_device = VK_NULL_HANDLE;
   VkDescriptorPool m_pool = VK_NULL_HANDLE;
   std::unordered_map<VkDescriptorType, uint32_t> m_typeCounts;
-  uint32_t m_setCount;
+  uint32_t m_setCount = 0;
 };
 
 } // namespace vvhl

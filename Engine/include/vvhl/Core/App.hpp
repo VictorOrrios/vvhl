@@ -47,7 +47,7 @@ protected:
   void destroyBase();
 
 protected:
-  void onWindowResize(const WindowResizeEvent& e);
+  void onFrameBufferResize(const FramebufferResizeEvent& e);
   void onViewportResize(const ViewportResizeEvent& e);
 
   virtual void onRenderGraphGUI() {};

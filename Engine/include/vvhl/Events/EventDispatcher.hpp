@@ -18,7 +18,7 @@ public:
 
   void destroy(){ 
     m_listeners.clear(); 
-    std::queue<Event> empty;
+    std::queue<std::function<void()>> empty;
     std::swap(m_eventQueue, empty);
   }
 
@@ -65,18 +65,18 @@ public:
   template <typename EventType>
     requires std::derived_from<EventType, Event>
   void enqueue(const EventType &event) {
-    m_eventQueue.push(event);
+    m_eventQueue.push([this, event]() {
+        dispatch<EventType>(event);
+    });
   }
 
   void poll() {
-    LOGD("Poll")
-    std::queue<Event> toProcess;
+    std::queue<std::function<void()>> toProcess;
     std::swap(toProcess, m_eventQueue);
 
     while (!toProcess.empty()) {
-      LOGD("Dispatch")
-      dispatch(toProcess.front());
-      toProcess.pop();
+        toProcess.front()(); // Execute lamba (dispatch)
+        toProcess.pop();
     }
   }
 
@@ -91,7 +91,7 @@ private:
   };
 
   std::unordered_map<std::type_index, std::vector<Listener>> m_listeners;
-  std::queue<Event> m_eventQueue;
+  std::queue<std::function<void()>> m_eventQueue;
 };
 
 } // namespace vvhl

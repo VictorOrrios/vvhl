@@ -31,9 +31,7 @@ public:
     // OUTPUT
 
     // DESCRIPTOR POOL
-    LOGD("DESC POLL INIT")
     m_descPool.create(m_context->device().handle());
-    LOGD("DESC POLL END")
 
     // PIPELINES
     m_pipeline.initialize({
