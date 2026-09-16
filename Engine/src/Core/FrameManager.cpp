@@ -149,4 +149,19 @@ bool FrameManager::endFrame() {
   return true;
 }
 
+bool FrameManager::waitAllFences(){
+  for(auto& frame: m_frames){
+    if (frame.fence.wait() != VK_SUCCESS) {
+      LOGE("Error waiting all frame fences")
+      return false;
+    }
+
+    if (frame.fence.reset() != VK_SUCCESS) {
+      LOGE("Error waiting all frame fences")
+      return false;
+    }
+  }
+  return true;
+}
+
 } // namespace vvhl

@@ -296,7 +296,7 @@ void Swapchain::destroySwapchain() {
 }
 
 bool Swapchain::recreate(uint32_t width, uint32_t height) {
-  //LOGD("Swapchain recreate befor {}x{} after {}x{}",m_details.extent.width,m_details.extent.height,width,height);
+  //LOGD("Swapchain recreate before {}x{} after {}x{}",m_details.extent.width,m_details.extent.height,width,height);
   destroy();
   return initialize(*m_context, m_surface, width, height);
 }

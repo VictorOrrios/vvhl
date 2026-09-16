@@ -137,7 +137,8 @@ void App::run() {
       destroy();
       return;
     }
-    auto extent = m_context.swapchain().details().extent;
+    auto swapchain_extent = m_context.swapchain().details().extent;
+    //auto framebuffer_extent = m_window.getFramebufferSize();
 
     // Record cmd
     onRender(f->cmdBuffer.handle(), f->frameNumber);
@@ -145,7 +146,7 @@ void App::run() {
     // Draw gui
     m_imguiLayer.beginFrame();
     renderGUI();
-    m_imguiLayer.endFrame(f->cmdBuffer.handle(), outputView, extent);
+    m_imguiLayer.endFrame(f->cmdBuffer.handle(), outputView, swapchain_extent);
 
     // Transition layout, end cmd, Queue submit cmd, present swapchain img, end
     // frame
@@ -211,8 +212,11 @@ void App::renderGUI() {
 }
 
 void App::onFrameBufferResize(const FramebufferResizeEvent &e) {
+  //auto extent = m_context.swapchain().details().extent;
+  //if(extent.width >= e.Width && extent.height >= e.Height) return;
+  
   m_context.device().waitIdle();
-  return;
+
   m_context.swapchain().recreate(e.Width, e.Height);
 }
 

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-clear && cmake --build build && ./build/Examples/Triangle/Triangle
+clear && cmake --build build -j$(nproc) && ./build/Examples/Triangle/Triangle

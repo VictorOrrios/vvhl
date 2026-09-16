@@ -31,6 +31,8 @@ public:
   bool beginFrame(Frame*& currentFrame, VkImageView& outputView);
   bool endFrame();
 
+  bool waitAllFences();
+
 public:
   uint32_t getCurrentFrameIndex() const { return m_currentFrame; }
   Frame *getCurrentFrame() { return &m_frames[m_currentFrame]; }
