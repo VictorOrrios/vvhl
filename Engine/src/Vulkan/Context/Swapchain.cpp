@@ -6,14 +6,14 @@
 namespace vvhl {
 
 bool Swapchain::initialize(VulkanContext &context, VkSurfaceKHR surface,
-                           uint32_t width, uint32_t height) {
+                           uint32_t width, uint32_t height, VkSwapchainKHR oldSwapchain) {
 
   m_context = &context;
   m_device = &context.device();
   m_surface = surface;
   m_swapchainSupport = m_device->querySwapchainSupport(surface);
 
-  if (!createSwapchain(width, height))
+  if (!createSwapchain(width, height, oldSwapchain))
     return false;
 
   if (!retrieveImages())
@@ -34,7 +34,7 @@ bool Swapchain::initialize(VulkanContext &context, VkSurfaceKHR surface,
   return true;
 }
 
-bool Swapchain::createSwapchain(uint32_t width, uint32_t height) {
+bool Swapchain::createSwapchain(uint32_t width, uint32_t height, VkSwapchainKHR oldSwapchain) {
   // Choose config
   VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat();
   VkPresentModeKHR presentMode = choosePresentMode();
@@ -88,7 +88,7 @@ bool Swapchain::createSwapchain(uint32_t width, uint32_t height) {
 
   createInfo.clipped = VK_TRUE;
 
-  createInfo.oldSwapchain = VK_NULL_HANDLE;
+  createInfo.oldSwapchain = oldSwapchain;
 
   if (vkCreateSwapchainKHR(m_device->handle(), &createInfo, nullptr,
                            &m_swapchain) != VK_SUCCESS) {
@@ -296,9 +296,16 @@ void Swapchain::destroySwapchain() {
 }
 
 bool Swapchain::recreate(uint32_t width, uint32_t height) {
-  //LOGD("Swapchain recreate before {}x{} after {}x{}",m_details.extent.width,m_details.extent.height,width,height);
-  destroy();
-  return initialize(*m_context, m_surface, width, height);
+  auto oldSwapchain = m_swapchain;
+  
+  destroyImageViews();
+  m_images.clear();
+  m_imageViews.clear();
+  m_wrapImages.clear();
+  
+  bool result = initialize(*m_context, m_surface, width, height, oldSwapchain);
+  vkDestroySwapchainKHR(m_device->handle(), oldSwapchain, nullptr);
+  return result;
 }
 
 VkResult Swapchain::advanceImage(VkSemaphore semaphore, VkFence fence) {

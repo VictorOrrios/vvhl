@@ -17,6 +17,7 @@ public:
 class MouseMovedEvent final : public MouseEvent {
 public:
   MouseMovedEvent(double x, double y) : MouseEvent(x, y) {}
+  static constexpr bool Coalescable = true;
 };
 
 //------------------------------------------------------------

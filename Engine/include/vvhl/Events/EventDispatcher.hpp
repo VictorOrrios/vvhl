@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <typeindex>
-#include <queue>
+#include <deque>
 #include <vvhl/Core/Logger.hpp>
 #include <vvhl/Core/UUID.hpp>
 #include <vvhl/Events/Event.hpp>
@@ -18,7 +18,7 @@ public:
 
   void destroy(){ 
     m_listeners.clear(); 
-    std::queue<std::function<void()>> empty;
+    std::deque<QueuedEvent> empty;
     std::swap(m_eventQueue, empty);
   }
 
@@ -64,34 +64,70 @@ public:
 
   template <typename EventType>
     requires std::derived_from<EventType, Event>
-  void enqueue(const EventType &event) {
-    m_eventQueue.push([this, event]() {
-        dispatch<EventType>(event);
+  void enqueue(EventType event) {
+
+    const auto type = std::type_index(typeid(EventType));
+
+    if constexpr (EventType::Coalescable) {
+      // If an event of this type is already pending,
+      // replace it with the newest event.
+      for (auto& queued : m_eventQueue) {
+        if (queued.type == type) {
+          queued.event = std::make_unique<EventType>(
+            std::move(event)
+          );
+
+          return;
+        }
+      }
+    }
+
+    m_eventQueue.push_back({
+      type,
+      std::make_unique<EventType>(std::move(event))
     });
   }
 
   void poll() {
-    std::queue<std::function<void()>> toProcess;
+    std::deque<QueuedEvent> toProcess;
     std::swap(toProcess, m_eventQueue);
 
     while (!toProcess.empty()) {
-        toProcess.front()(); // Execute lamba (dispatch)
-        toProcess.pop();
+      auto queued = std::move(toProcess.front());
+      toProcess.pop_front();
+
+      dispatchQueuedEvent(queued);
     }
   }
 
-
 public:
   size_t pendingCount() const { return m_eventQueue.size(); }
+
 
 private:
   struct Listener {
     ListenerID id;
     std::function<void(const Event &)> callback;
   };
+  struct QueuedEvent {
+    std::type_index type;
+    std::unique_ptr<Event> event;
+  };
 
+private:
+  void dispatchQueuedEvent(const QueuedEvent& queued) {
+    auto it = m_listeners.find(queued.type);
+
+    if (it == m_listeners.end())
+      return;
+
+    for (const auto& listener : it->second)
+      listener.callback(*queued.event);
+  }
+  
+private:
   std::unordered_map<std::type_index, std::vector<Listener>> m_listeners;
-  std::queue<std::function<void()>> m_eventQueue;
+  std::deque<QueuedEvent> m_eventQueue;
 };
 
 } // namespace vvhl

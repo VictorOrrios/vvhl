@@ -22,6 +22,7 @@ public:
 
   uint32_t Width;
   uint32_t Height;
+  static constexpr bool Coalescable = true;
 };
 
 //------------------------------------------------------------
@@ -33,6 +34,7 @@ public:
 
   uint32_t Width;
   uint32_t Height;
+  static constexpr bool Coalescable = true;
 };
 
 //------------------------------------------------------------
@@ -81,6 +83,7 @@ public:
 
   int X;
   int Y;
+  static constexpr bool Coalescable = true;
 };
 
 } // namespace vvhl

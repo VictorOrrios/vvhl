@@ -226,8 +226,8 @@ void App::onViewportResize(const ViewportResizeEvent &e) {
 
   ImGui_ImplVulkan_RemoveTexture(m_viewportSet);
   m_viewportSet = m_imguiLayer.createViewportTextureId(
-      m_resourceManager.image(m_viewport).view(),
-      m_resourceManager.sampler(m_viewportSampler).handle());
+    m_resourceManager.image(m_viewport).view(),
+    m_resourceManager.sampler(m_viewportSampler).handle());
 }
 
 

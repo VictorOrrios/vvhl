@@ -11,6 +11,8 @@ public:
 
   uint32_t width;
   uint32_t height;
+
+  static constexpr bool Coalescable = true;
 };
 
 } // namespace vvhl

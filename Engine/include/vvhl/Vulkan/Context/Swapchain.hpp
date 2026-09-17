@@ -26,7 +26,7 @@ public:
   Swapchain &operator=(const Swapchain &) = delete;
 
   bool initialize(VulkanContext &context, VkSurfaceKHR surface, uint32_t width,
-                  uint32_t height);
+                  uint32_t height, VkSwapchainKHR oldSwapchain = VK_NULL_HANDLE);
 
   void destroy();
 
@@ -56,7 +56,7 @@ public:
   SwapchainDetails details() const { return m_details; }
 
 private:
-  bool createSwapchain(uint32_t width, uint32_t height);
+  bool createSwapchain(uint32_t width, uint32_t height, VkSwapchainKHR oldSwapchain = VK_NULL_HANDLE);
 
   bool retrieveImages();
 
