@@ -84,9 +84,15 @@ bool App::createViewport() {
   });
 
   m_viewportSampler = m_resourceManager.createSampler({
+      .magFilter = VK_FILTER_LINEAR,
+      .minFilter = VK_FILTER_LINEAR,
+
       .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
       .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
       .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+
+      .mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+      .maxLod = 0.0f
   });
 
   // Register image in imgui
@@ -188,12 +194,20 @@ void App::renderGUI() {
   ImVec2 avail = ImGui::GetContentRegionAvail();
 
   if (m_viewportSize.x != avail.x || m_viewportSize.y != avail.y) {
-    m_eventDispatcher.enqueue(ViewportResizeEvent(avail.x, avail.y));
+    auto scale = ImGui::GetIO().DisplayFramebufferScale;
+    m_eventDispatcher.enqueue(ViewportResizeEvent(scale.x*avail.x, scale.y*avail.y));
+    m_viewportSize = ImVec2(avail.x*scale.x,avail.y*scale.y);
   }
 
-  ImGui::Image(m_viewportSet, avail);
+  ImVec2 pos_min = ImGui::GetCursorScreenPos();
+  ImVec2 pos_max = ImVec2(pos_min.x + avail.x, pos_min.y + avail.y);
+  ImDrawList* draw_list = ImGui::GetWindowDrawList();
+  draw_list->AddCallback(ImGui::GetPlatformIO().DrawCallback_SetSamplerNearest);
+  draw_list->AddImage(m_viewportSet, pos_min, pos_max);
+  draw_list->AddCallback(ImGui::GetPlatformIO().DrawCallback_ResetRenderState);
 
-  m_viewportSize = avail;
+  // Using image applies a linear sampling
+  //ImGui::Image(m_viewportSet, avail);
 
   ImGui::End();
 
@@ -223,6 +237,7 @@ void App::onFrameBufferResize(const FramebufferResizeEvent &e) {
 void App::onViewportResize(const ViewportResizeEvent &e) {
   m_context.device().waitIdle();
   m_gbuffers.resize(e.width, e.height);
+  //LOGI("Viewport resize event {}x{}",e.width,e.height)
 
   ImGui_ImplVulkan_RemoveTexture(m_viewportSet);
   m_viewportSet = m_imguiLayer.createViewportTextureId(

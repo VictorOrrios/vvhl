@@ -9,6 +9,9 @@ bin/
 lib/
 .cache
 
+# Imgui cache
+imgui.ini
+
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt
