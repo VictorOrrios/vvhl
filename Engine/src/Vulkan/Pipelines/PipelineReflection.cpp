@@ -60,7 +60,7 @@ bool PipelineReflection::findByName(std::string name,
   for (auto &[setNumber, bindings] : m_descriptorBindings) {
     for (auto &binding : bindings) {
       if (!binding.name.empty() &&
-          strcmp(binding.name.c_str(), name.c_str())) {
+          (binding.name.compare(name) == 0)) {
         output = binding;
         return true;
       }

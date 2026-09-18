@@ -3,6 +3,26 @@
 
 namespace vvhl {
 
+ShaderReflection::ShaderReflection(ShaderReflection&& other) noexcept
+  : m_descriptorBindings(std::move(other.m_descriptorBindings)),
+    m_pushConstants(std::move(other.m_pushConstants)),
+    m_inputs(std::move(other.m_inputs)),
+    m_outputs(std::move(other.m_outputs)) {
+}
+
+ShaderReflection&
+ShaderReflection::operator=(ShaderReflection&& other) noexcept {
+  if (this == &other)
+      return *this;
+
+  m_descriptorBindings = std::move(other.m_descriptorBindings);
+  m_pushConstants = std::move(other.m_pushConstants);
+  m_inputs = std::move(other.m_inputs);
+  m_outputs = std::move(other.m_outputs);
+
+  return *this;
+}
+
 bool ShaderReflection::initialize(std::span<const uint32_t> spirv,
                                   VkShaderStageFlagBits stage) {
   m_descriptorBindings.clear();

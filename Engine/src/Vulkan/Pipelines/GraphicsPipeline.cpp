@@ -34,6 +34,11 @@ namespace vvhl
       return false;
     }
 
+    if (!buildShaderStages())
+    {
+      return false;
+    }
+
     if (!createPipeline())
     {
       return false;
@@ -45,14 +50,14 @@ namespace vvhl
   void GraphicsPipeline::createShaderStage(VkShaderStageFlagBits stage,
                                            ShaderInput input)
   {
-    m_shaders.emplace_back();
+    m_shaders.push_back({});
     createShader(input, stage, m_shaders.back());
     m_shaderStages.push_back({.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
                               .pNext = nullptr,
                               .flags = 0,
                               .stage = stage,
                               .module = m_shaders.back().handle(),
-                              .pName = nullptr,
+                              .pName = m_shaders.back().entryPoint().c_str(),
                               .pSpecializationInfo = nullptr});
   }
 

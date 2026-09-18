@@ -7,6 +7,7 @@
 #include "vvhl/Vulkan/Renderer/DynamicRenderer.hpp"
 #include <vvhl/RenderPass/RenderPass.hpp>
 #include <vvhl/Vulkan/Pipelines/ComputePipeline.hpp>
+#include <vvhl/Vulkan/Pipelines/GraphicsPipeline.hpp>
 #include <vvhl/vvhl.hpp>
 
 using namespace vvhl;
@@ -34,16 +35,26 @@ public:
     m_descPool.create(m_context->device().handle());
 
     // PIPELINES
-    m_pipeline.initialize({
+    m_computePipeline.initialize({
         .renderPass = this,
         .shaderInput = {"./Examples/Triangle/triangle.slang"},
     });
 
+    m_graphicsPipeline.initialize({
+      .renderPass = this,
+      .mode = GraphicsPipelineMode::Raster,
+
+      .rasterShaders = {
+        .vertex = {"./Examples/Triangle/vertex.slang"},
+        .fragment = {"./Examples/Triangle/fragment.slang"}
+      },
+    });
+
     // DESCRIPTORS
-    m_pipeline.writeAllFrames<ImageWriteDescriptor>(
-        std::pair(0, 0),
+    m_computePipeline.writeAllFrames<ImageWriteDescriptor>(
+        "outImage",
         {.handle = m_mainImage, .imageLayout = VK_IMAGE_LAYOUT_GENERAL});
-    m_pipeline.updateDescriptors();
+    m_computePipeline.updateDescriptors();
 
     // CONFIG
     VkExtent2D extent2d = m_resourceManager->image(m_mainImage).extent2D();
@@ -55,18 +66,21 @@ public:
   }
 
   void destroy() override {
-    m_pipeline.destroy();
+    m_computePipeline.destroy();
+    m_graphicsPipeline.destroy();
     destroyBase();
   }
 
   void onRender(VkCommandBuffer cmd, uint32_t frameIndex) override {
 
-    // m_renderer.begin(cmd);
+    
 
+    // VK_IMAGE_LAYOUT_GENERAL For compute
+    // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL For graphics
     m_barriers.imageBarrier(m_mainImage)
-        ->toLayout(VK_IMAGE_LAYOUT_GENERAL)
+        ->toLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         ->stage(VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,
-                VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT)
+                VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT)
         ->access(0, VK_ACCESS_2_SHADER_WRITE_BIT);
     m_barriers.submit(cmd);
 
@@ -93,10 +107,21 @@ public:
                          1, &range);
     */
 
+    /*
     VkExtent2D groupCount =
         calcGroupCounts(m_resourceManager->image(m_mainImage).extent2D(), 1);
-    m_pipeline.bindAndDispatch(cmd, frameIndex, groupCount.width,
+    m_computePipeline.bindAndDispatch(cmd, frameIndex, groupCount.width,
                                groupCount.height, 1);
+    */
+
+    m_renderer.begin(cmd);
+    m_renderer.setViewportAndScissor(cmd);
+
+    m_graphicsPipeline.bind(cmd,frameIndex);
+    m_graphicsPipeline.draw(cmd,3);
+
+    m_renderer.end(cmd);
+
 
     m_barriers.imageBarrier(m_mainImage)
         ->toLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
@@ -106,7 +131,6 @@ public:
         ->access(VK_ACCESS_2_SHADER_WRITE_BIT, VK_ACCESS_2_SHADER_READ_BIT);
     m_barriers.submit(cmd);
 
-    // m_renderer.end(cmd);
   }
 
   void onRenderGUI() override{
@@ -116,14 +140,19 @@ public:
   }
 
   void onViewportResize(const ViewportResizeEvent &) override{
-    m_pipeline.writeAllFrames<ImageWriteDescriptor>(
-        std::pair(0, 0),
+    m_computePipeline.writeAllFrames<ImageWriteDescriptor>(
+        "outImage",
         {.handle = m_mainImage, .imageLayout = VK_IMAGE_LAYOUT_GENERAL});
-    m_pipeline.updateDescriptors();
+    m_computePipeline.updateDescriptors();
+    VkExtent2D extent2d = m_resourceManager->image(m_mainImage).extent2D();
+    RenderingConfig rConf = RenderingConfig::singleColor(
+        m_resourceManager->image(m_mainImage).view(), extent2d);
+    m_renderer.updateRenderingInfo(rConf);
   }
 
 private:
-  ComputePipeline m_pipeline;
+  ComputePipeline m_computePipeline;
+  GraphicsPipeline m_graphicsPipeline;
   ImageHandle m_mainImage;
 };
 

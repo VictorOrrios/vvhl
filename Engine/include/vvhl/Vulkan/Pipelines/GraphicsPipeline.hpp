@@ -13,17 +13,17 @@ enum class GraphicsPipelineMode {
 // Shader stages
 
 struct RasterShaderStages {
-  ShaderInput vertex;
-  ShaderInput fragment;
-  std::optional<ShaderInput> tessControl;
-  std::optional<ShaderInput> tessEval;
-  std::optional<ShaderInput> geometry;
+  ShaderInput vertex = {""};
+  ShaderInput fragment = {""};
+  std::optional<ShaderInput> tessControl = std::nullopt;
+  std::optional<ShaderInput> tessEval = std::nullopt;
+  std::optional<ShaderInput> geometry = std::nullopt;
 };
 
 struct MeshShaderStages {
   ShaderInput mesh;
   ShaderInput fragment;
-  std::optional<ShaderInput> task;
+  std::optional<ShaderInput> task = std::nullopt;
 };
 
 // Obligatory, Raster mode only
@@ -372,22 +372,22 @@ struct GraphicsPipelineCreateInfo {
   VkPipelineCreateFlags flags = 0;
 
   // Shaders. Only one will be read, based on the mode
-  RasterShaderStages rasterShaders;
-  MeshShaderStages meshShaders;
+  RasterShaderStages rasterShaders = {};
+  MeshShaderStages meshShaders = {};
 
   // Common
-  ViewportState viewport;
-  RasterizationState rasterization;
-  MultisampleState multisample;
-  DepthStencilState depthStencil; // Optional
-  ColorBlendState colorBlend;
-  DynamicState dynamicState;
-  RenderingFormats formats;
+  ViewportState viewport = {};
+  RasterizationState rasterization = {};
+  MultisampleState multisample = {};
+  DepthStencilState depthStencil = {}; // Optional
+  ColorBlendState colorBlend = {};
+  DynamicState dynamicState = {};
+  RenderingFormats formats = {};
 
   // Only raster mode
-  VertexInputState vertexInput;
-  InputAssemblyState inputAssembly;
-  TessellationState tessellation; // Optional
+  VertexInputState vertexInput = {};
+  InputAssemblyState inputAssembly = {};
+  TessellationState tessellation = {}; // Optional
 };
 
 
@@ -439,7 +439,7 @@ private:
   VkPipelineCreateFlags m_flags = 0;
 
   // Shaders
-  std::vector<Shader> m_shaders;
+  std::deque<Shader> m_shaders;
   std::vector<VkPipelineShaderStageCreateInfo> m_shaderStages;
 
   GraphicsPipelineCreateInfo m_createInfo;

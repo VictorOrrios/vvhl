@@ -4,6 +4,32 @@
 
 namespace vvhl {
 
+Shader::Shader(Shader&& other) noexcept
+  : m_device(std::exchange(other.m_device, VK_NULL_HANDLE)),
+    m_module(std::exchange(other.m_module, VK_NULL_HANDLE)),
+    m_stage(other.m_stage),
+    m_entryPoint(std::move(other.m_entryPoint)),
+    m_reflection(std::move(other.m_reflection)) {
+  other.m_stage = {};
+}
+
+Shader& Shader::operator=(Shader&& other) noexcept {
+  if (this == &other)
+      return *this;
+
+  destroy();
+
+  m_device = std::exchange(other.m_device, VK_NULL_HANDLE);
+  m_module = std::exchange(other.m_module, VK_NULL_HANDLE);
+  m_stage = other.m_stage;
+  m_entryPoint = std::move(other.m_entryPoint);
+  m_reflection = std::move(other.m_reflection);
+
+  other.m_stage = {};
+
+  return *this;
+}
+
 bool Shader::initialize(VkDevice device, std::string filePath,
                         VkShaderStageFlagBits stage, std::string entryPoint) {
 

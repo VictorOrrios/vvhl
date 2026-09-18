@@ -261,6 +261,11 @@ bool Device::createLogicalDevice() {
   dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
   dynamicRenderingFeatures.pNext = &synchronization2Features;
 
+  VkPhysicalDeviceVulkan11Features features11{};
+  features11.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+  features11.shaderDrawParameters = VK_TRUE;
+  features11.pNext = &dynamicRenderingFeatures;
+
   VkDeviceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
@@ -272,7 +277,7 @@ bool Device::createLogicalDevice() {
       static_cast<uint32_t>(DeviceExtensions.size());
   createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
 
-  createInfo.pNext = &dynamicRenderingFeatures;
+  createInfo.pNext = &features11;
 
   // Allways 0 since Vulkan 1.0
   createInfo.enabledLayerCount = 0;

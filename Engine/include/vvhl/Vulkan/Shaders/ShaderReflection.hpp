@@ -26,8 +26,8 @@ public:
   ShaderReflection() = default;
   ~ShaderReflection() = default;
 
-  ShaderReflection(const ShaderReflection &) = delete;
-  ShaderReflection &operator=(const ShaderReflection &) = delete;
+  ShaderReflection(ShaderReflection&& other) noexcept;
+  ShaderReflection& operator=(ShaderReflection&& other) noexcept;
 
   bool initialize(std::span<const uint32_t> spirv, VkShaderStageFlagBits stage);
 

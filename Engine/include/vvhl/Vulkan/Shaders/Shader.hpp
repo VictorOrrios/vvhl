@@ -29,7 +29,7 @@ public:
 public:
   VkShaderModule handle() const { return m_module; };
   VkShaderStageFlagBits stage() const { return m_stage; };
-  std::string_view entryPoint() const { return m_entryPoint; };
+  const std::string& entryPoint() const { return m_entryPoint; };
   const ShaderReflection &reflection() const { return m_reflection; };
 
 private:
