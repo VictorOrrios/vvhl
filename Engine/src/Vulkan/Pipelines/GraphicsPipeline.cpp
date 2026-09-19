@@ -1,3 +1,4 @@
+#include <vulkan/vulkan_core.h>
 #include <vvhl/Vulkan/Pipelines/GraphicsPipeline.hpp>
 
 namespace vvhl {
@@ -104,11 +105,18 @@ bool GraphicsPipeline::buildShaderStages() {
 }
 
 bool GraphicsPipeline::createPipeline() {
+  // Checks
   if (m_createInfo.dynamicState.empty()) {
     LOGE("Dynamic state of graphics pipeline has to have at least the viewport "
          "and scissor")
     return false;
   }
+  if ((m_createInfo.depthStencil.depthTestEnable == VK_TRUE) ^
+      (m_createInfo.formats.depthFormat != VK_FORMAT_UNDEFINED)) {
+    LOGW("Graphics pipeline: using the depth buffer requieres defining a "
+         "formats.depthFormat and enabling depthStencil.depthTestEnable")
+  }
+
   if (m_mode == GraphicsPipelineMode::Raster) {
     return createRasterPipeline();
   }

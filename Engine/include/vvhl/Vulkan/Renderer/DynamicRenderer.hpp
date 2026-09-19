@@ -7,7 +7,7 @@ namespace vvhl {
 struct ColorAttachment {
   VkImageView view = VK_NULL_HANDLE;
   VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-  VkClearValue clearValue = {};
+  VkClearValue clearValue = {.color = {{0.0f, 0.0f, 0.0f, 1.0f}}};
   VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   VkAttachmentStoreOp storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
@@ -58,7 +58,6 @@ struct RenderingConfig {
     config.renderArea.extent = extent;
     return config;
   }
-
 };
 
 class DynamicRenderer {
@@ -76,8 +75,11 @@ public:
   void invalidateRenderingInfo() { m_cached = false; }
 
   void setViewportAndScissor(VkCommandBuffer cmd); // Auto
-  void setViewportAndScissor(VkCommandBuffer cmd, const VkRect2D &area); // Same viewport and scissor, depth 0.0-1.0
-  void setViewportAndScissor(VkCommandBuffer cmd, const VkViewport &viewport, const VkRect2D &scissor); // Custom
+  void setViewportAndScissor(
+      VkCommandBuffer cmd,
+      const VkRect2D &area); // Same viewport and scissor, depth 0.0-1.0
+  void setViewportAndScissor(VkCommandBuffer cmd, const VkViewport &viewport,
+                             const VkRect2D &scissor); // Custom
 
 private:
   struct CachedRendering {
@@ -85,6 +87,8 @@ private:
     VkRenderingInfo renderingInfo = {};
     std::vector<VkRenderingAttachmentInfo> colorAttachments;
     VkRenderingAttachmentInfo depthAttachment = {};
+    // TODO: Support having to diferent attachemnts for depth and
+    // stencil
     bool hasDepth = false;
   };
 

@@ -5,6 +5,7 @@
 #include "vvhl/Resources/GBuffers.hpp"
 #include "vvhl/Resources/ResourceManager.hpp"
 #include "vvhl/Vulkan/Renderer/DynamicRenderer.hpp"
+#include <vulkan/vulkan_core.h>
 #include <vvhl/RenderPass/RenderPass.hpp>
 #include <vvhl/Vulkan/Pipelines/ComputePipeline.hpp>
 #include <vvhl/Vulkan/Pipelines/GraphicsPipeline.hpp>
@@ -82,9 +83,9 @@ public:
     // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL For graphics
     m_barriers.imageBarrier(m_mainImage)
         ->toLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-        ->stage(VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,
-                VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT)
-        ->access(0, VK_ACCESS_2_SHADER_WRITE_BIT);
+        ->stage(VK_PIPELINE_STAGE_2_NONE,
+                VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT)
+        ->toAccess(VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT);
     m_barriers.submit(cmd);
 
 
@@ -128,10 +129,9 @@ public:
 
     m_barriers.imageBarrier(m_mainImage)
         ->toLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-        ->stage(VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
-                // VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT
+        ->stage(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
                 VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT)
-        ->access(VK_ACCESS_2_SHADER_WRITE_BIT, VK_ACCESS_2_SHADER_READ_BIT);
+        ->toAccess(VK_ACCESS_2_SHADER_READ_BIT);
     m_barriers.submit(cmd);
 
   }
