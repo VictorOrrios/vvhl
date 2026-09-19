@@ -76,7 +76,7 @@ public:
 
   void onRender(VkCommandBuffer cmd, uint32_t frameIndex) override {
 
-    
+
 
     // VK_IMAGE_LAYOUT_GENERAL For compute
     // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL For graphics

@@ -118,8 +118,7 @@ struct InputAssemblyState {
 
   [[nodiscard]] VkPipelineInputAssemblyStateCreateInfo toVkStruct() const {
     VkPipelineInputAssemblyStateCreateInfo info{};
-    info.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     info.topology = topology;
     info.primitiveRestartEnable = primitiveRestartEnable;
     return info;
@@ -164,8 +163,7 @@ struct TessellationState {
 
   [[nodiscard]] VkPipelineTessellationStateCreateInfo toVkStruct() const {
     VkPipelineTessellationStateCreateInfo info{};
-    info.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+    info.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
     info.patchControlPoints = patchControlPoints;
     return info;
   }
@@ -277,8 +275,8 @@ struct ColorBlendState {
 
 struct DynamicState {
   std::vector<VkDynamicState> states = {
-    VK_DYNAMIC_STATE_VIEWPORT,
-    VK_DYNAMIC_STATE_SCISSOR,
+      VK_DYNAMIC_STATE_VIEWPORT,
+      VK_DYNAMIC_STATE_SCISSOR,
   };
 
   [[nodiscard]] VkPipelineDynamicStateCreateInfo toVkStruct() const {
@@ -349,8 +347,7 @@ struct DepthStencilState {
 
   [[nodiscard]] VkPipelineDepthStencilStateCreateInfo toVkStruct() const {
     VkPipelineDepthStencilStateCreateInfo info{};
-    info.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    info.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     info.depthTestEnable = depthTestEnable;
     info.depthWriteEnable = depthWriteEnable;
     info.depthCompareOp = depthCompareOp;
@@ -389,7 +386,6 @@ struct GraphicsPipelineCreateInfo {
   InputAssemblyState inputAssembly = {};
   TessellationState tessellation = {}; // Optional
 };
-
 
 class GraphicsPipeline : public Pipeline {
 public:
@@ -431,8 +427,7 @@ private:
   bool createRasterPipeline();
   bool createMeshPipeline();
 
-  void createShaderStage(VkShaderStageFlagBits stage,
-  ShaderInput input);
+  void createShaderStage(VkShaderStageFlagBits stage, ShaderInput input);
 
 private:
   GraphicsPipelineMode m_mode = GraphicsPipelineMode::Raster;
