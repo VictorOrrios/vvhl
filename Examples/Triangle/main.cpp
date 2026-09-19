@@ -40,7 +40,7 @@ public:
         .shaderInput = {"./Examples/Triangle/triangle.slang"},
     });
 
-    m_graphicsPipeline.initialize({
+    GraphicsPipelineCreateInfo createInfo = {
       .renderPass = this,
       .mode = GraphicsPipelineMode::Raster,
 
@@ -48,7 +48,10 @@ public:
         .vertex = {"./Examples/Triangle/vertex.slang"},
         .fragment = {"./Examples/Triangle/fragment.slang"}
       },
-    });
+    };
+    createInfo.formats.colorFormats.push_back(m_resourceManager->image(m_mainImage).format());
+    createInfo.colorBlend.attachments.push_back({});
+    m_graphicsPipeline.initialize(createInfo);
 
     // DESCRIPTORS
     m_computePipeline.writeAllFrames<ImageWriteDescriptor>(
