@@ -9,6 +9,7 @@ bool RenderPass::initializeBase(App &app) {
   m_eventDispatcher = &app.eventDispatcher();
   m_barriers.initialize(app.resourceManager());
   m_gbuffers = &app.gbuffers();
+  m_cmdPool = app.cmdPool();
 
   m_eventDispatcher->subscribe<ViewportResizeEvent>(
       [this](const ViewportResizeEvent &e) { this->onViewportResize(e); });
@@ -21,6 +22,7 @@ void RenderPass::destroyBase() {
   m_resourceManager = nullptr;
   m_eventDispatcher = nullptr;
   m_gbuffers = nullptr;
+  m_cmdPool = nullptr;
   m_descPool.destroy();
   m_renderer.invalidateRenderingInfo();
   m_barriers.destroy();

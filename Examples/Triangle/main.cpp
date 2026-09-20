@@ -1,10 +1,15 @@
 // Triangle example for vvhl
 
+#include "glm/fwd.hpp"
 #include "vvhl/Core/App.hpp"
 #include "vvhl/Core/EngineConfig.hpp"
+#include "vvhl/Resources/BufferPresets.hpp"
 #include "vvhl/Resources/GBuffers.hpp"
 #include "vvhl/Resources/ResourceManager.hpp"
+#include "vvhl/Vulkan/Commands/CommandBuffer.hpp"
+#include "vvhl/Vulkan/Memory/Buffer.hpp"
 #include "vvhl/Vulkan/Renderer/DynamicRenderer.hpp"
+#include <vector>
 #include <vulkan/vulkan_core.h>
 #include <vvhl/RenderPass/RenderPass.hpp>
 #include <vvhl/Vulkan/Pipelines/ComputePipeline.hpp>
@@ -30,6 +35,22 @@ public:
     m_descPool.accumulate({VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1});
     m_descPool.accumulateSet(1);
 
+    std::vector<glm::vec2> vertices = {
+        glm::vec2(-0.5, 0.5),
+        glm::vec2(0.5, 0.5),
+        glm::vec2(0.0, -0.5),
+    };
+
+    BufferCreateDescription vtxBufferInfo = BufferPresets::Vertex;
+    vtxBufferInfo.size = vertices.size() * sizeof(glm::vec2);
+    m_vertexBuffer = m_resourceManager->createBuffer(vtxBufferInfo);
+
+    CommandBuffer tempCmd = m_cmdPool->beginTemp();
+    m_resourceManager->buffer(m_vertexBuffer)
+        .update(tempCmd.handle(), vertices);
+    m_context->device().graphicsQueue().submit(tempCmd.handle());
+    m_context->device().graphicsQueue().waitIdle();
+
     // OUTPUT
 
     // DESCRIPTOR POOL
@@ -42,15 +63,14 @@ public:
     });
 
     GraphicsPipelineCreateInfo createInfo = {
-      .renderPass = this,
-      .mode = GraphicsPipelineMode::Raster,
+        .renderPass = this,
+        .mode = GraphicsPipelineMode::Raster,
 
-      .rasterShaders = {
-        .vertex = {"./Examples/Triangle/vertex.slang"},
-        .fragment = {"./Examples/Triangle/fragment.slang"}
-      },
+        .rasterShaders = {.vertex = {"./Examples/Triangle/vertex.slang"},
+                          .fragment = {"./Examples/Triangle/fragment.slang"}},
     };
-    createInfo.formats.colorFormats.push_back(m_resourceManager->image(m_mainImage).format());
+    createInfo.formats.colorFormats.push_back(
+        m_resourceManager->image(m_mainImage).format());
     createInfo.colorBlend.attachments.push_back({});
     m_graphicsPipeline.initialize(createInfo);
 
@@ -77,8 +97,6 @@ public:
 
   void onRender(VkCommandBuffer cmd, uint32_t frameIndex) override {
 
-
-
     // VK_IMAGE_LAYOUT_GENERAL For compute
     // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL For graphics
     m_barriers.imageBarrier(m_mainImage)
@@ -87,7 +105,6 @@ public:
                 VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT)
         ->toAccess(VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT);
     m_barriers.submit(cmd);
-
 
     /*
     VkClearColorValue color;
@@ -121,11 +138,10 @@ public:
     m_renderer.begin(cmd);
     m_renderer.setViewportAndScissor(cmd);
 
-    m_graphicsPipeline.bind(cmd,frameIndex);
-    m_graphicsPipeline.draw(cmd,3);
+    m_graphicsPipeline.bind(cmd, frameIndex);
+    m_graphicsPipeline.draw(cmd, 3);
 
     m_renderer.end(cmd);
-
 
     m_barriers.imageBarrier(m_mainImage)
         ->toLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
@@ -133,16 +149,15 @@ public:
                 VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT)
         ->toAccess(VK_ACCESS_2_SHADER_READ_BIT);
     m_barriers.submit(cmd);
-
   }
 
-  void onRenderGUI() override{
-    if(ImGui::CollapsingHeader(m_name.c_str())){
+  void onRenderGUI() override {
+    if (ImGui::CollapsingHeader(m_name.c_str())) {
       ImGui::Text("Hola");
     }
   }
 
-  void onViewportResize(const ViewportResizeEvent &) override{
+  void onViewportResize(const ViewportResizeEvent &) override {
     m_computePipeline.writeAllFrames<ImageWriteDescriptor>(
         "outImage",
         {.handle = m_mainImage, .imageLayout = VK_IMAGE_LAYOUT_GENERAL});
@@ -157,6 +172,7 @@ private:
   ComputePipeline m_computePipeline;
   GraphicsPipeline m_graphicsPipeline;
   ImageHandle m_mainImage;
+  BufferHandle m_vertexBuffer;
 };
 
 class TriangleApp : public App {
@@ -167,7 +183,8 @@ class TriangleApp : public App {
 public:
   void initialize(AppConfig config) {
     initializeBase(config);
-    m_pass.initialize({.app = this, .mainInputOutput = GBufferIds::RenderTarget});
+    m_pass.initialize(
+        {.app = this, .mainInputOutput = GBufferIds::RenderTarget});
   }
 
   void destroy() override {
@@ -179,9 +196,7 @@ public:
     m_pass.onRender(cmd, currentFrame);
   }
 
-  void onRenderGraphGUI() override{
-    m_pass.onRenderGUI();
-  }
+  void onRenderGraphGUI() override { m_pass.onRenderGUI(); }
 
 private:
   TrianglePass m_pass;

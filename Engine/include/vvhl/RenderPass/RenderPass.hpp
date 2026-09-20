@@ -41,6 +41,7 @@ protected:
   ResourceManager *m_resourceManager = nullptr;
   EventDispatcher *m_eventDispatcher = nullptr;
   GBuffers *m_gbuffers = nullptr;
+  CommandPool *m_cmdPool = nullptr;
   DescriptorPool m_descPool;
   DynamicRenderer m_renderer;
   BarrierManager m_barriers;

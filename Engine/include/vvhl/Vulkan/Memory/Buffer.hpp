@@ -52,6 +52,12 @@ public:
   bool isMapped() const { return m_mappedPtr != nullptr; }
 
 public:
+  void update(VkCommandBuffer cmd, const void *pData, VkDeviceSize size,
+              VkDeviceSize offset = 0);
+  template <typename T>
+  void update(VkCommandBuffer cmd, const std::vector<T> &data);
+
+public:
   VkBuffer handle() const { return m_buffer; }
   VkDeviceSize size() const { return m_desc.size; }
   BufferDescription description() const { return m_desc; }

@@ -40,6 +40,7 @@ public:
   ResourceManager &resourceManager() { return m_resourceManager; }
   EventDispatcher &eventDispatcher() { return m_eventDispatcher; }
   GBuffers &gbuffers() { return m_gbuffers; }
+  CommandPool* cmdPool() { return m_cmdPool; }
   virtual void onRender(VkCommandBuffer, uint32_t) {};
 
 protected:

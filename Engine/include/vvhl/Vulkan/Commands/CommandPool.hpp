@@ -25,6 +25,9 @@ public:
   CommandBuffer
   allocate(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
+  CommandBuffer
+  beginTemp(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
 public:
   VkCommandPool handle() const { return m_pool; }
   uint32_t queueFamilyIndex() const { return m_queueFamilyIndex; }

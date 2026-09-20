@@ -17,6 +17,15 @@ bool Queue::submit(const VkSubmitInfo &submitInfo, VkFence fence) const {
   return true;
 }
 
+bool Queue::submit(const VkCommandBuffer cmd, VkFence fence) const {
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.pNext = nullptr;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &cmd;
+  return submit(submitInfo,fence);
+}
+
 void Queue::waitIdle() const { vkQueueWaitIdle(m_queue); }
 
 } // namespace vvhl

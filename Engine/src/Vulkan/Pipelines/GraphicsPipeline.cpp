@@ -111,11 +111,6 @@ bool GraphicsPipeline::createPipeline() {
          "and scissor")
     return false;
   }
-  if ((m_createInfo.depthStencil.depthTestEnable == VK_TRUE) ^
-      (m_createInfo.formats.depthFormat != VK_FORMAT_UNDEFINED)) {
-    LOGW("Graphics pipeline: using the depth buffer requieres defining a "
-         "formats.depthFormat and enabling depthStencil.depthTestEnable")
-  }
 
   if (m_mode == GraphicsPipelineMode::Raster) {
     return createRasterPipeline();

@@ -58,6 +58,19 @@ CommandBuffer CommandPool::allocate(VkCommandBufferLevel level) {
   return CommandBuffer(buffer);
 }
 
+CommandBuffer CommandPool::beginTemp(VkCommandBufferLevel level) {
+    CommandBuffer cmd = allocate(level);
+
+    if (!cmd.handle())
+        return {};
+
+    if (!cmd.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)) {
+        return {};
+    }
+
+    return cmd;
+}
+
 void CommandPool::reset(VkCommandPoolResetFlags flags) {
   vkResetCommandPool(m_device->handle(), m_pool, flags);
 }
