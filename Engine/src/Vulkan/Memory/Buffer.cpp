@@ -78,12 +78,6 @@ void Buffer::update(VkCommandBuffer cmd, const void* pData, VkDeviceSize size, V
     vkCmdUpdateBuffer(cmd,m_buffer,offset,size,pData);
 }
 
-template <typename T>
-void Buffer::update(VkCommandBuffer cmd, const std::vector<T> &data) {
-  vkCmdUpdateBuffer(cmd, m_buffer, 0, data.size() * sizeof(T),
-                    data.data());
-};
-
 void Buffer::destroy() {
   if (m_buffer == VK_NULL_HANDLE || m_allocator == VK_NULL_HANDLE)
     return;

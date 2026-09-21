@@ -48,6 +48,7 @@ public:
     CommandBuffer tempCmd = m_cmdPool->beginTemp();
     m_resourceManager->buffer(m_vertexBuffer)
         .update(tempCmd.handle(), vertices);
+    tempCmd.end();
     m_context->device().graphicsQueue().submit(tempCmd.handle());
     m_context->device().graphicsQueue().waitIdle();
 
@@ -69,9 +70,15 @@ public:
         .rasterShaders = {.vertex = {"./Examples/Triangle/vertex.slang"},
                           .fragment = {"./Examples/Triangle/fragment.slang"}},
     };
+
     createInfo.formats.colorFormats.push_back(
         m_resourceManager->image(m_mainImage).format());
     createInfo.colorBlend.attachments.push_back({});
+
+    createInfo.vertexInput.attributes.push_back(
+        {.format = VK_FORMAT_R32G32_SFLOAT});
+    createInfo.vertexInput.bindings.push_back({.stride = sizeof(glm::vec2)});
+
     m_graphicsPipeline.initialize(createInfo);
 
     // DESCRIPTORS
@@ -139,6 +146,15 @@ public:
     m_renderer.setViewportAndScissor(cmd);
 
     m_graphicsPipeline.bind(cmd, frameIndex);
+    auto handle = m_resourceManager->buffer(m_vertexBuffer).handle();
+    VkDeviceSize offset = 0;
+    vkCmdBindVertexBuffers(
+        cmd,
+        0,
+        1,
+        &handle,
+        &offset
+    );
     m_graphicsPipeline.draw(cmd, 3);
 
     m_renderer.end(cmd);

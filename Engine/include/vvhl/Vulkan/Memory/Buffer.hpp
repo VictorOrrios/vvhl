@@ -55,7 +55,9 @@ public:
   void update(VkCommandBuffer cmd, const void *pData, VkDeviceSize size,
               VkDeviceSize offset = 0);
   template <typename T>
-  void update(VkCommandBuffer cmd, const std::vector<T> &data);
+  void update(VkCommandBuffer cmd, const std::vector<T> &data) {
+    vkCmdUpdateBuffer(cmd, m_buffer, 0, data.size() * sizeof(T), data.data());
+  };
 
 public:
   VkBuffer handle() const { return m_buffer; }
