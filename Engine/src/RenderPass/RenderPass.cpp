@@ -1,35 +1,28 @@
 
+#include "vvhl/Core/EngineContext.hpp"
 #include <vvhl/RenderPass/RenderPass.hpp>
 
 namespace vvhl {
 
-bool RenderPass::initializeBase(App &app) {
-  m_context = &app.context();
-  m_resourceManager = &app.resourceManager();
-  m_eventDispatcher = &app.eventDispatcher();
-  m_barriers.initialize(app.resourceManager());
-  m_gbuffers = &app.gbuffers();
-  m_cmdPool = app.cmdPool();
+bool RenderPass::initializeBase(EngineContext ctx) {
+  m_ctx = ctx;
+  m_barriers.initialize(*m_ctx.resourceManager);
 
-  m_eventDispatcher->subscribe<ViewportResizeEvent>(
+  m_ctx.eventDispatcher->subscribe<ViewportResizeEvent>(
       [this](const ViewportResizeEvent &e) { this->onViewportResize(e); });
 
   return true;
 }
 
 void RenderPass::destroyBase() {
-  m_context = nullptr;
-  m_resourceManager = nullptr;
-  m_eventDispatcher = nullptr;
-  m_gbuffers = nullptr;
-  m_cmdPool = nullptr;
+  m_ctx = {};
   m_descPool.destroy();
   m_renderer.invalidateRenderingInfo();
   m_barriers.destroy();
 }
 
-void RenderPass::execute(VkCommandBuffer cmd, uint32_t currentFrame){
-  onRender(cmd,currentFrame);
+void RenderPass::execute(VkCommandBuffer cmd, uint32_t currentFrame) {
+  onRender(cmd, currentFrame);
 }
 
 } // namespace vvhl

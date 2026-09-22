@@ -1,8 +1,7 @@
 #pragma once
 
 #include "vvhl/Core/App.hpp"
-#include "vvhl/Events/EventDispatcher.hpp"
-#include "vvhl/Resources/GBuffers.hpp"
+#include "vvhl/Core/EngineContext.hpp"
 #include "vvhl/Vulkan/Sync/Barriermanager.hpp"
 #include <string_view>
 #include <vvhl/Vulkan/Descriptors/DescriptorPool.hpp>
@@ -23,13 +22,14 @@ public:
   void execute(VkCommandBuffer cmd, uint32_t currentFrame);
 
 public:
-  VulkanContext &context() { return *m_context; }
-  ResourceManager &resourceManager() { return *m_resourceManager; }
+  EngineContext &context() { return m_ctx; }
+  VulkanContext &vkContext() { return *m_ctx.vkContext; }
+  ResourceManager &resourceManager() { return *m_ctx.resourceManager; }
   DescriptorPool &descriptorPool() { return m_descPool; }
   std::string_view name() { return m_name; }
 
 protected:
-  bool initializeBase(App &app);
+  bool initializeBase(EngineContext ctx);
   void destroyBase();
 
   virtual void onRender(VkCommandBuffer, uint32_t) {};
@@ -37,11 +37,7 @@ protected:
   virtual void onViewportResize(const ViewportResizeEvent &) {};
 
 protected:
-  VulkanContext *m_context = nullptr;
-  ResourceManager *m_resourceManager = nullptr;
-  EventDispatcher *m_eventDispatcher = nullptr;
-  GBuffers *m_gbuffers = nullptr;
-  CommandPool *m_cmdPool = nullptr;
+  EngineContext m_ctx;
   DescriptorPool m_descPool;
   DynamicRenderer m_renderer;
   BarrierManager m_barriers;

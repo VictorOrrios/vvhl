@@ -8,6 +8,15 @@
 
 namespace vvhl {
 
+bool App::initialize(AppConfig config) {
+  return initializeBase(config) && onAttach();
+}
+
+void App::destroy(){
+    onDestroy();
+    destroyBase();
+}
+
 bool App::initializeBase(const AppConfig &config) {
   Logger::init();
 
@@ -58,7 +67,9 @@ bool App::initializeBase(const AppConfig &config) {
       [this](const WindowCloseEvent &) { m_shouldClose = true; });
 
   m_eventDispatcher.subscribe<FramebufferResizeEvent>(
-      [this](const FramebufferResizeEvent &e) { this->onFrameBufferResize(e); });
+      [this](const FramebufferResizeEvent &e) {
+        this->onFrameBufferResize(e);
+      });
 
   m_eventDispatcher.subscribe<ViewportResizeEvent>(
       [this](const ViewportResizeEvent &e) { this->onViewportResize(e); });
@@ -83,17 +94,16 @@ bool App::createViewport() {
       .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
   });
 
-  m_viewportSampler = m_resourceManager.createSampler({
-      .magFilter = VK_FILTER_LINEAR,
-      .minFilter = VK_FILTER_LINEAR,
+  m_viewportSampler = m_resourceManager.createSampler(
+      {.magFilter = VK_FILTER_LINEAR,
+       .minFilter = VK_FILTER_LINEAR,
 
-      .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-      .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-      .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+       .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+       .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+       .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
 
-      .mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
-      .maxLod = 0.0f
-  });
+       .mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+       .maxLod = 0.0f});
 
   // Register image in imgui
   m_viewportSet = m_imguiLayer.createViewportTextureId(
@@ -109,6 +119,17 @@ bool App::createViewport() {
   m_gbuffers.add(0, m_viewport);
 
   return true;
+}
+
+EngineContext App::makeEngineContext() {
+  return {
+      .eventDispatcher = &m_eventDispatcher,
+      .vkContext = &m_context,
+      .resourceManager = &m_resourceManager,
+      .gbuffers = &m_gbuffers,
+      .cmdSystem = &m_cmdSystem,
+      .frameManager = &m_frameManager,
+  };
 }
 
 void App::destroyBase() {
@@ -144,7 +165,7 @@ void App::run() {
       return;
     }
     auto swapchain_extent = m_context.swapchain().details().extent;
-    //auto framebuffer_extent = m_window.getFramebufferSize();
+    // auto framebuffer_extent = m_window.getFramebufferSize();
 
     // Record cmd
     onRender(f->cmdBuffer.handle(), f->frameNumber);
@@ -195,19 +216,20 @@ void App::renderGUI() {
 
   if (m_viewportSize.x != avail.x || m_viewportSize.y != avail.y) {
     auto scale = ImGui::GetIO().DisplayFramebufferScale;
-    m_eventDispatcher.enqueue(ViewportResizeEvent(scale.x*avail.x, scale.y*avail.y));
-    m_viewportSize = ImVec2(avail.x*scale.x,avail.y*scale.y);
+    m_eventDispatcher.enqueue(
+        ViewportResizeEvent(scale.x * avail.x, scale.y * avail.y));
+    m_viewportSize = ImVec2(avail.x * scale.x, avail.y * scale.y);
   }
 
   ImVec2 pos_min = ImGui::GetCursorScreenPos();
   ImVec2 pos_max = ImVec2(pos_min.x + avail.x, pos_min.y + avail.y);
-  ImDrawList* draw_list = ImGui::GetWindowDrawList();
+  ImDrawList *draw_list = ImGui::GetWindowDrawList();
   draw_list->AddCallback(ImGui::GetPlatformIO().DrawCallback_SetSamplerNearest);
   draw_list->AddImage(m_viewportSet, pos_min, pos_max);
   draw_list->AddCallback(ImGui::GetPlatformIO().DrawCallback_ResetRenderState);
 
   // Using image applies a linear sampling
-  //ImGui::Image(m_viewportSet, avail);
+  // ImGui::Image(m_viewportSet, avail);
 
   ImGui::End();
 
@@ -226,9 +248,9 @@ void App::renderGUI() {
 }
 
 void App::onFrameBufferResize(const FramebufferResizeEvent &e) {
-  //auto extent = m_context.swapchain().details().extent;
-  //if(extent.width >= e.Width && extent.height >= e.Height) return;
-  
+  // auto extent = m_context.swapchain().details().extent;
+  // if(extent.width >= e.Width && extent.height >= e.Height) return;
+
   m_context.device().waitIdle();
 
   m_context.swapchain().recreate(e.Width, e.Height);
@@ -237,13 +259,12 @@ void App::onFrameBufferResize(const FramebufferResizeEvent &e) {
 void App::onViewportResize(const ViewportResizeEvent &e) {
   m_context.device().waitIdle();
   m_gbuffers.resize(e.width, e.height);
-  //LOGI("Viewport resize event {}x{}",e.width,e.height)
+  // LOGI("Viewport resize event {}x{}",e.width,e.height)
 
   ImGui_ImplVulkan_RemoveTexture(m_viewportSet);
   m_viewportSet = m_imguiLayer.createViewportTextureId(
-    m_resourceManager.image(m_viewport).view(),
-    m_resourceManager.sampler(m_viewportSampler).handle());
+      m_resourceManager.image(m_viewport).view(),
+      m_resourceManager.sampler(m_viewportSampler).handle());
 }
-
 
 } // namespace vvhl

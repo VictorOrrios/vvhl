@@ -6,6 +6,7 @@
 #include <vvhl/Core/Window.hpp>
 #include <vvhl/Vulkan/Descriptors/DescriptorSet.hpp>
 #include <vvhl/Core/FrameManager.hpp>
+#include <vvhl/Core/EngineContext.hpp>
 #include <vvhl/Events/EventDispatcher.hpp>
 #include <vvhl/ImGui/ImGuiLayer.hpp>
 #include <vvhl/Resources/ResourceManager.hpp>
@@ -31,7 +32,8 @@ public:
   App(const App &) = delete;
   App &operator=(const App &) = delete;
 
-  virtual void destroy() { destroyBase(); };
+  bool initialize(AppConfig config);
+  void destroy();
 
   void run();
 
@@ -50,7 +52,10 @@ protected:
 protected:
   void onFrameBufferResize(const FramebufferResizeEvent& e);
   void onViewportResize(const ViewportResizeEvent& e);
+  EngineContext makeEngineContext();
 
+  virtual bool onAttach() { return true; };
+  virtual void onDestroy() {};
   virtual void onRenderGraphGUI() {};
 
 protected:
@@ -71,7 +76,6 @@ private:
   CommandSystem m_cmdSystem;
   FrameManager m_frameManager;
   ImGuiLayer m_imguiLayer;
-  DescriptorSet m_descSet;
   CommandPool *m_cmdPool = nullptr;
 
   bool m_shouldClose = false;

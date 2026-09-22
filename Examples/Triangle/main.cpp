@@ -3,6 +3,7 @@
 #include "glm/fwd.hpp"
 #include "vvhl/Core/App.hpp"
 #include "vvhl/Core/EngineConfig.hpp"
+#include "vvhl/Core/EngineContext.hpp"
 #include "vvhl/Resources/BufferPresets.hpp"
 #include "vvhl/Resources/GBuffers.hpp"
 #include "vvhl/Resources/ResourceManager.hpp"
@@ -21,17 +22,17 @@ using namespace vvhl;
 class TrianglePass : public RenderPass {
 public:
   struct TrianglePassInput {
-    App *app;
+    EngineContext &ctx;
     GBufferID mainInputOutput;
   };
 
 public:
   bool initialize(TrianglePassInput input) {
-    initializeBase(*input.app);
+    initializeBase(input.ctx);
     m_name = "Triangle pass";
 
     // INPUT
-    m_mainImage = m_gbuffers->get(input.mainInputOutput);
+    m_mainImage = m_ctx.gbuffers->get(input.mainInputOutput);
     m_descPool.accumulate({VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1});
     m_descPool.accumulateSet(1);
 
@@ -43,19 +44,19 @@ public:
 
     BufferCreateDescription vtxBufferInfo = BufferPresets::Vertex;
     vtxBufferInfo.size = vertices.size() * sizeof(glm::vec2);
-    m_vertexBuffer = m_resourceManager->createBuffer(vtxBufferInfo);
+    m_vertexBuffer = m_ctx.resourceManager->createBuffer(vtxBufferInfo);
 
-    CommandBuffer tempCmd = m_cmdPool->beginTemp();
-    m_resourceManager->buffer(m_vertexBuffer)
+    CommandBuffer tempCmd = m_ctx.cmdSystem->transferPool().beginTemp();
+    m_ctx.resourceManager->buffer(m_vertexBuffer)
         .update(tempCmd.handle(), vertices);
     tempCmd.end();
-    m_context->device().graphicsQueue().submit(tempCmd.handle());
-    m_context->device().graphicsQueue().waitIdle();
+    m_ctx.vkContext->device().transferQueue().submit(tempCmd.handle());
+    m_ctx.vkContext->device().graphicsQueue().waitIdle();
 
     // OUTPUT
 
     // DESCRIPTOR POOL
-    m_descPool.create(m_context->device().handle());
+    m_descPool.create(m_ctx.vkContext->device().handle());
 
     // PIPELINES
     m_computePipeline.initialize({
@@ -72,7 +73,7 @@ public:
     };
 
     createInfo.formats.colorFormats.push_back(
-        m_resourceManager->image(m_mainImage).format());
+        m_ctx.resourceManager->image(m_mainImage).format());
     createInfo.colorBlend.attachments.push_back({});
 
     createInfo.vertexInput.attributes.push_back(
@@ -88,9 +89,9 @@ public:
     m_computePipeline.updateDescriptors();
 
     // CONFIG
-    VkExtent2D extent2d = m_resourceManager->image(m_mainImage).extent2D();
+    VkExtent2D extent2d = m_ctx.resourceManager->image(m_mainImage).extent2D();
     RenderingConfig rConf = RenderingConfig::singleColor(
-        m_resourceManager->image(m_mainImage).view(), extent2d);
+        m_ctx.resourceManager->image(m_mainImage).view(), extent2d);
     m_renderer.updateRenderingInfo(rConf);
 
     return true;
@@ -146,15 +147,9 @@ public:
     m_renderer.setViewportAndScissor(cmd);
 
     m_graphicsPipeline.bind(cmd, frameIndex);
-    auto handle = m_resourceManager->buffer(m_vertexBuffer).handle();
+    auto handle = m_ctx.resourceManager->buffer(m_vertexBuffer).handle();
     VkDeviceSize offset = 0;
-    vkCmdBindVertexBuffers(
-        cmd,
-        0,
-        1,
-        &handle,
-        &offset
-    );
+    vkCmdBindVertexBuffers(cmd, 0, 1, &handle, &offset);
     m_graphicsPipeline.draw(cmd, 3);
 
     m_renderer.end(cmd);
@@ -178,9 +173,9 @@ public:
         "outImage",
         {.handle = m_mainImage, .imageLayout = VK_IMAGE_LAYOUT_GENERAL});
     m_computePipeline.updateDescriptors();
-    VkExtent2D extent2d = m_resourceManager->image(m_mainImage).extent2D();
+    VkExtent2D extent2d = m_ctx.resourceManager->image(m_mainImage).extent2D();
     RenderingConfig rConf = RenderingConfig::singleColor(
-        m_resourceManager->image(m_mainImage).view(), extent2d);
+        m_ctx.resourceManager->image(m_mainImage).view(), extent2d);
     m_renderer.updateRenderingInfo(rConf);
   }
 
@@ -197,16 +192,13 @@ class TriangleApp : public App {
   };
 
 public:
-  void initialize(AppConfig config) {
-    initializeBase(config);
-    m_pass.initialize(
-        {.app = this, .mainInputOutput = GBufferIds::RenderTarget});
+  bool onAttach() override {
+    auto ctx = makeEngineContext();
+    return m_pass.initialize(
+        {.ctx=ctx, .mainInputOutput = GBufferIds::RenderTarget});
   }
 
-  void destroy() override {
-    m_pass.destroy();
-    destroyBase();
-  }
+  void onDestroy() override { m_pass.destroy(); }
 
   void onRender(VkCommandBuffer cmd, uint32_t currentFrame) override {
     m_pass.onRender(cmd, currentFrame);

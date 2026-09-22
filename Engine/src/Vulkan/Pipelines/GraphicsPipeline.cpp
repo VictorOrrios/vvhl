@@ -10,12 +10,12 @@ bool GraphicsPipeline::initialize(
   m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
   if (createInfo.renderPass == nullptr ||
-      createInfo.renderPass->context().deviceHandle() == VK_NULL_HANDLE) {
+      createInfo.renderPass->vkContext().deviceHandle() == VK_NULL_HANDLE) {
     LOGE("Pipeline created with empty renderpass reference")
     return false;
   }
 
-  m_device = createInfo.renderPass->context().deviceHandle();
+  m_device = createInfo.renderPass->vkContext().deviceHandle();
   m_flags = createInfo.flags;
   m_pool = &createInfo.renderPass->descriptorPool();
   m_resourceManager = &createInfo.renderPass->resourceManager();
