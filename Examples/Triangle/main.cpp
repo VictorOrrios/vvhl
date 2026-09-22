@@ -50,8 +50,7 @@ public:
     m_ctx.resourceManager->buffer(m_vertexBuffer)
         .update(tempCmd.handle(), vertices);
     tempCmd.end();
-    m_ctx.vkContext->device().transferQueue().submit(tempCmd.handle());
-    m_ctx.vkContext->device().graphicsQueue().waitIdle();
+    m_ctx.cmdSystem->transferQueue().submitWait(tempCmd.handle());
 
     // OUTPUT
 

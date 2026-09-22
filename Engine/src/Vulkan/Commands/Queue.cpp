@@ -1,3 +1,4 @@
+#include "vvhl/Vulkan/Commands/CommandBuffer.hpp"
 #include <vvhl/Vulkan/Commands/Queue.hpp>
 
 namespace vvhl {
@@ -27,5 +28,12 @@ bool Queue::submit(const VkCommandBuffer cmd, VkFence fence) const {
 }
 
 void Queue::waitIdle() const { vkQueueWaitIdle(m_queue); }
+
+bool Queue::submitWait(const VkCommandBuffer cmd){
+    if(!submit(cmd))
+        return false;
+    waitIdle();
+    return true;
+}
 
 } // namespace vvhl

@@ -16,6 +16,7 @@ public:
 
   bool submit(const VkCommandBuffer cmd, VkFence fence = VK_NULL_HANDLE) const;
   bool submit(const VkSubmitInfo &submitInfo, VkFence fence = VK_NULL_HANDLE) const;
+  bool submitWait(const VkCommandBuffer cmd);
   void waitIdle() const;
 
 public:

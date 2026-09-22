@@ -5,6 +5,7 @@ namespace vvhl {
 
 bool CommandSystem::initialize(Device &device) {
   ASSERT(m_pools.empty())
+  m_device = &device;
 
   auto initPoolPtr = [this, &device](CommandPool*& pool, uint32_t family) {
     pool = getOrCreatePool(device, family);
@@ -14,7 +15,7 @@ bool CommandSystem::initialize(Device &device) {
     }
     return true;
   };
-  
+
   return
   initPoolPtr(m_graphicsPool, device.graphicsFamily()) &&
   initPoolPtr(m_computePool, device.computeFamily()) &&
@@ -46,6 +47,7 @@ void CommandSystem::destroy() {
   m_graphicsPool = nullptr;
   m_computePool = nullptr;
   m_transferPool = nullptr;
+  m_device = nullptr;
 }
 
 } // namespace vvhl
