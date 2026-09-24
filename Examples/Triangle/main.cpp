@@ -1,5 +1,6 @@
 // Triangle example for vvhl
 
+// TODO: Wrap everything into a vvhl.hpp, less imports
 #include "glm/fwd.hpp"
 #include "vvhl/Core/App.hpp"
 #include "vvhl/Core/EngineConfig.hpp"
@@ -21,6 +22,8 @@ using namespace vvhl;
 
 class TrianglePass : public RenderPass {
 public:
+  // TODO: Make initializacion more standar, maybe pass engine context as
+  // argument
   struct TrianglePassInput {
     EngineContext &ctx;
     GBufferID mainInputOutput;
@@ -28,11 +31,12 @@ public:
 
 public:
   bool initialize(TrianglePassInput input) {
-    initializeBase(input.ctx);
-    m_name = "Triangle pass";
+    initializeBase(input.ctx); // TODO: This doesn't looks good
 
     // INPUT
     m_mainImage = m_ctx.gbuffers->get(input.mainInputOutput);
+    // TODO: Descriptor pool accumulate doesn't look good.
+    // Make pipelines do it? Research how big is a desc pool in memory
     m_descPool.accumulate({VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1});
     m_descPool.accumulateSet(1);
 
@@ -46,6 +50,8 @@ public:
     vtxBufferInfo.size = vertices.size() * sizeof(glm::vec2);
     m_vertexBuffer = m_ctx.resourceManager->createBuffer(vtxBufferInfo);
 
+    // TODO: Simplify. Maybe merge into a
+    // m_ctx.cmdSystem.transfer.beginTempCmd()/.endTempCmd()
     CommandBuffer tempCmd = m_ctx.cmdSystem->transferPool().beginTemp();
     m_ctx.resourceManager->buffer(m_vertexBuffer)
         .update(tempCmd.handle(), vertices);
@@ -55,9 +61,11 @@ public:
     // OUTPUT
 
     // DESCRIPTOR POOL
+    // TODO: Maybe skip this part, research other engines
     m_descPool.create(m_ctx.vkContext->device().handle());
 
     // PIPELINES
+    // TODO: Create pipelines trough a renderpass manager/function?
     m_computePipeline.initialize({
         .renderPass = this,
         .shaderInput = {"./Examples/Triangle/triangle.slang"},
@@ -69,15 +77,14 @@ public:
 
         .rasterShaders = {.vertex = {"./Examples/Triangle/vertex.slang"},
                           .fragment = {"./Examples/Triangle/fragment.slang"}},
-    };
 
-    createInfo.formats.colorFormats.push_back(
-        m_ctx.resourceManager->image(m_mainImage).format());
-    createInfo.colorBlend.attachments.push_back({});
-
-    createInfo.vertexInput.attributes.push_back(
-        {.format = VK_FORMAT_R32G32_SFLOAT});
-    createInfo.vertexInput.bindings.push_back({.stride = sizeof(glm::vec2)});
+        .colorBlend = {.attachments = {{}}},
+        .formats = {.colorFormats =
+                        {m_ctx.resourceManager->image(m_mainImage).format()}},
+        .vertexInput = {
+            .bindings = {{.stride = sizeof(glm::vec2)}},
+            .attributes = {{.format = VK_FORMAT_R32G32_SFLOAT}},
+        }};
 
     m_graphicsPipeline.initialize(createInfo);
 
@@ -88,6 +95,7 @@ public:
     m_computePipeline.updateDescriptors();
 
     // CONFIG
+    // TODO: Pass resource manager to struct or renderer?
     VkExtent2D extent2d = m_ctx.resourceManager->image(m_mainImage).extent2D();
     RenderingConfig rConf = RenderingConfig::singleColor(
         m_ctx.resourceManager->image(m_mainImage).view(), extent2d);
@@ -97,6 +105,7 @@ public:
   }
 
   void destroy() override {
+    // TODO: Register created pipelines trough manager/functions
     m_computePipeline.destroy();
     m_graphicsPipeline.destroy();
     destroyBase();
@@ -106,6 +115,7 @@ public:
 
     // VK_IMAGE_LAYOUT_GENERAL For compute
     // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL For graphics
+    // TODO: stage might be deducted trough layout and/or access
     m_barriers.imageBarrier(m_mainImage)
         ->toLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         ->stage(VK_PIPELINE_STAGE_2_NONE,
@@ -113,6 +123,7 @@ public:
         ->toAccess(VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT);
     m_barriers.submit(cmd);
 
+    // TODO: Clear color helper
     /*
     VkClearColorValue color;
     color.float32[0] = 1.0f;
@@ -142,9 +153,11 @@ public:
                                groupCount.height, 1);
     */
 
+    // Merge into one
     m_renderer.begin(cmd);
     m_renderer.setViewportAndScissor(cmd);
 
+    // Merge bind and draw
     m_graphicsPipeline.bind(cmd, frameIndex);
     auto handle = m_ctx.resourceManager->buffer(m_vertexBuffer).handle();
     VkDeviceSize offset = 0;
@@ -183,9 +196,11 @@ private:
   GraphicsPipeline m_graphicsPipeline;
   ImageHandle m_mainImage;
   BufferHandle m_vertexBuffer;
+  std::string m_name = "Triangle pass";
 };
 
 class TriangleApp : public App {
+  // TODO: Reserving index 0 for render target might be bad
   enum GBufferIds {
     RenderTarget = 0,
   };
@@ -194,7 +209,7 @@ public:
   bool onAttach() override {
     auto ctx = makeEngineContext();
     return m_pass.initialize(
-        {.ctx=ctx, .mainInputOutput = GBufferIds::RenderTarget});
+        {.ctx = ctx, .mainInputOutput = GBufferIds::RenderTarget});
   }
 
   void onDestroy() override { m_pass.destroy(); }
